@@ -5,6 +5,7 @@
 #include <regi.h>
 #include <stdint.h>
 #include <IO_driver.h>
+#include <interrupts.h>
 #define BUFFER_SIZE 64
 
 static uint8_t shiftL = 0, shiftR = 0;

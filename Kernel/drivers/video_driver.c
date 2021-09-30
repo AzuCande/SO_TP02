@@ -58,7 +58,7 @@ void initVideoDriver() {
 
 void clearDisplay(uint64_t col) {
   uint64_t totalPixels = WIDTH*HEIGHT;
-  uint8_t * curpos = (uint8_t *) FRAME_BUFFER;
+  uint8_t * curpos = (uint8_t *)(uint64_t) FRAME_BUFFER;
   uint8_t b = col & 0x0000FF;
 	uint8_t g = (col >> 8) & 0x0000FF;
 	uint8_t r = (col >> 16) & 0x0000FF;
@@ -116,7 +116,7 @@ void drawLine(uint64_t xStart, uint64_t yStart, uint64_t xEnd, uint64_t yEnd, ui
 
 void drawPixel(uint64_t x, uint64_t y, uint64_t col) {
 		if (!legalCoordinates(x, y)) return;
-    uint8_t * curpos = FRAME_BUFFER;
+    uint8_t * curpos = (uint8_t *)(uint64_t) FRAME_BUFFER;
     curpos+=(x+WIDTH*y)*3;
 
     uint8_t b = col & 0x0000FF;

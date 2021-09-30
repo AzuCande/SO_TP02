@@ -6,6 +6,7 @@
 #include <timer_driver.h>
 #include <regi.h>
 #include <syscalls.h>
+#include <interrupts.h>
 
 static void int_21h(registerStruct *);
 static void int_80h(registerStruct *);

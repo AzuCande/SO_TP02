@@ -20,7 +20,7 @@ static void clearShellLine(int line);
 static void drawShell0Lines();
 static void drawShell1Lines();
 static void drawBottomLine();
-static void clearScreenLine(uint8_t line);
+// static void clearScreenLine(uint8_t line);
 static void drawBottomLine0();
 static void drawBottomLine1();
 static int isCommand(char * name);
@@ -162,15 +162,15 @@ static void drawShell1Lines() {
     }
 }
 
-static void clearScreenLine(uint8_t line){
-  int x = 0;
-  int color = BUTTERFLY_BUSH;
-  if (activeShell == 1) {
-    x = SCREEN_WIDTH/2 + 1;
-    color = 0x101010;
-  }
-  drawRect(x,SCREEN_HEIGHT-BASE_CHAR_HEIGHT*(line+1),SCREEN_WIDTH/2,BASE_CHAR_HEIGHT, color);
-}
+// static void clearScreenLine(uint8_t line){
+//   int x = 0;
+//   int color = BUTTERFLY_BUSH;
+//   if (activeShell == 1) {
+//     x = SCREEN_WIDTH/2 + 1;
+//     color = 0x101010;
+//   }
+//   drawRect(x,SCREEN_HEIGHT-BASE_CHAR_HEIGHT*(line+1),SCREEN_WIDTH/2,BASE_CHAR_HEIGHT, color);
+// }
 
 static void drawBottomLine() {
   if (activeShell == 0)

@@ -9,6 +9,7 @@
 #include <video_driver.h>
 #include <keyboard_driver.h>
 #include <idtLoader.h>
+#include <interrupts.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
