@@ -9,3 +9,10 @@
 
 #Object files
 *.o
+
+#History
+.bash_history
+.bashrc
+.vscode
+
+givepermissions.sh
