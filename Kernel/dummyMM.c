@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
+#include <string.h>
 
 #define MEM_SIZE 1024
 
@@ -36,8 +38,17 @@ int main() {
     initMM();
 
     char * p1 = allocateMM(200);
+    // assert(p1 == NULL);
     char * p2 = allocateMM(500);
+    // assert(p2 == NULL);
     //char * p3 = allocateMM(400);
+
+    strcpy(p1, "Hello world");
+    assert(strcmp(p1, "Hello world") == 0);
+
+    strcpy(p2, p1);
+    assert(strcmp(p1, p2) == 0);
+    printf("Tests cleared\n");
 
     return 0;
 }
