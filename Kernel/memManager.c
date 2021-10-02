@@ -7,8 +7,10 @@
 
 #define TOTAL_HEAP_SIZE (1024*1024)
 #define MIN_BLOCK_SIZE 100
-
-#define configADJUSTED_HEAP_SIZE	( configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
+#define BYTE_ALIGNMENT 8
+#define BYTE_ALIGNMENT_MASK 0x0007
+#define ADJUSTED_HEAP_SIZE	( TOTAL_HEAP_SIZE - BYTE_ALIGNMENT )
+#define POINTER_SIZE_TYPE uint32_t
 
 typedef struct freeBlocksInMemList_t {
     struct freeBlocksInMemList_t * nextFreeBlock;
@@ -103,11 +105,25 @@ void *malloc(size_t sizeRequired) {
 
 void initBlocksMM(void) {
     freeBlocksInMemList_t *firstFreeBlock;
+    uint8_t *alignedHeapPtr;
 
+    //FALTA
 }
 
 void free(void * free){
-    
+    uint8_t *toFree = (uint8_t *) free;
+    freeBlocksInMemList_t *toAddFreeBlock;
+
+    if(toFree != NULL) {
+        //The memory space to be freed will have a freeBlocksMemList_t structure before it
+        toFree -= blockStructSize;
+
+        //Cast to freeBlocksMemList_t * to avoid compilation issues
+        toAddFreeBlock = (freeBlocksInMemList_t *) toFree;
+
+        //Add this new block to the list of free blocks
+        insertFreeBlockOnList(toAddFreeBlock);
+    }
 }
 
 void * allocateMM(size_t size) {
