@@ -1,9 +1,10 @@
-// To compile: gcc -std=c99 -pedantic -Wall dummyMM.c -o dummyMM
-// To execute: ./dummyMM
+// To compile: gcc -std=c99 -pedantic -Wall memManager.c -o memManager
+// To execute: ./memManager
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdint.h>
 
 #define TOTAL_HEAP_SIZE (1024*1024)
 #define MIN_BLOCK_SIZE 100
@@ -12,23 +13,34 @@
 #define ADJUSTED_HEAP_SIZE	( TOTAL_HEAP_SIZE - BYTE_ALIGNMENT )
 #define POINTER_SIZE_TYPE uint32_t
 
-typedef struct freeBlocksInMemList_t {
-    struct freeBlocksInMemList_t * nextFreeBlock;
+typedef struct freeMemList_t {
+    struct freeMemList_t * nextFreeBlock;
     size_t freeBlockSize;
-} freeBlocksInMemList_t;
+}freeMemList_t;
 
-freeBlocksInMemList_t memoryManager = NULL;
-freeBlocksInMemList_t currentMemory = NULL;
+typedef freeMemList_t * freeMemList_p;
 
-freeBlocksInMemList_t startListMem = NULL;
-freeBlocksInMemList_t endListMem = NULL;
+void initBlocksMM();
+void *mallocMemory(size_t sizeRequired);
+void freeMemory(void * free);
+void insertFreeBlockOnList(freeMemList_p block);
+
+uint8_t heap[TOTAL_HEAP_SIZE];
+
+freeMemList_p memoryManager = NULL;
+freeMemList_p currentMemory = NULL;
+
+freeMemList_p startListMem = NULL;
+freeMemList_p endListMem = NULL;
+
+static int freeListInitialised = 0;
 
 static size_t freeRemainingBytes;
-static const size_t blockStructSize = sizeof(freeBlocksInMemList_t);
+static const size_t blockStructSize = sizeof(freeMemList_t);
 
-void insertFreeBlockOnList(freeBlocksInMemList_t * block) {
-    size_t blockSize = block.freeBlockSize;
-    freeBlocksInMemList_t * iterator = startListMem;
+void insertFreeBlockOnList(freeMemList_p block) {
+    size_t blockSize = block->freeBlockSize;
+    freeMemList_p iterator = startListMem;
 
     while(iterator!=NULL && iterator->nextFreeBlock!=NULL && iterator->nextFreeBlock->freeBlockSize < blockSize) {
         iterator = iterator->nextFreeBlock;
@@ -38,7 +50,7 @@ void insertFreeBlockOnList(freeBlocksInMemList_t * block) {
         //List empty
         startListMem = block;
     } else if(iterator == startListMem && iterator->freeBlockSize > blockSize) {
-        //Must be starting block
+        //Must be the starting block
         startListMem = block;
         block->nextFreeBlock = iterator;
     } else {
@@ -50,31 +62,36 @@ void insertFreeBlockOnList(freeBlocksInMemList_t * block) {
     return;
 }
 
-void *malloc(size_t sizeRequired) {
-    freeBlocksInMemList_t *currentBlock, *prevBlock, *newBlockLink;
-    static int freeListInitialised = 0;
+void *mallocMemory(size_t sizeRequired) {
+    freeMemList_p currentBlock, prevBlock, newBlockLink;
+
     void *blockToReturn = NULL;
     
     //If this is the first call to malloc, the heap needs to be initialised in order to create the list of free blocks
     if(!freeListInitialised) {
         initBlocksMM();
-        heapInitialised = 1;
+        freeListInitialised = 1;
     }
 
     if(sizeRequired > 0) {
         sizeRequired += blockStructSize;
+
+        // Ensures alignment of the block
+        if(sizeRequired & BYTE_ALIGNMENT_MASK) {
+            sizeRequired += (BYTE_ALIGNMENT - (sizeRequired & BYTE_ALIGNMENT_MASK));
+        }
     }
 
-    if(sizeRequired < configADJUSTED_HEAP_SIZE) {
-        prevBlock = &startListMem;
-        currentBlock = startListMem.nextFreeBlock;
+    if(sizeRequired < freeRemainingBytes) { //antes estaba ADJUSTED_HEAP_SIZE
+        prevBlock = startListMem;
+        currentBlock = startListMem->nextFreeBlock;
 
         while((currentBlock->freeBlockSize < sizeRequired) && (currentBlock->nextFreeBlock != NULL)) {
             prevBlock = currentBlock;
             currentBlock = currentBlock->nextFreeBlock;
         }
 
-        if(currentBlock != &endListMem) {
+        if(currentBlock != endListMem) {
             //Return the memory space desired
             blockToReturn = (void *) ( ( (uint8_t *) prevBlock->nextFreeBlock) + blockStructSize);
 
@@ -84,7 +101,7 @@ void *malloc(size_t sizeRequired) {
             //If the block is larger than required, it can be split into two
             if( (currentBlock->freeBlockSize - sizeRequired) > MIN_BLOCK_SIZE) {
                 //To split the block into two, a new block will be created with the number of bytes requested.
-                newBlockLink = (void *) (((uint8_t) currentBlock) + sizeRequired);
+                newBlockLink = (void *) (((uint8_t *) currentBlock) + sizeRequired);
 
                 //Calculate the size fo both blocks created from splitting the original one
                 newBlockLink->freeBlockSize = currentBlock->freeBlockSize - sizeRequired;
@@ -103,53 +120,50 @@ void *malloc(size_t sizeRequired) {
 }
 
 
-void initBlocksMM(void) {
-    freeBlocksInMemList_t *firstFreeBlock;
+void initBlocksMM() {
+    freeMemList_p firstFreeBlock;
     uint8_t *alignedHeapPtr;
 
-    //FALTA
+    // Ensures that the heap starts on a correct aligned boundary
+    alignedHeapPtr = (uint8_t *) ( ( (POINTER_SIZE_TYPE) &heap[BYTE_ALIGNMENT]) & ( ~( ( POINTER_SIZE_TYPE ) BYTE_ALIGNMENT_MASK ) ) );
+
+    // startListMem is used to refer to the first item in the list of free blocks
+    startListMem->nextFreeBlock = (void *) alignedHeapPtr;
+    startListMem->freeBlockSize = (size_t) 0;
+
+    // endListMem is used to mark the end of the list of free blocks
+    endListMem->freeBlockSize = ADJUSTED_HEAP_SIZE;
+    endListMem->nextFreeBlock = NULL;
+
+    // Prepares a single first block in the freeMem List
+    firstFreeBlock = (void *) alignedHeapPtr;
+    firstFreeBlock->freeBlockSize = ADJUSTED_HEAP_SIZE;
+    firstFreeBlock->nextFreeBlock = endListMem;
+
+    freeRemainingBytes = firstFreeBlock->freeBlockSize;
 }
 
-void free(void * free){
+void freeMemory(void * free){
     uint8_t *toFree = (uint8_t *) free;
-    freeBlocksInMemList_t *toAddFreeBlock;
+    freeMemList_p toAddFreeBlock;
 
     if(toFree != NULL) {
         //The memory space to be freed will have a freeBlocksMemList_t structure before it
         toFree -= blockStructSize;
 
         //Cast to freeBlocksMemList_t * to avoid compilation issues
-        toAddFreeBlock = (freeBlocksInMemList_t *) toFree;
+        toAddFreeBlock = (freeMemList_t *) toFree;
 
         //Add this new block to the list of free blocks
         insertFreeBlockOnList(toAddFreeBlock);
     }
 }
 
-void * allocateMM(size_t size) {
+int main(){
 
-    if(currentMM == NULL){
-        perror("Error memory not initialized");
-        exit(1);
-    }
 
-    if(size>MEM_SIZE || memory+MEM_SIZE<currentMM+size){
-        perror("Error allocating memory");
-        exit(1);
-    }
+    void * m1 = mallocMemory(100);
 
-    void * aux = currentMM;
-    currentMM += size;
-    return aux;
-}
-
-int main() {
-
-    initMM();
-
-    char * p1 = allocateMM(200);
-    char * p2 = allocateMM(500);
-    //char * p3 = allocateMM(400);
-
+    freeMemory(m1);
     return 0;
 }
