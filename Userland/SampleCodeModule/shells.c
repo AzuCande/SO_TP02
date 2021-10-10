@@ -10,25 +10,19 @@
 #include <syscalls_asm.h>
 
 #define TOTAL_LINES 63
-#define MAX_LINE_LENGTH 65
+#define MAX_LINE_LENGTH 129
 void updateShell(char * buff, int dim);
 void writeToLines(char * buff, int dim);
 void changeActiveShell();
 void addLine();
 void keyPressedShell(char ch);
 static void clearShellLine(int line);
-static void drawShell0Lines();
-static void drawShell1Lines();
 static void drawBottomLine();
-// static void clearScreenLine(uint8_t line);
-static void drawBottomLine0();
-static void drawBottomLine1();
 static int isCommand(char * name);
 
-static char lines[2][TOTAL_LINES][MAX_LINE_LENGTH];
-static int currentLine[] = {0, 0};
-static int lineCursor[] = {0, 0};
-static int activeShell = 1;
+static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
+static int currentLine = 0;
+static int lineCursor = 0;
 
 char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo"};
 void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo};
@@ -37,12 +31,9 @@ static int totalCommands = 8;
 void init_shell(uint64_t errCode) {
     for (int i = 0; i < TOTAL_LINES; i++) {
         for (int j = 0; j < TOTAL_LINES; j++) {
-            lines[0][i][j] = 0;
-            lines[1][i][j] = 0;
+            lines[i][j] = 0;
         }
     }
-
-    setFunctionKey(1,changeActiveShell);
     setConsoleUpdateFunction(updateShell);
 
     if (errCode < 32) {
@@ -83,125 +74,67 @@ void init_shell(uint64_t errCode) {
 
 void writeToLines(char * buff, int dim) {
     for (int i = 0; i < dim && buff[i] != 0 && i < MAX_LINE_LENGTH; i++) {
-        if (buff[i] == '\n' || lineCursor[activeShell] == (MAX_LINE_LENGTH - 3)) { //El -3 es para que el ultimo elemento sea un 0 y no toma en cuanta los "> "
-            if (lineCursor[activeShell] > 0) {
+        if (buff[i] == '\n' || lineCursor == (MAX_LINE_LENGTH - 3)) { //El -3 es para que el ultimo elemento sea un 0 y no toma en cuanta los "> "
+            if (lineCursor > 0) {
                 addLine();
             }
-        } else if (buff[i] == '\b' && lineCursor[activeShell] > 0) {
-            lines[activeShell][currentLine[activeShell] % (TOTAL_LINES-1)][lineCursor[activeShell]-1] = lines[activeShell][currentLine[activeShell] % (TOTAL_LINES-1)][lineCursor[activeShell]];
-            lineCursor[activeShell]-=lineCursor[activeShell]==0?0:1;
+        } else if (buff[i] == '\b' && lineCursor > 0) {
+            lines[currentLine % (TOTAL_LINES-1)][lineCursor-1] = lines[currentLine % (TOTAL_LINES-1)][lineCursor];
+            lineCursor-=lineCursor==0?0:1;
         } else {
-            lines[activeShell][currentLine[activeShell] % (TOTAL_LINES-1)][lineCursor[activeShell]] = buff[i];
-            lineCursor[activeShell]++;
+            lines[currentLine % (TOTAL_LINES-1)][lineCursor] = buff[i];
+            lineCursor++;
         }
     }
     drawBottomLine();
     return;
 }
 
-void changeActiveShell() {
-    activeShell = ((activeShell)? 0 : 1);
-    drawBottomLine1();
-    drawBottomLine0();
-}
 
 void updateShell(char * buff, int dim) {
     writeToLines(buff, dim);
 }
 
 void addLine() {
-    currentLine[activeShell]++;
-    clearShellLine(currentLine[activeShell]);
-    lineCursor[activeShell] = 0;
+    currentLine++;
+    clearShellLine(currentLine);
+    lineCursor = 0;
     drawShellLines();
 }
 
 static void clearShellLine(int line) {
     for (int i = 0; i < MAX_LINE_LENGTH; i++) {
-        lines[activeShell][line%(TOTAL_LINES-1)][i] = 0;
+        lines[line%(TOTAL_LINES-1)][i] = 0;
     }
 }
 
 
 void drawShellLines() {
-    drawShell0Lines();
-    drawShell1Lines();
+  drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x101010);
+  int y = SCREEN_HEIGHT;
+  int x = 0;
+  for (int i = 0; i >= -TOTAL_LINES && i >= -currentLine; i--) {
+      y-=BASE_CHAR_HEIGHT;
+      if (i == 0) {
+          drawString(0, y, "> ", 3, 0xFF0000, 0x101010, 1, 0);
+          x += BASE_CHAR_WIDTH*2;
+      } else {
+          x = 0;
+      }
+      if (lines[(i+currentLine)%(TOTAL_LINES-1)][0] == 0) continue;
+      drawString(x, y, lines[(i+currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, LIGHT_GRAY, 0x101010, 1, 0);
+  }
 }
-
-static void drawShell0Lines() {
-    drawRect(0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT, BUTTERFLY_BUSH);
-    int y = SCREEN_HEIGHT;
-    int x = 0;
-    for (int i = 0; i >= -TOTAL_LINES && i >= -currentLine[0]; i--) {
-        y-=BASE_CHAR_HEIGHT;
-        if (i == 0 && activeShell == 0) {
-            drawString(0, y, "> ", 3, 0xF2E124, BUTTERFLY_BUSH, 1, 0);
-            x += BASE_CHAR_WIDTH*2;
-        } else {
-            x = 0;
-        }
-        if (lines[0][(i+currentLine[0])%(TOTAL_LINES-1)][0] == 0) continue;
-        drawString(x, y, lines[0][(i+currentLine[0])%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, WHITE, BUTTERFLY_BUSH, 1, 0);
-    }
-}
-
-static void drawShell1Lines() {
-    drawRect(SCREEN_WIDTH/2+1, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT, 0x101010);
-    int y = SCREEN_HEIGHT;
-    int x = SCREEN_WIDTH/2+1;
-    for (int i = 0; i >= -TOTAL_LINES && i >= -currentLine[1]; i--) {
-        y-=BASE_CHAR_HEIGHT;
-        if (i == 0 && activeShell == 1) {
-            drawString(x, y, "> ", 3, 0xFF0000, 0x101010, 1, 0);
-            x += BASE_CHAR_WIDTH*2;
-        } else {
-            x = SCREEN_WIDTH/2+1;
-        }
-        if (lines[1][(i+currentLine[1])%(TOTAL_LINES-1)][0] == 0) continue;
-        drawString(x, y, lines[1][(i+currentLine[1])%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, LIGHT_GRAY, 0x101010, 1, 0);
-    }
-}
-
-// static void clearScreenLine(uint8_t line){
-//   int x = 0;
-//   int color = BUTTERFLY_BUSH;
-//   if (activeShell == 1) {
-//     x = SCREEN_WIDTH/2 + 1;
-//     color = 0x101010;
-//   }
-//   drawRect(x,SCREEN_HEIGHT-BASE_CHAR_HEIGHT*(line+1),SCREEN_WIDTH/2,BASE_CHAR_HEIGHT, color);
-// }
 
 static void drawBottomLine() {
-  if (activeShell == 0)
-    drawBottomLine0();
-  else drawBottomLine1();
-}
-
-static void drawBottomLine0() {
   int x = 0;
-  int bkgColor = BUTTERFLY_BUSH;
-  drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH/2, BASE_CHAR_HEIGHT, bkgColor);
+  int bkgColor = 0x101010;
+  drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH, BASE_CHAR_HEIGHT, bkgColor);
   int fontColor = WHITE;
   int arrowColor = 0xF2E124;
-  if (activeShell == 0) {
-    drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
-    x += BASE_CHAR_WIDTH*2;
-  }
-  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[0][(currentLine[0])%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
-}
-
-static void drawBottomLine1() {
-  int x = SCREEN_WIDTH/2 + 1;
-  int bkgColor = 0x101010;
-  drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH/2, BASE_CHAR_HEIGHT, bkgColor);
-  int fontColor = LIGHT_GRAY;
-  int arrowColor = 0xFF0000;
-  if (activeShell == 1) {
-    drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
-    x += BASE_CHAR_WIDTH*2;
-  }
-  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[1][(currentLine[1])%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
+  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
+  x += BASE_CHAR_WIDTH*2;
+  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[(currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
 }
 
 //ejecutaria los commands
@@ -242,15 +175,15 @@ static int isCommand(char * name){
 
 void keyPressedShell(char ch) {
   if (ch) {
-    if (ch == '\n' && lineCursor[activeShell] > 0) {
-      exeCommand(lines[activeShell][(currentLine[activeShell])%(TOTAL_LINES-1)]);
+    if (ch == '\n' && lineCursor > 0) {
+      exeCommand(lines[(currentLine)%(TOTAL_LINES-1)]);
     }
     putChar(ch);
   }
 }
 
 void clearAll() {
-    currentLine[activeShell] = 0;
+    currentLine = 0;
     clearShellLine(0);
 }
 
