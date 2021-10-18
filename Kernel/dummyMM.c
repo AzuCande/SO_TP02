@@ -20,6 +20,60 @@ char * currentMM = NULL;
 #ifdef BUDDY
 /* Here starts the 'Buddy' Memory Manager */
 
+#define HEADER_SIZE 8
+#define MIN_ALLOC_LOG2 4
+#define MAX_ALLOC_LOG2 30 // Nos fijamos despues
+#define LEVELS_COUNT (MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1)
+#define MIN_ALLOC (1<<(MIN_ALLOC_LOG2))
+#define MAX_ALLOC (1<<(MAX_ALLOC_LOG2))
+
+typedef struct block_t {
+    struct block_t *nextBlock;
+    size_t level;
+} block_t
+
+// Array with pointer to block list per level
+static block_t *blockListsPtr[LEVELS_COUNT];
+// Array of occupied blocks
+static block_t *occupiedBlocks;
+
+// Ordered list
+void insertNewBlock(void *blockToAdd, size_t level) {
+    block_t * blockPtr = blockListsPtr[level];
+    block_t * toAdd = (block_t *) blockToAdd;
+    toAdd->level = level;
+
+    // If there is no block in this level, add this new block as first
+    if(blockPtr == NULL) {
+        blockListsPtr[level] = toAdd;
+        toAdd->nextBlock = NULL;
+        return;
+    } 
+
+    // If memory address of toAdd is lower than the first one in the list,
+    // then now toAdd is the first block
+    if(toAdd < blockPtr) {
+        toAdd->nextBlock = blockPtr;
+        blockListsPtr[level] = toAdd;
+        return;
+    }
+
+    // Else, find the position to place the new block in the list
+    while(blockPtr->nextBlock != NULL && toAdd > blockPtr->nextBlock) {
+        blockPtr = blockPtr->nextBlock;
+    }
+    if(blockPtr->nextBlock == NULL) {
+        blockPtr->nextBlock = toAdd;
+        toAdd->nextBlock = NULL;
+    } else {
+        toAdd->nextBlock = blockPtr->nextBlock;
+        blockPtr->nextBlock = toAdd;
+    }
+}
+
+void addOccupiedBlock(void *blockToAdd) {
+    // TODO
+}
 // void initMM() {
 //     currentMM = memory;
 // }
