@@ -20,22 +20,41 @@ char * currentMM = NULL;
 #ifdef BUDDY
 /* Here starts the 'Buddy' Memory Manager */
 
-#define HEADER_SIZE 8
-#define MIN_ALLOC_LOG2 4
-#define MAX_ALLOC_LOG2 30 // Nos fijamos despues
-#define LEVELS_COUNT (MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1)
-#define MIN_ALLOC (1<<(MIN_ALLOC_LOG2))
-#define MAX_ALLOC (1<<(MAX_ALLOC_LOG2))
-
 typedef struct block_t {
     struct block_t *nextBlock;
     size_t level;
 } block_t
 
+#define HEADER_SIZE sizeof(block_t)
+#define MIN_ALLOC_LOG2 4
+#define MAX_ALLOC_LOG2 30 // Nos fijamos despues
+#define LEVELS_COUNT (MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1)
+#define MIN_ALLOC (1<<(MIN_ALLOC_LOG2))
+#define MAX_ALLOC (1<<(MAX_ALLOC_LOG2))
+#define POW(x) (1<<(x))
+#define SIZE_OF_BLOCK_LIST(currentLevel) (size_t) POW(MAX_ALLOC_LOG2 - (currentLevel))
+
+
 // Array with pointer to block list per level
 static block_t *blockListsPtr[LEVELS_COUNT];
 // Array of occupied blocks
 static block_t *occupiedBlocks;
+
+void *mallocMemory(size_t sizeRequired) {
+    sizeRequired += HEADER_SIZE;
+
+    // Check if there is memory available
+    if(sizeRequired > getRemainingBytes()) {
+        return NULL;
+    }
+
+    size_t level = getBlockLevel(sizeRequired);
+    if(level == -1) {
+        return NULL;
+    }
+
+    // FIJARSE SI LO HACEMOS RECURSIVO O NO
+}
 
 // Ordered list
 void insertNewBlock(void *blockToAdd, size_t level) {
@@ -73,6 +92,42 @@ void insertNewBlock(void *blockToAdd, size_t level) {
 
 void addOccupiedBlock(void *blockToAdd) {
     // TODO
+}
+
+size_t getBlockLevel(size_t size) {
+    size_t level = 0;
+    size_t totalBytes = MAX_ALLOC_LOG2;
+
+    // If the size requested is larger than the maximum offered
+    if(size > totalBytes) {
+        return -1;
+    }
+    while(level < LEVELS_COUNT) {
+        if(size < totalBytes) {
+            level++;
+            totalBytes <<= 1;
+        } else {
+            if(size == totalBytes) {
+                return level;
+            } else {
+                return level - 1;
+            }
+        }
+    }
+    return LEVELS_COUNT;
+}
+
+void freeMemory(void * free) {
+
+}
+
+size_t getRemainingBytes() {
+    int level = 0;
+    // Find current level
+    while(blockListsPtr[i] == NULL) {
+        level++;
+    }
+    return SIZE_OF_BLOCK_LIST(level);
 }
 // void initMM() {
 //     currentMM = memory;
