@@ -38,7 +38,7 @@ typedef struct block_t {
 // Array with pointer to block list per level
 static block_t *blockListsPtr[LEVELS_COUNT];
 // Array of occupied blocks
-static block_t *occupiedBlocks;
+static block_t *occupiedBlockList;
 
 void *mallocMemory(size_t sizeRequired) {
     sizeRequired += HEADER_SIZE;
@@ -49,11 +49,19 @@ void *mallocMemory(size_t sizeRequired) {
     }
 
     size_t level = getBlockLevel(sizeRequired);
+    // Not enough space
     if(level == -1) {
         return NULL;
     }
 
     // FIJARSE SI LO HACEMOS RECURSIVO O NO
+}
+void mallocMemoryRec(size_t level) {
+    void *blockAux;
+    if(blockListsPtr[level] == NULL) {
+        blockAux = mallocMemoryRec;
+        //TODO
+    }
 }
 
 // Ordered list
@@ -90,8 +98,25 @@ void insertNewBlock(void *blockToAdd, size_t level) {
     }
 }
 
-void addOccupiedBlock(void *blockToAdd) {
-    // TODO
+// The occupied blocks will be inserted at the end of the list
+void addOccupiedBlock(void *blockToAdd, size_t level) {
+
+    // First occupied block to add
+    if(occupiedBlockList == NULL) {
+        occupiedBlockList = (block_t *) blockToAdd;
+        blockToAdd->level = level;
+        blockToAdd->nextBlock = NULL;
+    } else {
+        block_t * occupiedBlockPtr = occupiedBlockList;
+        block_t * newBlock = (block_t *) blockToAdd;
+        // Go to the end of the list
+        while(occupiedBlockPtr->nextBlock != NULL) {
+            occupiedBlockPtr = occupiedBlockPtr->nextBlock;
+        }
+        occupiedBlockPtr->nextBlock = newBlock;
+        newBlock->nextBlock = NULL;
+        newBlock->level = level;
+    }
 }
 
 size_t getBlockLevel(size_t size) {
