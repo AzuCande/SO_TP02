@@ -16,3 +16,4 @@
 .vscode
 
 givepermissions.sh
+.DS_Store
