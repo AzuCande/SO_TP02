@@ -36,7 +36,7 @@ typedef struct block_t {
 
 
 // Array with pointer to block list per level
-static block_t *blockListsPtr[LEVELS_COUNT];
+static block_t *freeBlocks[LEVELS_COUNT];
 // Array of occupied blocks
 static block_t *occupiedBlockList;
 
@@ -58,7 +58,7 @@ void *mallocMemory(size_t sizeRequired) {
 }
 void mallocMemoryRec(size_t level) {
     void *blockAux;
-    if(blockListsPtr[level] == NULL) {
+    if(freeBlocks[level] == NULL) {
         blockAux = mallocMemoryRec;
         //TODO
     }
@@ -66,13 +66,13 @@ void mallocMemoryRec(size_t level) {
 
 // Ordered list
 void insertNewBlock(void *blockToAdd, size_t level) {
-    block_t * blockPtr = blockListsPtr[level];
+    block_t * blockPtr = freeBlocks[level];
     block_t * toAdd = (block_t *) blockToAdd;
     toAdd->level = level;
 
     // If there is no block in this level, add this new block as first
     if(blockPtr == NULL) {
-        blockListsPtr[level] = toAdd;
+        freeBlocks[level] = toAdd;
         toAdd->nextBlock = NULL;
         return;
     } 
@@ -81,7 +81,7 @@ void insertNewBlock(void *blockToAdd, size_t level) {
     // then now toAdd is the first block
     if(toAdd < blockPtr) {
         toAdd->nextBlock = blockPtr;
-        blockListsPtr[level] = toAdd;
+        freeBlocks[level] = toAdd;
         return;
     }
 
@@ -149,7 +149,7 @@ void freeMemory(void * free) {
 size_t getRemainingBytes() {
     int level = 0;
     // Find current level
-    while(blockListsPtr[i] == NULL) {
+    while(freeBlocks[i] == NULL) {
         level++;
     }
     return SIZE_OF_BLOCK_LIST(level);
