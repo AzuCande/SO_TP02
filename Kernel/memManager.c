@@ -159,11 +159,11 @@ void freeMemory(void * free){
     }
 }
 
-int main(){
+// int main(){
 
 
-    void * m1 = mallocMemory(100);
+//     void * m1 = mallocMemory(100);
 
-    freeMemory(m1);
-    return 0;
-}
+//     freeMemory(m1);
+//     return 0;
+// }

@@ -110,31 +110,30 @@ static void clearShellLine(int line) {
 
 
 void drawShellLines() {
-  drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x101010);
+  clearScreen(BLACK);
   int y = SCREEN_HEIGHT;
   int x = 0;
   for (int i = 0; i >= -TOTAL_LINES && i >= -currentLine; i--) {
       y-=BASE_CHAR_HEIGHT;
       if (i == 0) {
-          drawString(0, y, "> ", 3, 0xFF0000, 0x101010, 1, 0);
+          drawString(0, y, "> ", 3, LIGHT_GRAY, BLACK, 1, 0);
           x += BASE_CHAR_WIDTH*2;
       } else {
           x = 0;
       }
       if (lines[(i+currentLine)%(TOTAL_LINES-1)][0] == 0) continue;
-      drawString(x, y, lines[(i+currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, LIGHT_GRAY, 0x101010, 1, 0);
+      drawString(x, y, lines[(i+currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, LIGHT_GRAY, BLACK, 1, 0);
   }
 }
 
 static void drawBottomLine() {
   int x = 0;
-  int bkgColor = 0x101010;
+  int bkgColor = BLACK;
   drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH, BASE_CHAR_HEIGHT, bkgColor);
-  int fontColor = WHITE;
+  int fontColor = LIGHT_GRAY;
   int arrowColor = 0xF2E124;
   drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
-  x += BASE_CHAR_WIDTH*2;
-  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[(currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
+  drawString(BASE_CHAR_WIDTH*2, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[(currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
 }
 
 //ejecutaria los commands
