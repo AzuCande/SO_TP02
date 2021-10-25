@@ -1,9 +1,5 @@
-#include <listForBuddy.h>
-
-typedef struct listBuddy {
-    struct listBuddy *left;
-    struct listBuddy *right;
-} listBuddy;
+#include <stdio.h>
+#include "include/listForBuddy.h"
 
 static void listInit(listBuddy *list) {
     list->prev = list;
@@ -27,7 +23,8 @@ static void listRemove(listBuddy *entry) {
 
 static listBuddy *listPop(listBuddy *list) {
     listBuddy *back = list->prev;
-    if (back == list) return NULL;
+    if (back == list) 
+        return NULL;
     removeFromList(back);
     return back;
 }
