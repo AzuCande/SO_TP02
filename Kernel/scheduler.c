@@ -4,12 +4,13 @@
 
 unsigned int pidBaptize = START_PID_BAPTIZER;
 
-void setProcessData(processData * p, unsigned int pid, char * name) {
+void setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground
+) {
     p->pid = pid;
     p->name[0]=0;
     strcpy(p->name, name);
-    
-    p->foreground;
+
+    p->foreground = foreground;
     p->priority;
     p->state = READY;
 
