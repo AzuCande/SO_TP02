@@ -1,13 +1,14 @@
 #ifndef SHELLS
 #define SHELLS
-#include <stdGraphics.h>
-#include <colors.h>
+
+#include "include/stdGraphics.h"
+#include "include/colors.h"
 #include <stdint.h>
 #include <stdio.h>
-#include <shells.h>
-#include <commands.h>
+#include "include/shells.h"
+#include "include/commands.h"
 #include <stdlib.h>
-#include <syscalls_asm.h>
+#include "include/syscalls_asm.h"
 
 #define TOTAL_LINES 63
 #define MAX_LINE_LENGTH 129
@@ -48,7 +49,7 @@ void init_shell(uint64_t errCode) {
         }
         printf("REGISTERS STATUS:\n");
         printf("R15: %X - R14: %X\n", registers[18], registers[17]);
-	    printf("R13: %X - R12: %X\n", registers[16], registers[15]);
+	      printf("R13: %X - R12: %X\n", registers[16], registers[15]);
         printf("R11: %X - R10: %X\n", registers[14], registers[13]);
         printf("R9: %X - R8: %X\n", registers[12], registers[11]);
         printf("RSI: %X - RDI: %X\n", registers[10], registers[9]);
@@ -127,58 +128,59 @@ void drawShellLines() {
 }
 
 static void drawBottomLine() {
-  int x = 0;
-  int bkgColor = BLACK;
-  drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH, BASE_CHAR_HEIGHT, bkgColor);
-  int fontColor = LIGHT_GRAY;
-  int arrowColor = 0xF2E124;
-  drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
-  drawString(BASE_CHAR_WIDTH*2, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[(currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
+    int x = 0;
+    int bkgColor = BLACK;
+    drawRect(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, SCREEN_WIDTH, BASE_CHAR_HEIGHT, bkgColor);
+    int fontColor = LIGHT_GRAY;
+    int arrowColor = 0xF2E124;
+    drawString(x, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, "> ", 3, arrowColor, bkgColor, 1, 0);
+    drawString(BASE_CHAR_WIDTH*2, SCREEN_HEIGHT-BASE_CHAR_HEIGHT, lines[(currentLine)%(TOTAL_LINES-1)], MAX_LINE_LENGTH-1, fontColor, bkgColor, 1, 0);
 }
 
-//ejecutaria los commands
+
 static void exeCommand(char * line) {
-  char commandArgs[8][32] = {{0}}; //Maximo 8 argumentos de 32 caracteres c/u
-  int foundArgs = 0;
-  int index = 0;
-  int nameIndex = 0;
-  while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
-    if (line[index] != ' ' && line[index] != '-') {
-      commandArgs[foundArgs][nameIndex++] = line[index];
+    char commandArgs[8][32] = {{0}}; //Max of 8 arguments with 32 chars each
+    int foundArgs = 0;
+    int index = 0;
+    int nameIndex = 0;
+    while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
+        if (line[index] != ' ' && line[index] != '-') {
+            commandArgs[foundArgs][nameIndex++] = line[index];
+        }
+        else if (line[index] == ' ') {
+            foundArgs++;
+            nameIndex = 0;
+        }
+        index++;
     }
-    else if (line[index] == ' ') {
-      foundArgs++;
-      nameIndex = 0;
-    }
-    index++;
-  }
 
-    int i = isCommand(commandArgs[0]);
-    if (i >= 0) {
-      run[i](commandArgs);
-    } else {
-      printf(" - INVALID COMMAND");
-    }
+      int i = isCommand(commandArgs[0]);
+      if (i >= 0) {
+          run[i](commandArgs);
+      } else {
+          printf(" - INVALID COMMAND");
+      }
 
 }
 
-//devuelve que comando es si no esta  devuelve -1
+// Returns which command is it
+// Returns -1 if it does not exist
 static int isCommand(char * name){
-  for (int i = 0; i < totalCommands; i++) {
-    if (!strcmp(commandsNames[i],name)){
-      return i;
+    for (int i = 0; i < totalCommands; i++) {
+        if (!strcmp(commandsNames[i],name)){
+            return i;
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
 void keyPressedShell(char ch) {
-  if (ch) {
-    if (ch == '\n' && lineCursor > 0) {
-      exeCommand(lines[(currentLine)%(TOTAL_LINES-1)]);
+    if (ch) {
+        if (ch == '\n' && lineCursor > 0) {
+            exeCommand(lines[(currentLine)%(TOTAL_LINES-1)]);
+        }
+        putChar(ch);
     }
-    putChar(ch);
-  }
 }
 
 void clearAll() {

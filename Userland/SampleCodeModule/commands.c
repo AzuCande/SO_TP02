@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include <commands.h>
+#include "include/commands.h"
 #include <stdlib.h>
-#include <stdGraphics.h>
+#include "include/stdGraphics.h"
 #include <time.h>
-#include <inforeg.h>
-#include <shells.h>
+#include "include/inforeg.h"
+#include "include/shells.h"
 #include <stdint.h>
-#include <syscalls_asm.h>
-#include <exceptions_asm.h>
+#include "include/syscalls_asm.h"
+#include "include/exceptions_asm.h"
 
 static void format(char *str, int value);
 

@@ -1,5 +1,3 @@
-// To compile: gcc -std=c99 -pedantic -Wall memManager.c -o memManager
-// To execute: ./memManager
 
 #include "include/memManager.h"
 

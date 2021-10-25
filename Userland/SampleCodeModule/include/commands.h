@@ -1,5 +1,6 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
+
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
 
