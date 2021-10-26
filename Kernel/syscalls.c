@@ -9,6 +9,7 @@
 #include <font.h>
 #include <IO_driver.h>
 #include <exceptions.h>
+#include <memManager.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
@@ -92,6 +93,16 @@ void syscallHandler(registerStruct * registers) {
     //rdi -> indice de la tecla de funcion (de 1 (F1) a 10 (F10))
     //rsi -> puntero a la funcion tipo void foo()
     setFunctionKeyMethod(registers->rdi, (void (*)())registers->rsi);
+    break;
+
+    case 14:
+    //rdi -> tamaño de memoria pedido
+    mallocMemory(registers->rdi);
+    break;
+
+    case 15:
+    //rdi -> puntero al bloque a liberar
+    freeMemory((void *) registers->rdi);
   }
 }
 

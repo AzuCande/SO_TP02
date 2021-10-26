@@ -9,6 +9,8 @@ GLOBAL getTicksSyscall
 GLOBAL getRegistersSyscall
 GLOBAL getMemSyscall
 GLOBAL readErrorSyscall
+GLOBAL mallocSyscall
+GLOBAL freeSyscall
 
 section .text
 
@@ -132,6 +134,28 @@ readErrorSyscall:
     mov rbp, rsp
 
     mov rax, 12 ;ID readError
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+mallocSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 14
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+freeSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 15
     int 80h
 
     mov rsp, rbp

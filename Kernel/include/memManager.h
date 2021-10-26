@@ -1,15 +1,13 @@
 #ifndef MEM_MANAGER_H
 #define MEM_MANAGER_H
 
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <stdint.h>
-#include <assert.h>
-#include <string.h>
 #include <listForBuddy.h>
 
 #define TOTAL_HEAP_SIZE (1024*1024)
+#define MEM_SIZE (64*1024*1024)
 #define MIN_BLOCK_SIZE 100
 #define BYTE_ALIGNMENT 8
 #define BYTE_ALIGNMENT_MASK 0x0007
@@ -25,13 +23,15 @@
 
 typedef struct freeMemList_t {
     struct freeMemList_t * nextFreeBlock;
-    size_t freeBlockSize;
+    uint64_t freeBlockSize;
 }freeMemList_t;
+
+static void * memoryPosition = (void *) 0x600000;
 
 typedef freeMemList_t * freeMemList_p;
 
-void initBlocksMM();
-void *mallocMemory(size_t sizeRequired);
+void initMemory();
+void *mallocMemory(unsigned long sizeRequired);
 void freeMemory(void * free);
 void insertFreeBlockOnList(freeMemList_p block);
 

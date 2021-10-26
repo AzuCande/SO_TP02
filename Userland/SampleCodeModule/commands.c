@@ -115,3 +115,16 @@ void divzero(char args[MAX_ARGS][MAX_ARG_LEN]) {
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
     _invalidopcode();
 }
+
+void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return;
+}
+
+void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return;
+}
+
+void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    test_mm();
+    return;
+}

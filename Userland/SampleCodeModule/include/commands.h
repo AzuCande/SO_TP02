@@ -12,5 +12,8 @@ void echo(char args[MAX_ARGS][MAX_ARG_LEN]);
 void printmem(char args[MAX_ARGS][MAX_ARG_LEN]);
 void divzero(char args[MAX_ARGS][MAX_ARG_LEN]);
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]);
+void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 #endif

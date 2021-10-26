@@ -12,7 +12,7 @@ typedef struct processData {
     char name[STRING_SIZE];
 
     unsigned int foreground;
-    unsigned int pid;
+    // unsigned int pid;
     unsigned int priority;
     enum processState state;
 

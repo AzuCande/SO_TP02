@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "include/listForBuddy.h"
+#include <listForBuddy.h>
 
 static void listInit(listBuddy *list) {
     list->prev = list;
@@ -25,6 +25,6 @@ static listBuddy *listPop(listBuddy *list) {
     listBuddy *back = list->prev;
     if (back == list) 
         return NULL;
-    removeFromList(back);
+    listRemove(back);
     return back;
 }

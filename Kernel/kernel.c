@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <string.h>
+// #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
@@ -10,6 +10,7 @@
 #include <keyboard_driver.h>
 #include <idtLoader.h>
 #include <interrupts.h>
+#include <memManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -92,6 +93,7 @@ int main()
 	loadIdt();
 	initVideoDriver();
 	initializeFunctionKeys();
+	initMemory();
 
 	//Test para printmem
 	// uint8_t * pos = 0x12345678;
