@@ -3,7 +3,7 @@
 ## Autores:
 * De Luca, Juan Manuel - 60103 - jdeluca@itba.edu.ar
 * Kim, Azul Candelaria - 60264 - azkim@itba.edu.ar
-* López Guzmán, Pedro Jeremías - 60711 - pelopez@itba.edu.ar
+* Borracci, Ángeles Ailén - 56648 - aborracci@itba.edu.ar
 ***
 ## Manual de usuario:
 
