@@ -10,8 +10,9 @@
 
 typedef struct semType {
     uint32_t id;
-    uint32_t value; // state ?
+    // uint32_t value; // state ?
     uint32_t blockedPIDs[MAX_BLOCKED_PID];
+    uint32_t blockedPIDsQty;
     int mutex;
     struct semType * next;
 } semType;

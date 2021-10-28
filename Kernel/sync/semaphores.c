@@ -69,10 +69,10 @@ int waitSemphore(uint32_t id) {
     }
     else
     {
-        int currPid = getCurrPID();
-        sem->blockedPIDs[sem->blockedPIDsSize++] = currPid;
+        int thisPid = getPid();
+        sem->blockedPIDs[sem->blockedPIDsQty++] = thisPid;
         release(&(sem->mutex));
-        blockProcess(currPid);
+        blockProcess(thisPid);
     }
 
     return 0;
