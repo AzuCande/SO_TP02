@@ -4,6 +4,7 @@
 
 unsigned int pidBaptizer = START_PID_BAPTIZER;
 processData * currentProcess = 0;
+processData * dummy;
 circularList * processList;
 
 void initScheduler() {
@@ -13,8 +14,12 @@ void initScheduler() {
     }
 }
 
-void createProcess(unsigned int foreground, char *name) {
+void createProcess(void (*entryPoint) (int, char **), unsigned int foreground, char *name) {
 
+    if(entryPoint == NULL) {
+        return;
+    }
+    
     processData *process;
     // Check if there is enough memory available
     if( (process = mallocMemory(sizeof(processData)) == NULL)) {
@@ -33,11 +38,42 @@ void setProcessData(processData * p, unsigned int pid, char * name, unsigned int
 
     p->foreground = foreground;
     p->priority = DEFAULT_PRIORITY;
+    p->tickets = DEFAULT_TICKETS;
     p->state = READY;
 
     p->bp = bp;
     p->sp = sp;
     p->ep = ep;
+}
+
+void setNewStackFrame(processData *process, void (*entryPoint) (int, char **), int argc, char **argv, void *rbp) {
+    registerStruct *stackFrame = (registerStruct *) rbp - 1;
+
+    stackFrame->r15 = 0x001;
+    stackFrame->r14 = 0x002;
+    stackFrame->r13 = 0x003;
+    stackFrame->r12 = 0x004;
+    stackFrame->r11 = 0x005;
+    stackFrame->r10 = 0x006;
+    stackFrame->r9 = 0x007;
+    stackFrame->r8 = 0x008;
+    // Data to run the process
+    stackFrame->rsi = (uint64_t) argc;
+    stackFrame->rdi = (uint64_t) entryPoint;
+    stackFrame->rbp = 0x00B;
+    stackFrame->rdx = (uint64_t) argv;
+    stackFrame->rcx = 0x00D;
+    stackFrame->rbx = 0x00E;
+    stackFrame->rax = 0x00F;
+    stackFrame->rip = wrapper;
+    stackFrame->cs = 0x008;
+    stackFrame->flags = 0x202;
+    stackFrame->rsp = (uint64_t) process->bp;
+}
+
+static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv) {
+    entryPoint(argc, argv);
+    exitProcess();
 }
 
 uint64_t contextSwitch(uint64_t *sp) {
@@ -59,10 +95,8 @@ void changeProcessPriority(unsigned int pid, unsigned int assignPriority) {
         return;
     }
 
-    processData * process = findProcessOnList(processList, pid);
-    if(process != NULL) {
-        process->priority = assignPriority;
-    }
+    processData * p = changeProcessPriorityOnCircularList(processList,pid,assignPriority);
+    p->priority = assignPriority;
 }
 
 unsigned int getPid() {
@@ -74,17 +108,7 @@ void blockProcess(unsigned int pid) {
     process = findProcessOnList(processList, pid);
     
     if(process != NULL) {
-        process->state = BLOCKED;
-    }
-
-    // Llamar al timer tick
-}
-
-void unblockProcess(unsigned int pid) {
-    processData * process;
-    process = findProcessOnList(processList, pid);
-    if(process != NULL) {
-        process->state = READY;
+        process->state = (process->state == READY? BLOCKED : READY);
     }
 
     // Llamar al timer tick
@@ -103,6 +127,11 @@ void killProcess(unsigned int pid) {
 void resignCPU() {
     currentProcess->state = RESIGNED;
 
+    // Llamar al timer tick
+}
+
+static void exitProcess() {
+    killProcess(currentProcess->pid);
     // Llamar al timer tick
 }
 
@@ -128,7 +157,7 @@ void printProcessList(char * buffer) { //todo
         index++;
     } while (hasNextCircularList(processList));
 
-    buffer[j] = '\0';
+    buffer[index] = '\0';
     
 }
 

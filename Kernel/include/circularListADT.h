@@ -10,6 +10,7 @@ typedef struct node {
 typedef struct circularList {
     node * first;
     node * last;
+    node * firstWithPriority[AMOUNT_PRIORITY];
     node * iterator;
 } circularList;
 

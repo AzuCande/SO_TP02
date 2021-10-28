@@ -31,11 +31,47 @@ void addProcessOnCircularList(circularList * list, processData * process) {
         list->last = list->last->next;
     }
 
-    list->iterator = newNode;
     newNode->next = list->first;
 
     newNode->value = process;
 
+}
+
+processData * changeProcessPriorityOnCircularList(circularList * list, unsigned int pid, unsigned int priority) {
+
+    node * current = list->first;
+    node * prev = list->last;
+    int firstChecked = 0;
+    int foundProcess = 0;
+
+    node * newPosition = list->first;
+    node * prevNewPos = list->last;
+
+    while ((current != list->first || !firstChecked) && !foundProcess) {
+
+        if(newPosition->value->priority <= priority) {
+            newPosition = newPosition->next;
+            prevNewPos = prevNewPos->next;
+        }
+
+        if(current->value->pid == pid) {
+            foundProcess = 1;
+
+        } else {
+            firstChecked = 1;
+            current = current->next;
+            prev = prev->next;
+        }
+    }
+
+    if(foundProcess) {
+        prev->next = current->next;
+
+        current->next = newPosition;
+        prevNewPos->next = current;
+    }
+
+    return NULL;
 }
 
 processData * deleteProcessOnList(circularList * list, unsigned int pid) { //todo
