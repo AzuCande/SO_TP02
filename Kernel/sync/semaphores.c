@@ -34,10 +34,11 @@ static void createNewSemaphore(uint32_t id, semType * semaphore) {
 
     semaphore = mallocMemory(sizeof(semaphore));
 
-    semaphore->id;
-    semaphore->value;
+    semaphore->id = id;
+    // semaphore->value;
     semaphore->next = NULL;
     semaphore->mutex = 0;
+    semaphore->blockedPIDsQty = 0;
 
     if(semaphoresList->first == NULL) {
         semaphoresList->first = semaphore;
