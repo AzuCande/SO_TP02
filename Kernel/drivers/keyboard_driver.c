@@ -2,7 +2,7 @@
 #define KEYBOARD_DRIVER
 #include <keyboard_asm.h>
 #include <keyboard_driver.h>
-#include <regi.h>
+#include <registers.h>
 #include <stdint.h>
 #include <IO_driver.h>
 #include <interrupts.h>

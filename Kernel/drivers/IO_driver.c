@@ -1,6 +1,6 @@
 #ifndef IO_DRIVER
 #define IO_DRIVER
-#include <regi.h>
+#include <registers.h>
 #include <stdint.h>
 
 static registerStruct registerSnapshot;

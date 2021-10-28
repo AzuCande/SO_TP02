@@ -3,18 +3,28 @@
 
 #include <stdint.h>
 #include "lib.h"
+#include  <circularListADT.h>
 
 #define STRING_SIZE 15
-enum processState {READY = 0, BLOCKED, KILLED, RESIGNED};
+
+#define MAX_PRIORITY 1
+#define MIN_PRIORITY 5
+#define DEFAULT_PRIORITY 3
+
+typedef enum {
+    READY,
+    BLOCKED, 
+    KILLED, 
+    RESIGNED
+} processState;
 
 typedef struct processData {
     unsigned int pid;
     char name[STRING_SIZE];
 
     unsigned int foreground;
-    unsigned int pid;
     unsigned int priority;
-    enum processState state;
+    processState state;
 
     uint64_t * bp;
     uint64_t * sp;

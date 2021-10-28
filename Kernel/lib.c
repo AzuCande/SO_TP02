@@ -56,3 +56,9 @@ void strcpy(char * destination, const char * source) {
 	}
 	destination[i]=0;
 }
+
+void strcat(char * destination, char * source, int *index) {
+	for(int i = 0; source[i]; (*index)++, i++) {
+		destination[*index] = source[i];
+	}
+}
