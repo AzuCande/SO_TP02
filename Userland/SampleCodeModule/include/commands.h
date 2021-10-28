@@ -13,4 +13,12 @@ void printmem(char args[MAX_ARGS][MAX_ARG_LEN]);
 void divzero(char args[MAX_ARGS][MAX_ARG_LEN]);
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]);
 
+void mem(char args[MAX_ARGS][MAX_ARG_LEN]);
+void ps(char args[MAX_ARGS][MAX_ARG_LEN]);
+void kill(char args[MAX_ARGS][MAX_ARG_LEN]);
+void nice(char args[MAX_ARGS][MAX_ARG_LEN]);
+void block(char args[MAX_ARGS][MAX_ARG_LEN]);
+void sem(char args[MAX_ARGS][MAX_ARG_LEN]);
+void pipe(char args[MAX_ARGS][MAX_ARG_LEN]);
+
 #endif

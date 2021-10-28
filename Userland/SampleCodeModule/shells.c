@@ -12,6 +12,7 @@
 
 #define TOTAL_LINES 63
 #define MAX_LINE_LENGTH 129
+
 void updateShell(char * buff, int dim);
 void writeToLines(char * buff, int dim);
 void changeActiveShell();
@@ -25,9 +26,9 @@ static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
 static int lineCursor = 0;
 
-char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo"};
-void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo};
-static int totalCommands = 8;
+char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe"};
+void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe};
+static int totalCommands = 15;
 
 void init_shell(uint64_t errCode) {
     for (int i = 0; i < TOTAL_LINES; i++) {
@@ -49,7 +50,7 @@ void init_shell(uint64_t errCode) {
         }
         printf("REGISTERS STATUS:\n");
         printf("R15: %X - R14: %X\n", registers[18], registers[17]);
-	      printf("R13: %X - R12: %X\n", registers[16], registers[15]);
+	    printf("R13: %X - R12: %X\n", registers[16], registers[15]);
         printf("R11: %X - R10: %X\n", registers[14], registers[13]);
         printf("R9: %X - R8: %X\n", registers[12], registers[11]);
         printf("RSI: %X - RDI: %X\n", registers[10], registers[9]);
@@ -59,8 +60,8 @@ void init_shell(uint64_t errCode) {
         printf("CS: %X - FLAGS: %X\n", registers[2], registers[1]);
         printf("RSP: %X\n", registers[0]);
     } else {
-        printf("Welcome to the Computer Architecture Project 2021 - Q1\n");
-        printf("Created by De Luca, Kim and Lopez Guzman\n");
+        printf("Welcome to the Operative Systems 2021 - Q2\n");
+        printf("Created by De Luca, Kim and Borracci\n");
         printf("To enter the Help Center, type \"help\" and press ENTER.\n");
         printf("Which command would you like to run?\n");
     }

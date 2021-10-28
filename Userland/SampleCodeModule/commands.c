@@ -78,9 +78,11 @@ void printmem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     printf("This is the Help Center\n");
-    printf("\tSpecial keys:\n");
+
+    printf("\tSpecial keys:\n");   
     printf("\t* F1 - switch between shells\n");
     printf("\t* F12 - saves the values of the registers\n");
+
     printf("\tCommands:\n");
     printf("\t* datetime - displays the current date and time of the OS\n");
     printf("\t* inforeg - displays the values of each register\n");
@@ -114,4 +116,32 @@ void divzero(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
     _invalidopcode();
+}
+
+void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void block(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+}
+
+void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
 }
