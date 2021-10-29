@@ -145,19 +145,24 @@ void printProcessList(char * buffer) { //todo
     char header[51] = "PID    Name    Priority    State    FG    SP    BP";
     char states[4][8] = {"Ready", "Blocked", "Killed", "Resigned"};
     int index = 0;
+
     strcat(buffer, header, &index);
-    
+    index += 52;
+    buffer[index++] = '\n';
     
     toBeginingCircularList(processList);
     do
     {
-
+        char aux[11] = {0};
         
-        buffer[index] = '\n';
-        index++;
+        strcat(buffer, aux, &index);
+        index += 
+        
+        buffer[index++] = '\n';
     } while (hasNextCircularList(processList));
 
     buffer[index] = '\0';
     
 }
 
+char * intToString()

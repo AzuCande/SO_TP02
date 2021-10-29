@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "lib.h"
-#include  <circularListADT.h>
+#include <circularListADT.h>
 #include <registers.h>
 
 #define STRING_SIZE 15
