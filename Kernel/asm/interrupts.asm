@@ -13,6 +13,7 @@ GLOBAL _hlt
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
+EXTERN scheduler
 
 SECTION .text
 
@@ -112,7 +113,22 @@ picSlaveMask:
 
 ; Timer Tick
 _irq00Handler:
-    irqHandlerMaster 0
+    pushState
+
+	mov rsi, rsp	; pasaje de parametro
+	mov rdi, 0	; pasaje de parametro
+	call irqDispatcher
+
+	mov rdi, rsp
+	call scheduler
+	mov rsp, rax
+
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+
+	popState
+	iretq
 
 ; Keyboard
 _irq01Handler:

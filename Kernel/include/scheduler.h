@@ -17,8 +17,7 @@
 typedef enum {
     READY,
     BLOCKED, 
-    KILLED, 
-    RESIGNED
+    KILLED
 } processState;
 
 typedef struct processData {
@@ -26,9 +25,9 @@ typedef struct processData {
     unsigned int ppid;
     char name[STRING_SIZE];
 
+    // foreground 1 | background 0
     unsigned int foreground;
     unsigned int priority;
-    uint64_t tickets;
     processState state;
 
     uint64_t * bp;
@@ -39,5 +38,9 @@ typedef struct processData {
     char **argv;
     
 } processData;
+
+void initScheduler();
+int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
+void *scheduler(uint64_t *sp);
 
 #endif

@@ -35,6 +35,9 @@ void addProcessOnCircularList(circularList * list, processData * process) {
 
     newNode->value = process;
 
+    if(process->state == READY)
+        list->readyCount++;
+
 }
 
 processData * changeProcessPriorityOnCircularList(circularList * list, unsigned int pid, unsigned int priority) {
@@ -89,24 +92,27 @@ processData * deleteProcessOnList(circularList * list, unsigned int pid) { //tod
         list->last = NULL;
         list->iterator = NULL;
 
+        if(deleted->state == READY)
+            list->readyCount--;
+
         return deleted;
 
     } else if(list->first != list->last) {
 
         node * current = list->first;
-        node * previus = list->last;
+        node * previous = list->last;
         int hasToCheckFirst = 1;
 
         while(current != list->first || hasToCheckFirst) {
             if(current->value->pid == pid) {
                 deleted = current->value;
 
-                previus->next = current->next;
+                previous->next = current->next;
                 if(current == list->first) {
                     list->first = current->next;
                 }
                 if(current == list->last) {
-                    list->last = previus;
+                    list->last = previous;
                 }
                 if(list->iterator == current) {
                     list->iterator = current->next;
@@ -114,12 +120,15 @@ processData * deleteProcessOnList(circularList * list, unsigned int pid) { //tod
 
                 freeMemory(current);
 
+                if(deleted->state == READY)
+                    list->readyCount--;
+
                 return deleted;
             }
 
             hasToCheckFirst = 0;
             current = current->next;
-            previus = previus->next;
+            previous = previous->next;
         }
     }
 
@@ -138,11 +147,16 @@ int hasNextCircularList(circularList * list) {
 }
 
 processData * nextCircularList(circularList * list) {
-    if(!hasNextCircularList(list)) {
+    if(list->iterator == NULL) {
         return NULL;
     }
+
     processData * retProcess = list->iterator->value;
-    list->iterator = list->iterator->next;
+    if(list->iterator->next == list->first) {
+        list->iterator = NULL;
+    } else {
+        list->iterator = list->iterator->next;
+    }
 
     return retProcess;
 }

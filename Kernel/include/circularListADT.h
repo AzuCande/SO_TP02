@@ -12,6 +12,7 @@ typedef struct circularList {
     node * last;
     node * firstWithPriority[AMOUNT_PRIORITY];
     node * iterator;
+    unsigned int readyCount;
 } circularList;
 
 circularList * newCircularList();

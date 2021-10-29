@@ -1,5 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL RTC
+GLOBAL _timerTick
 
 section .text
 
@@ -60,4 +61,8 @@ RTC:
 
 	mov rsp, rbp
 	pop rbp
+	ret
+
+_timerTick:
+	int 20h
 	ret
