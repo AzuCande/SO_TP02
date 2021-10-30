@@ -1,7 +1,7 @@
 #ifndef SYSCALLS
 #define SYSCALLS
 #include <stdint.h>
-#include <regi.h>
+#include <registers.h>
 #include <keyboard_driver.h>
 #include <video_driver.h>
 #include <timer_driver.h>

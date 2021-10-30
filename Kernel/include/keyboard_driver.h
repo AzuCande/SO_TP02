@@ -13,7 +13,7 @@
 #define F1 59
 #define F12 88
 
-#include <regi.h>
+#include <registers.h>
 #include <stdint.h>
 
 void keyboardHandler(registerStruct *);

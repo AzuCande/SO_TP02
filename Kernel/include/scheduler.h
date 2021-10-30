@@ -7,6 +7,7 @@
 #include <registers.h>
 
 #define STRING_SIZE 15
+#define STACK_SIZE (4*1024)
 
 #define MAX_PRIORITY 1
 #define MIN_PRIORITY 5
@@ -32,7 +33,6 @@ typedef struct processData {
 
     uint64_t * bp;
     uint64_t * sp;
-    uint64_t * ep;
 
     int argc;
     char **argv;
@@ -42,5 +42,14 @@ typedef struct processData {
 void initScheduler();
 int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
 void *scheduler(uint64_t *sp);
+int setProcessData(processData *, unsigned int, char *, unsigned int, uint64_t);
+void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp);
+void changeProcessPriority(unsigned int pid, unsigned int assignPriority);
+unsigned int getPid();
+void blockProcess(unsigned int pid);
+void killProcess(unsigned int pid);
+void resignCPU();
+void printProcessList(char * buffer);
+
 
 #endif

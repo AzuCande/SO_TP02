@@ -26,6 +26,7 @@ void saveRegisters(registerStruct * registers) {
   registerSnapshot.cs = registers->cs;
   registerSnapshot.flags = registers->flags;
   registerSnapshot.rsp = registers->rsp;
+  registerSnapshot.ss = registers.ss;
 }
 
 void getRegisters(uint64_t * arr) {

@@ -1,7 +1,7 @@
 #ifndef EXCEPTION_DISPATCHER
 #define EXCEPTION_DISPATCHER
 
-#include <regi.h>
+#include <registers.h>
 #include <interrupts.h>
 #include <video_driver.h>
 #include <exceptions.h>

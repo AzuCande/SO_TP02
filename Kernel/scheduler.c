@@ -2,6 +2,12 @@
 
 #define START_PID_BAPTIZER 1
 
+static void dummyFunc(int argc, char **argv);
+static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv);
+static int argscpy(char **destination, char **source, int size);
+static void exitProcess();
+
+
 unsigned int pidBaptizer = START_PID_BAPTIZER;
 processData * currentProcess = 0;
 processData * dummyProcess;
@@ -17,12 +23,20 @@ void initScheduler() {
     // Runs by default a dummy process
     char *argv[] = {"Dummy Process"};
     createProcess((void *) &dummyFunc, 1, argv, 0);
+    ProcessData *dummyP = nextCircularList(processList);
+    dummyProcess = deleteProcessOnList(processList, dummyP->pid);
+}
+
+static void dummyFunc(int argc, char **argv) {
+    while(1) {
+        _hlt();
+    }
 }
 
 int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground) {
 
     if(entryPoint == NULL) {
-        return;
+        return -1;
     }
     
     processData *process;
@@ -31,12 +45,14 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
         return -1;
     }
 
-   if(setProcessData(process, pidBaptizer, argv[0], foreground, /* averiguar valor de ep */)) {
+   if(setProcessData(process, pidBaptizer, argv[0], foreground)) {
+       freeMemory(process);
        return -1;
-   } //todo
+   }
     pidBaptizer++;
 
     char **args = mallocMemory(sizeof(char *) * argc);
+    // Fijarse si era NULL o 0
     if(args == NULL) {
         return -1;
     }
@@ -51,7 +67,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
 
     addProcessOnCircularList(processList, process);
     
-    // Check if is necessary to block parent
+    // Check if it is necessary to block parent
     if(process->foreground && process->ppid) {
         blockProcess(process->ppid);
     }
@@ -59,13 +75,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
     return process->pid;
 }
 
-static void dummyFunc(int argc, char **argv) {
-    while(1) {
-        _hlt();
-    }
-}
-
-int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground, uint64_t ep) {
+int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground) {
 
     p->pid = pid;
 
@@ -79,7 +89,7 @@ int setProcessData(processData * p, unsigned int pid, char * name, unsigned int 
     p->name[0] = 0;
     strcpy(p->name, name);
 
-    // Checks if the parent is in foreground
+    // Checks if there is parent
     if(currentProcess == NULL) {
         p->foreground = foreground;
     } else {
@@ -92,12 +102,11 @@ int setProcessData(processData * p, unsigned int pid, char * name, unsigned int 
     p->priority = DEFAULT_PRIORITY;
     p->state = READY;
 
-    p->bp = mallocMemory(5123); // Fijarse tamaño
+    p->bp = mallocMemory(STACK_SIZE);
     if(p->bp == NULL) 
         return -1;
     
     p->sp = (void *) ((registerStruct *) p->bp - 1);
-    p->ep = ep;
 }
 
 void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp) {
@@ -123,6 +132,7 @@ void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, 
     stackFrame->cs = 0x008;
     stackFrame->flags = 0x202;
     stackFrame->rsp = (uint64_t) bp;
+    stackFrame->ss = 0x0;
 }
 
 static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv) {
@@ -200,6 +210,7 @@ void changeProcessPriority(unsigned int pid, unsigned int assignPriority) {
 unsigned int getPid() {
     return currentProcess->pid;
 }
+
 void blockProcess(unsigned int pid) {
 
     processData * process;

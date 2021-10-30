@@ -13,6 +13,7 @@ circularList * newCircularList() {
     list->first = NULL;
     list->last = NULL;
     list->iterator = NULL;
+    list->readyCount = 0;
 
     return list;
 }

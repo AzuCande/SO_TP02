@@ -1,6 +1,6 @@
 #ifndef EXCEPTIONS
 #define EXCEPTIONS /*value*/
-#include <regi.h>
+#include <registers.h>
 #include <stdint.h>
 #include <IO_driver.h>
 #include <exceptions.h>

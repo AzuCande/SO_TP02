@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define TOTAL_REGISTERS 19
+#define TOTAL_REGISTERS 20
 
 typedef struct registers {
 	uint64_t r15;
@@ -25,6 +25,7 @@ typedef struct registers {
 	uint64_t cs;
 	uint64_t flags;
 	uint64_t rsp;
+	uint64_t ss;
 } registerStruct;
 
 

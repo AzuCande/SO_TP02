@@ -1,7 +1,7 @@
 #ifndef IO_DRIVER_H
 #define IO_DRIVER_H
 #include <stdint.h>
-#include <regi.h>
+#include <registers.h>
 
 void saveRegisters(registerStruct * registers);
 void getRegisters(uint64_t * arr);

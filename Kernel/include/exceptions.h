@@ -1,6 +1,6 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
-#include <regi.h>
+#include <registers.h>
 #include <stdint.h>
 
 void exc_0h(registerStruct * registers);
