@@ -11,4 +11,6 @@ char *cpuVendor(char *result);
 
 uint8_t RTC(uint8_t mode);
 
+int _xchg(int *mutex, int value);
+
 #endif

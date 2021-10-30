@@ -162,7 +162,7 @@ static uint64_t nodeForPointer(uint64_t *ptr, uint64_t bucket) {
 /* Here starts the non 'Buddy' (default) Memory Manager */
 /* This implementation was extracted from the book "The C Programming Language" by Kernighan and Ritchie */
 
-#define NULL 0
+#define NULL 0 // TODO solo usar el NULL de stddef
 
 typedef long Align;
 typedef union header Header;

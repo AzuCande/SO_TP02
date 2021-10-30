@@ -1,5 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL RTC
+GLOBAL _xchg
 
 section .text
 
@@ -60,4 +61,10 @@ RTC:
 
 	mov rsp, rbp
 	pop rbp
+	ret
+
+
+_xchg:
+	mov rax, rsi
+	xchg [rdi], eax
 	ret
