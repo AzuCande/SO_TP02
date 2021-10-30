@@ -145,3 +145,16 @@ void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 }
+
+void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return;
+}
+
+void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return;
+}
+
+void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    test_mm();
+    return;
+}

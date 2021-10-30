@@ -1,6 +1,7 @@
 // To compile: gcc -std=c99 -pedantic -Wall dummyMM.c -o dummyMM
 // To execute: ./dummyMM
 #include <memManager.h>
+#include <listForBuddy.h>
 
 #ifdef BUDDY
 /* Here starts the 'Buddy' Memory Manager */
@@ -25,7 +26,7 @@ void initMemory(void *initAddress) {
     totalMemUsed = 0;
 }
 
-void *mallocMemory(size_t sizeRequested) {
+void *mallocMemory(uint64_t sizeRequested) {
     uint64_t originalBucket, bucket;
     if (sizeRequested + HEADER_SIZE > MAX_ALLOC) {
         return NULL;
@@ -157,196 +158,390 @@ static uint64_t nodeForPointer(uint64_t *ptr, uint64_t bucket) {
     return ((ptr - base) >> (MAX_ALLOC_LOG2 - bucket)) + (1 << bucket) - 1;
 }
 
-
-// void initMM() {
-//     currentMM = memory;
-// }
-
-// void * allocateMM(size_t size) {
-
-//     if(currentMM == NULL){
-//         perror("Error memory not initialized");
-//         exit(1);
-//     }
-
-//     if(size>MEM_SIZE || memory+MEM_SIZE<currentMM+size){
-//         perror("Error allocating memory");
-//         exit(1);
-//     }
-
-//     void * aux = currentMM;
-//     currentMM += size;
-//     return aux;
-// }
-
-// int main() {
-
-//     initMM();
-
-//     char * p1 = allocateMM(200);
-//     // assert(p1 == NULL);
-//     char * p2 = allocateMM(500);
-//     // assert(p2 == NULL);
-//     //char * p3 = allocateMM(400);
-
-//     strcpy(p1, "Hello world");
-//     assert(strcmp(p1, "Hello world") == 0);
-
-//     strcpy(p2, p1);
-//     assert(strcmp(p1, p2) == 0);
-//     printf("Tests cleared\n");
-
-//     return 0;
-// }
-
 #else
 /* Here starts the non 'Buddy' (default) Memory Manager */
+/* This implementation was extracted from the book "The C Programming Language" by Kernighan and Ritchie */
 
-uint8_t heap[TOTAL_HEAP_SIZE];
+#define NULL 0 // TODO solo usar el NULL de stddef
 
-freeMemList_p memoryManager = NULL;
-freeMemList_p currentMemory = NULL;
+typedef long Align;
+typedef union header Header;
 
-static freeMemList_p startListMem, endListMem;
+union header
+{
+      struct
+      {
+            union header *ptr;
+            unsigned size;
+      } data;
+      Align x;
+};
 
-static int freeListInitialised = 0;
+static Header *base;
+static Header *startingNode = NULL;
 
-static size_t freeRemainingBytes;
-static const size_t blockStructSize = sizeof(freeMemList_t);
+unsigned long totalUnits;
 
-// Insert a free block in a list ordered by size (from smaller to bigger size)
-#define insertFreeBlockOnList(freeMemList_p blockToInsert) {
-    freeMemList_t *iterator;
-    unsigned int blockSize;
-
-    // Iterate through the list until a block is found that has a larger size
-    // than the block we are inserting
-    blockSize = blockToInsert->freeBlockSize;
-    for(iterator = startListMem; iterator->nextFreeBlock->freeBlockSize < blockSize; iterator = iterator->nextFreeBlock) {
-        // Just iterate to the correct position
-    }
-
-    // Update the list to include the block being inserted in the correct position
-    blockToInsert->nextFreeBlock = iterator->nextFreeBlock;
-    iterator->nextFreeBlock = blockToInsert;
+void initMemory()
+{
+      // Initially its all a very large block
+      totalUnits = (MEM_SIZE + sizeof(Header) - 1) / sizeof(Header) + 1;
+      startingNode = base = (Header *)memoryPosition;
+      startingNode->data.size = totalUnits;
+      startingNode->data.ptr = startingNode;
 }
 
-void *mallocMemory(size_t sizeRequired) {
-    freeMemList_p currentBlock, prevBlock, newBlockLink;
-    void *blockToReturn = NULL;
-    
-    //If this is the first call to malloc, the heap needs to be initialised in order to create the list of free blocks
-    if(!freeListInitialised) {
-        initBlocksMM();
-        freeListInitialised = 1;
-    }
+// Ref for malloc/free : The C Programming Language  - K&R
+void *mallocMemory(unsigned long nbytes)
+{
+      if (nbytes == 0)
+            return NULL;
 
-    if(sizeRequired > 0) {
-        sizeRequired += blockStructSize;
+      unsigned long nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1; //Normalize to header units
 
-        // Ensures alignment of the block
-        if(sizeRequired & BYTE_ALIGNMENT_MASK) {
-            sizeRequired += (BYTE_ALIGNMENT - (sizeRequired & BYTE_ALIGNMENT_MASK));
-        }
-    }
+      Header *currNode, *prevNode;
+      prevNode = startingNode;
 
-    if(sizeRequired < freeRemainingBytes) { //antes estaba ADJUSTED_HEAP_SIZE
-        prevBlock = startListMem;
-        currentBlock = startListMem->nextFreeBlock;
-
-        while((currentBlock->freeBlockSize < sizeRequired) && (currentBlock->nextFreeBlock != NULL)) {
-            prevBlock = currentBlock;
-            currentBlock = currentBlock->nextFreeBlock;
-        }
-
-        if(currentBlock != endListMem) {
-            //Return the memory space desired
-            blockToReturn = (void *) ( ( (uint8_t *) prevBlock->nextFreeBlock) + blockStructSize);
-
-            //As this memory block will be used, it must be removed from this free memory list
-            prevBlock->nextFreeBlock = currentBlock->nextFreeBlock;
-            
-            //If the block is larger than required, it can be split into two
-            if( (currentBlock->freeBlockSize - sizeRequired) > MIN_BLOCK_SIZE) {
-                //To split the block into two, a new block will be created with the number of bytes requested.
-                newBlockLink = (void *) (((uint8_t *) currentBlock) + sizeRequired);
-
-                //Calculate the size fo both blocks created from splitting the original one
-                newBlockLink->freeBlockSize = currentBlock->freeBlockSize - sizeRequired;
-                currentBlock->freeBlockSize = sizeRequired;
-
-                //Insert the new block into the list of free blocks
-                insertFreeBlockOnList(newBlockLink);
+      for (currNode = prevNode->data.ptr;; prevNode = currNode, currNode = currNode->data.ptr)
+      {
+            if (currNode->data.size >= nunits)
+            {
+                  if (currNode->data.size == nunits) // Equal just use
+                        prevNode->data.ptr = currNode->data.ptr;
+                  else
+                  {
+                        currNode->data.size -= nunits;
+                        currNode += currNode->data.size;
+                        currNode->data.size = nunits;
+                  }
+                  startingNode = prevNode;
+                  return (void *)(currNode + 1); //Return new memspace WITHOUT header
             }
+            if (currNode == startingNode)
+                  return NULL;
+      }
+}
 
-            freeRemainingBytes -= currentBlock->freeBlockSize;
-        }
-    }
+void freeMemory(void *freeMem)
+{
+      if (freeMem == NULL || (((long)freeMem - (long)base) % sizeof(Header)) != 0)
+            return;
 
-    return blockToReturn;
+      Header *freeBlock, *currNode;
+      freeBlock = (Header *)freeMem - 1; //Add header to mem to free
+
+      if (freeBlock < base || freeBlock >= (base + totalUnits * sizeof(Header)))
+            return;
+
+      char isExternal = 0;
+
+      for (currNode = startingNode; !(freeBlock > currNode && freeBlock < currNode->data.ptr); currNode = currNode->data.ptr)
+      {
+
+            if (freeBlock == currNode || freeBlock == currNode->data.ptr)
+                  return;
+
+            if (currNode >= currNode->data.ptr && (freeBlock > currNode || freeBlock < currNode->data.ptr))
+            {
+                  isExternal = 1;
+                  break;
+            }
+      }
+
+      if (!isExternal && (currNode + currNode->data.size > freeBlock || freeBlock + freeBlock->data.size > currNode->data.ptr)) //Absurd!!
+            return;
+
+      if (freeBlock + freeBlock->data.size == currNode->data.ptr) //Join right
+      {
+            freeBlock->data.size += currNode->data.ptr->data.size;
+            freeBlock->data.ptr = currNode->data.ptr->data.ptr;
+      }
+      else
+            freeBlock->data.ptr = currNode->data.ptr;
+
+      if (currNode + currNode->data.size == freeBlock) //Join left
+      {
+            currNode->data.size += freeBlock->data.size;
+            currNode->data.ptr = freeBlock->data.ptr;
+      }
+      else
+            currNode->data.ptr = freeBlock;
+
+      startingNode = currNode;
+}
+
+// void dumpMM()
+// {
+//       long long idx = 1;
+//       Header *original, *current;
+//       original = current = startingNode;
+//       int flag = 1;
+
+//       print("\nMEMORY DUMP (Free List)\n");
+//       print("- - Units of 16 bytes\n");
+//       print("------------------------------------------------\n");
+//       print("Total memory: %d bytes\n\n", totalUnits * sizeof(Header));
+//       if (startingNode == NULL)
+//             print("    No free blocks\n");
+//       print("Free blocks: \n");
+//       print("-------------------------------\n");
+//       while (current != original || flag)
+//       {
+//             flag = 0;
+//             print("    Block number %d\n", idx);
+//             print("        Base: %x\n", (uint64_t)current);
+//             print("        Free units: %d\n", current->data.size);
+//             print("-------------------------------\n");
+//             current = current->data.ptr;
+//             idx++;
+//       }
+//       print("\n\n");
+// }
+
+
+
+// lo nuestro:
+
+// static void * memoryPosition = (void *) 0x600000;
+
+// typedef long Align;
+
+// union header {
+//     struct {
+//         union header *ptr;
+//         unsigned size;
+//     } allocation;
+//     Align x;
+// };
+
+// typedef union header Header;
+
+// // Empty list
+// static Header *base;
+// // Free list start
+// static Header *headBlock = NULL;
+
+// unsigned long maxSize;
+
+// void initMemory() {
+//     maxSize = (MEM_SIZE + sizeof(Header) - 1) / sizeof(Header) + 1;
+//     headBlock = base = (Header *)memoryPosition;
+//     headBlock->allocation.size = maxSize;
+//     headBlock->allocation.ptr = headBlock;
+// }
+
+// void * mallocMemory(unsigned long size) {
+
+//     // Check the size requested
+//     if (size == 0) {
+//         return NULL;
+//     }
+
+//     Header *currentBlock, *prevBlock;
+//     // prevBlock = headBlock;
+//     unsigned long nunits;
+
+//     nunits = (size + sizeof(Header) - 1) / sizeof(Header) + 1;
+
+//     if ((prevBlock = headBlock) == NULL) { /* no hay lista libre aún */
+//         base->allocation.ptr = headBlock = prevBlock = &base;
+//         base->allocation.size = 0;
+//     }
+
+//     for(currentBlock = prevBlock->allocation.ptr; ; prevBlock = currentBlock, currentBlock = currentBlock->allocation.ptr) {
+//         if(currentBlock->allocation.size >= nunits) {
+//             // Exact size
+//             if(currentBlock->allocation.size == nunits) {
+//                 prevBlock->allocation.ptr = currentBlock->allocation.ptr;
+//             } else {
+//                 currentBlock->allocation.size -= nunits;
+//                 currentBlock += currentBlock->allocation.size;
+//                 currentBlock->allocation.size = nunits;
+//             }
+//             headBlock = prevBlock;
+//             return (void *) (currentBlock + 1);
+//         }
+//         if(currentBlock == headBlock) {
+//             return NULL;
+//         }
+//     }
+// }
+
+// void freeMemory(void * free) {
+
+//     // Check argument
+//     if(free == NULL) {
+//         return;
+//     }
+
+//     Header *freeBlock, *currentBlock;
+
+//     freeBlock = (Header *) free - 1;
+
+//     if(freeBlock < base || freeBlock >= (base + maxSize * sizeof(Header))) {
+//         return;
+//     }
+
+//     for(currentBlock = headBlock; !(freeBlock > currentBlock && freeBlock < currentBlock->allocation.ptr); 
+//     currentBlock = currentBlock->allocation.ptr) {
+
+//         // Free first or last block 
+//         if(currentBlock >= currentBlock->allocation.ptr && (freeBlock > currentBlock || freeBlock < currentBlock->allocation.ptr)) {
+//             break;
+//         }
+//     }
+
+//     if(freeBlock + freeBlock->allocation.size == currentBlock->allocation.ptr) {
+//         freeBlock->allocation.size += currentBlock->allocation.ptr->allocation.size;
+//         freeBlock->allocation.ptr = currentBlock->allocation.ptr->allocation.ptr;
+//     } else {
+//         freeBlock->allocation.ptr = currentBlock->allocation.ptr;
+//     }
+//     if(currentBlock + currentBlock->allocation.size == freeBlock) {
+//         currentBlock->allocation.size += freeBlock->allocation.size;
+//         currentBlock->allocation.ptr = freeBlock->allocation.ptr;
+//     } else {
+//         currentBlock->allocation.ptr = freeBlock;
+//     }
+//     headBlock = currentBlock;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// A PARTIR DE ACA SON IMPLEMENTACIONES QUE NO ANDUVIERON
+
+// static freeMemList_p startListMem, endListMem;
+
+// static int freeListInitialised = 0;
+
+// static uint64_t freeRemainingBytes;
+// static const uint64_t blockStructSize = sizeof(freeMemList_t);
+
+// // Insert a free block in a list ordered by size (from smaller to bigger size)
+// void insertFreeBlockOnList(freeMemList_p blockToInsert) {
+//     freeMemList_t *iterator;
+//     uint64_t blockSize;
+
+//     // Iterate through the list until a block is found that has a larger size
+//     // than the block we are inserting
+//     blockSize = blockToInsert->freeBlockSize;
+//     for(iterator = startListMem; iterator->nextFreeBlock->freeBlockSize < blockSize; iterator = iterator->nextFreeBlock) {
+//         // Just iterate to the correct position
+//     }
+
+//     // Update the list to include the block being inserted in the correct position
+//     blockToInsert->nextFreeBlock = iterator->nextFreeBlock;
+//     iterator->nextFreeBlock = blockToInsert;
+// }
+
+// void *mallocMemory(uint64_t sizeRequired) {
+//     freeMemList_p currentBlock, prevBlock, newBlockLink;
+//     void *blockToReturn = NULL;
     
-}
-
-
-void initBlocksMM() {
-    freeMemList_p firstFreeBlock;
-    uint8_t *alignedHeapPtr;
-
-    // Ensures that the heap starts on a correct aligned boundary
-    alignedHeapPtr = (uint8_t *) ( ( (POINTER_SIZE_TYPE) &heap[BYTE_ALIGNMENT]) & ( ~( ( POINTER_SIZE_TYPE ) BYTE_ALIGNMENT_MASK ) ) );
-
-    // startListMem is used to refer to the first item in the list of free blocks
-    startListMem->nextFreeBlock = (void *) alignedHeapPtr;
-    startListMem->freeBlockSize = (size_t) 0;
-
-    // endListMem is used to mark the end of the list of free blocks
-    endListMem->freeBlockSize = ADJUSTED_HEAP_SIZE;
-    endListMem->nextFreeBlock = NULL;
-
-    // Prepares a single first block in the freeMem List
-    firstFreeBlock = (void *) alignedHeapPtr;
-    firstFreeBlock->freeBlockSize = ADJUSTED_HEAP_SIZE;
-    firstFreeBlock->nextFreeBlock = endListMem;
-
-    freeRemainingBytes = firstFreeBlock->freeBlockSize;
-}
-
-void freeMemory(void * free){
-    uint8_t *toFree = (uint8_t *) free;
-    freeMemList_p toAddFreeBlock;
-
-    if(toFree != NULL) {
-        //The memory space to be freed will have a freeBlocksMemList_t structure before it
-        toFree -= blockStructSize;
-
-        //Cast to freeBlocksMemList_t * to avoid compilation issues
-        toAddFreeBlock = (freeMemList_t *) toFree;
-
-        //Add this new block to the list of free blocks
-        insertFreeBlockOnList(toAddFreeBlock);
-    }
-}
-
-// void initMM() {
-//     currentMM = memory;
-// }
-
-// void * allocateMM(size_t size) {
-
-//     if(currentMM == NULL){
-//         perror("Error memory not initialized");
-//         exit(1);
+//     //If this is the first call to malloc, the heap needs to be initialised in order to create the list of free blocks
+//     if(!freeListInitialised) {
+//         initBlocksMM();
+//         freeListInitialised = 1;
 //     }
 
-//     if(size>MEM_SIZE || memory+MEM_SIZE<currentMM+size){
-//         perror("Error allocating memory");
-//         exit(1);
+//     if(sizeRequired > 0) {
+//         sizeRequired += blockStructSize;
+
+//         // Ensures alignment of the block
+//         if(sizeRequired & BYTE_ALIGNMENT_MASK) {
+//             sizeRequired += (BYTE_ALIGNMENT - (sizeRequired & BYTE_ALIGNMENT_MASK));
+//         }
 //     }
 
-//     void * aux = currentMM;
-//     currentMM += size;
-//     return aux;
+//     if(sizeRequired < freeRemainingBytes) { //antes estaba ADJUSTED_HEAP_SIZE
+//         prevBlock = startListMem;
+//         currentBlock = startListMem->nextFreeBlock;
+
+//         while((currentBlock->freeBlockSize < sizeRequired) && (currentBlock->nextFreeBlock != NULL)) {
+//             prevBlock = currentBlock;
+//             currentBlock = currentBlock->nextFreeBlock;
+//         }
+
+//         if(currentBlock != endListMem) {
+//             //Return the memory space desired
+//             blockToReturn = (void *) ( ( (uint8_t *) prevBlock->nextFreeBlock) + blockStructSize);
+
+//             //As this memory block will be used, it must be removed from this free memory list
+//             prevBlock->nextFreeBlock = currentBlock->nextFreeBlock;
+            
+//             //If the block is larger than required, it can be split into two
+//             if( (currentBlock->freeBlockSize - sizeRequired) > MIN_BLOCK_SIZE) {
+//                 //To split the block into two, a new block will be created with the number of bytes requested.
+//                 newBlockLink = (void *) (((uint8_t *) currentBlock) + sizeRequired);
+
+//                 //Calculate the size fo both blocks created from splitting the original one
+//                 newBlockLink->freeBlockSize = currentBlock->freeBlockSize - sizeRequired;
+//                 currentBlock->freeBlockSize = sizeRequired;
+
+//                 //Insert the new block into the list of free blocks
+//                 insertFreeBlockOnList(newBlockLink);
+//             }
+
+//             freeRemainingBytes -= currentBlock->freeBlockSize;
+//         }
+//     }
+
+//     return blockToReturn;
+    
 // }
+
+
+// void initBlocksMM() {
+//     freeMemList_p firstFreeBlock;
+//     uint8_t *alignedHeapPtr;
+
+//     // Ensures that the heap starts on a correct aligned boundary
+//     alignedHeapPtr = (uint8_t *) ( ((unsigned long)(char *)(memoryPosition) + BYTE_ALIGNMENT) & ( ~( ( POINTER_SIZE_TYPE ) BYTE_ALIGNMENT_MASK ) ) );
+
+//     // startListMem is used to refer to the first item in the list of free blocks
+//     startListMem->nextFreeBlock = (void *) alignedHeapPtr;
+//     startListMem->freeBlockSize = (uint64_t) 0;
+
+//     // endListMem is used to mark the end of the list of free blocks
+//     endListMem->freeBlockSize = ADJUSTED_HEAP_SIZE;
+//     endListMem->nextFreeBlock = NULL;
+
+//     // Prepares a single first block in the freeMem List
+//     firstFreeBlock = (void *) alignedHeapPtr;
+//     firstFreeBlock->freeBlockSize = ADJUSTED_HEAP_SIZE;
+//     firstFreeBlock->nextFreeBlock = endListMem;
+
+//     freeRemainingBytes = firstFreeBlock->freeBlockSize;
+// }
+
+// void freeMemory(void * free){
+//     uint8_t *toFree = (uint8_t *) free;
+//     freeMemList_p toAddFreeBlock;
+
+//     if(toFree != NULL) {
+//         //The memory space to be freed will have a freeBlocksMemList_t structure before it
+//         toFree -= blockStructSize;
+
+//         //Cast to freeBlocksMemList_t * to avoid compilation issues
+//         toAddFreeBlock = (freeMemList_t *) toFree;
+
+//         //Add this new block to the list of free blocks
+//         insertFreeBlockOnList(toAddFreeBlock);
+//     }
+// }
+
 
 
 #endif
+
+
+

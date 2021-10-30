@@ -17,4 +17,6 @@ uint8_t RTC(uint8_t mode);
 
 void _timerTick();
 
+int _xchg(int *mutex, int value);
+
 #endif

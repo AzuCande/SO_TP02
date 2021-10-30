@@ -1,6 +1,7 @@
 GLOBAL cpuVendor
 GLOBAL RTC
 GLOBAL _timerTick
+GLOBAL _xchg
 
 section .text
 
@@ -65,4 +66,9 @@ RTC:
 
 _timerTick:
 	int 20h
+	ret
+
+_xchg:
+	mov rax, rsi
+	xchg [rdi], eax
 	ret
