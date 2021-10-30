@@ -146,12 +146,14 @@ void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 }
 
-void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return;
+void * myMalloc(size_t size) 
+{
+    return (void * ) mallocSyscall(size)
 }
 
-void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return;
+void myFree(void * dir)
+{
+    freeSyscall((uint64_t) dir)
 }
 
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
