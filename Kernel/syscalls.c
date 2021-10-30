@@ -10,12 +10,14 @@
 #include <IO_driver.h>
 #include <exceptions.h>
 #include <memManager.h>
+#include <scheduler.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
 
 void syscallHandler(registerStruct * registers) {
   uint64_t option = registers->rax;
+
   switch(option) {
     //READ KEYBOARD
     case 0:
@@ -103,6 +105,49 @@ void syscallHandler(registerStruct * registers) {
     case 15:
     //rdi -> puntero al bloque a liberar
     freeMemory((void *) registers->rdi);
+    break;
+    
+    case 16:
+    getPid();
+    break;
+
+    case 17:
+    //rdi -> buffer
+    printProcessList(registers->rdi);
+    break;
+
+    case 18:
+    // rdi -> pid
+    // rsi -> new priority
+    changeProcessPriority(registers->rdi, registers->rsi);
+    break;
+
+    case 19:
+    // rdi -> pid
+    blockProcess(registers->rdi);
+    break;
+
+    case 20:
+    // rdi -> entry point
+    // rsi -> number of arguments
+    // rdx -> arguments
+    // rcx -> foreground
+    createProcess(registers->rdi, registers->rsi, registers->rdx, registers->rcx);
+    break;
+
+    case 21:
+    // rdi -> pid
+    killProcess(registers->rdi);
+    break;
+
+    case 22:
+    resignCPU();
+    break;
+  
+    case 23:
+    exitProcess();
+    break;
+
   }
 }
 

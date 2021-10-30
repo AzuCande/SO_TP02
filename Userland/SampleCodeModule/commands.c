@@ -13,18 +13,21 @@ static void format(char *str, int value);
 
 void dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
+
     char days[] = "00";
     char month[] = "00";
     char year[] = "00";
     char hours[] = "00";
     char minutes[] = "00";
     char seconds[] = "00";
+
     format(days, getDays());
     format(month, getMonth());
     format(year, getYear());
     format(hours, getHours());
     format(minutes, getMinutes());
     format(seconds, getSeconds());
+
     printf("%s/%s/20%s %s:%s:%s", days, month, year, hours, minutes, seconds);
 }
 
@@ -42,6 +45,7 @@ void infoReg(char args[MAX_ARGS][MAX_ARG_LEN]) {
     uint64_t registers[19];
     getRegisters(registers);
     putChar('\n');
+
     printf("R15: %X - R14: %X\n", registers[18], registers[17]);
     printf("R13: %X - R12: %X\n", registers[16], registers[15]);
     printf("R11: %X - R10: %X\n", registers[14], registers[13]);
@@ -56,10 +60,12 @@ void infoReg(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 void printmem(char args[MAX_ARGS][MAX_ARG_LEN]) {
   putChar('\n');
+  
   int with0x = 0;
   if (args[1][0] == '0' && args[1][1] == 'x') {
     with0x = 2;
   }
+
   uint64_t aux = atohex(&args[1][with0x]);
   if (aux > 0) {
     uint64_t bytes[32];
@@ -157,4 +163,17 @@ void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     test_mm();
     return;
+}
+
+void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    unsigned int pid = getPid();
+    
+    while(1) {
+        printf("%d\n", pid);
+
+        int ticksEnd = getTicks() + 5;
+        while(getTicks() < ticksEnd) {
+            ;
+        }
+    }
 }

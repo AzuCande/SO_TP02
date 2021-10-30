@@ -26,9 +26,9 @@ static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
 static int lineCursor = 0;
 
-char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe", "malloc", "free", "test"};
-void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe, mallocCommand, freeCommand, testCommand};
-static int totalCommands = 18;
+char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe", "malloc", "free", "test","loop"};
+void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe, mallocCommand, freeCommand, testCommand, loop};
+static int totalCommands = 19;
 
 void init_shell(uint64_t errCode) {
     for (int i = 0; i < TOTAL_LINES; i++) {

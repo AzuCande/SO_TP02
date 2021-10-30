@@ -11,6 +11,14 @@ GLOBAL getMemSyscall
 GLOBAL readErrorSyscall
 GLOBAL mallocSyscall
 GLOBAL freeSyscall
+GLOBAL getPidSyscall
+GLOBAL psSyscall
+GLOBAL niceSyscall
+GLOBAL blockSyscall
+GLOBAL createProcessSyscall
+GLOBAL killSyscall
+GLOBAL yieldSyscall
+GLOBAL exitProcessSyscall
 
 section .text
 
@@ -156,6 +164,94 @@ freeSyscall:
     mov rbp, rsp
 
     mov rax, 15
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+getPidSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 16
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+psSyscall:  ;printProcessList
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 17
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+niceSyscall:    ;changeProcessPriority
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 18
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+blockSyscall:    ;blockProcess
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 19
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+createProcessSyscall:    ;createProcess
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 20
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+killSyscall:    ;killProcess
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 21
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+yieldSyscall:    ;resignCPU
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 22
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+exitProcessSyscall:    ;exitProcess
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 23
     int 80h
 
     mov rsp, rbp
