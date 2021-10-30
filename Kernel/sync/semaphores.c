@@ -28,6 +28,7 @@ semType * openSemaphore(uint32_t id) {
     if(semaphore == NULL) {
         createNewSemaphore(id, semaphore);
     }
+    return semaphore;
 }
 
 static void createNewSemaphore(uint32_t id, semType * semaphore) {
@@ -70,24 +71,44 @@ int waitSemphore(uint32_t id) {
     }
     else
     {
-        int thisPid = getPid();
-        sem->blockedPIDs[sem->blockedPIDsQty++] = thisPid;
+        int thisPID = getPid();
+        sem->blockedPIDs[sem->blockedPIDsQty++] = thisPID;
         release(&(sem->mutex));
-        blockProcess(thisPid);
+        blockProcess(thisPID);
     }
 
     return 0;
 }
 
 int postSemaphore(uint32_t id) {
+    semType * sem = findSemaphore(id);
+    if (sem == NULL) {
+        return -1;
+    }
 
+    acquire(&(sem->mutex));
+    if(sem->blockedPIDsQty > 0) {
+        int nextPID = sem->blockedPIDs[0];
+        for(int i = 0; i < sem->blockedPIDsQty - 1; i++) {
+            sem->blockedPIDs[i] = sem->blockedPIDs[i + 1];
+        }
+        sem->blockedPIDsQty--;
+        blockProcess(nextPID);
+        release(&(sem->mutex));
+        return 0;
+    } else {
+        sem->value++;
+    }
+    release(&(sem->mutex));
+    return 0; // TODO mejorar diseno
 }
 
-void closeSemaphore(uint32_t id) {
+int closeSemaphore(uint32_t id) {
     semType * semaphore = findSemaphore(uint32_t id);
-    if(semaphore != NULL) {
-        
+    if(semaphore == NULL) {
+        return -1
     }
+    
 }
 
 void printSemaphore() {
