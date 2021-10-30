@@ -26,6 +26,7 @@ void addProcessOnCircularList(circularList * list, processData * process) {
     
     if (isEmptyCircularList(list)) {
         list->first = newNode;
+        list->iterator = newNode;
         list->last = newNode;
     } else {
         list->last->next = newNode;

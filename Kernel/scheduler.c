@@ -23,8 +23,9 @@ void initScheduler() {
     // Runs by default a dummy process
     char *argv[] = {"Dummy Process"};
     createProcess((void *) &dummyFunc, 1, argv, 0);
-    ProcessData *dummyP = nextCircularList(processList);
-    dummyProcess = deleteProcessOnList(processList, dummyP->pid);
+    dummyProcess = nextCircularList(processList);
+    // The dummy process should not be in the list
+    deleteProcessOnList(processList, dummyProcess->pid);
 }
 
 static void dummyFunc(int argc, char **argv) {
@@ -106,7 +107,10 @@ int setProcessData(processData * p, unsigned int pid, char * name, unsigned int 
     if(p->bp == NULL) 
         return -1;
     
+    p->bp = (void *) ((char*) p->bp + STACK_SIZE - 1);
     p->sp = (void *) ((registerStruct *) p->bp - 1);
+
+    return 0;
 }
 
 void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp) {
@@ -132,7 +136,7 @@ void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, 
     stackFrame->cs = 0x008;
     stackFrame->flags = 0x202;
     stackFrame->rsp = (uint64_t) bp;
-    stackFrame->ss = 0x0;
+    stackFrame->ss = 0x000;
 }
 
 static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv) {
@@ -165,18 +169,20 @@ void *scheduler(uint64_t *sp) {
                 processData *parent = findProcessOnList(processList, currentProcess->ppid);
                 if(parent != NULL && currentProcess->foreground && parent->state == BLOCKED) {
                     // Unblocks process (do not mind the function's name)
-                    unblockProcess(parent->pid);
+                    blockProcess(parent->pid);
                 }
                 // Now free memory of child
                 freeProcess(currentProcess);
-            } else {
-                addProcessOnCircularList(processList, currentProcess);
-            }
+            } 
+            // else {
+            //     addProcessOnCircularList(processList, currentProcess);
+            // }
+            // Check round robin algorythm
         }
 
     }
 
-    // Ahora debo obtener el proceso a cambiar
+    // Obtain process to run
     if(processList->readyCount > 0) {
         currentProcess = nextCircularList(processList);
         // Current process should be in READY state
@@ -188,8 +194,7 @@ void *scheduler(uint64_t *sp) {
             // If the process is BLOCKED, continue the cycle
             currentProcess = nextCircularList(processList);
         }
-        // Once found, delete it from the list
-        deleteProcessOnList(processList, currentProcess->pid);
+
     } else {
         // If there is no READY process available
         currentProcess = dummyProcess;
@@ -225,6 +230,15 @@ void blockProcess(unsigned int pid) {
     }
 }
 
+void freeProcess(processData *process) {
+    for(int i = 0; i < process->argc; i++) {
+        freeMemory(process->argv[i]);
+    }
+    freeMemory(process->argv);
+    freeMemory((void *) ((char *)process->bp - STACK_SIZE + 1));
+    freeMemory((void *) process);
+}
+
 void killProcess(unsigned int pid) {
     processData *toKill;
     toKill = deleteProcessOnList(processList, pid);
@@ -232,11 +246,7 @@ void killProcess(unsigned int pid) {
     if(toKill == NULL)
         return;
 
-    for(int i=0; toKill->argc; i++) {
-        freeMemory(toKill->argv[i]);
-    }
-
-    freeMemory(toKill);
+    freeProcess(toKill);
 
     _timerTick();
 }
