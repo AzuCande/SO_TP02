@@ -1,15 +1,16 @@
-#include "include/scheduler.h"
+#include <scheduler.h>
+#include <circularListADT.h>
 
 #define START_PID_BAPTIZER 1
 
 static void dummyFunc(int argc, char **argv);
 static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv);
-static int argscpy(char **destination, char **source, int size);
+static void argscpy(char **destination, char **source, int size);
 static void exitProcess();
 
 
 unsigned int pidBaptizer = START_PID_BAPTIZER;
-processData * currentProcess = 0;
+processData * currentProcess = NULL; // TODO: revisar esto, estaba como currentProcess = 0
 processData * dummyProcess;
 circularList * processList;
 static uint64_t processCountdown;
@@ -42,7 +43,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
     
     processData *process;
     // Check if there is enough memory available
-    if( (process = mallocMemory(sizeof(processData)) == NULL)) {
+    if( (process = mallocMemory(sizeof(processData)) == NULL)) { // TODO: fix cast warning
         return -1;
     }
 
@@ -132,7 +133,7 @@ void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, 
     stackFrame->rcx = 0x00D;
     stackFrame->rbx = 0x00E;
     stackFrame->rax = 0x00F;
-    stackFrame->rip = wrapper;
+    stackFrame->rip = wrapper; // TODO: fix cast warning
     stackFrame->cs = 0x008;
     stackFrame->flags = 0x202;
     stackFrame->rsp = (uint64_t) bp;
@@ -144,7 +145,7 @@ static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv) {
     exitProcess();
 }
 
-static int argscpy(char **destination, char **source, int size) {
+static void argscpy(char **destination, char **source, int size) {
     for(int i = 0; i < size; i++) {
         destination[i] = mallocMemory(sizeof(char) * (strlen(source[i]) + 1));
         strcpy(source[i], destination[i]);
@@ -187,7 +188,7 @@ void *scheduler(uint64_t *sp) {
         currentProcess = nextCircularList(processList);
         // Current process should be in READY state
         while(currentProcess->state != READY) {
-            if(currentProcess == KILLED) {
+            if(currentProcess->state == KILLED) { // TODO: revisar, estaba como currentProcess == KILLED y tiraba warning, hay que ver si currentProcess->state == KILLED funciona
                 deleteProcessOnList(processList, currentProcess->pid);
                 freeProcess(currentProcess);
             }
@@ -208,7 +209,7 @@ void changeProcessPriority(unsigned int pid, unsigned int assignPriority) {
         return;
     }
 
-    processData * p = changeProcessPriorityOnCircularList(processList,pid,assignPriority);
+    processData * p = changeProcessPriorityOnCircularList(processList,pid,assignPriority); // TODO: fix cast warning
     p->priority = assignPriority;
 }
 
@@ -295,10 +296,10 @@ void printProcessList(char * buffer) {
 
         strcat(buffer,currentP->foreground? "FG":"BG", &index);
 
-        intToBaseString(16,aux,currentP->sp);
+        intToBaseString(16,aux,currentP->sp); //TODO: fix pointer warning
         strcat(buffer,aux,&index);
         
-        intToBaseString(16,aux,currentP->bp);
+        intToBaseString(16,aux,currentP->bp); // TODO: fix pointer warning
         strcat(buffer,aux,&index);
 
         buffer[index++] = '\n'; 

@@ -6,6 +6,8 @@
 #ifdef BUDDY
 /* Here starts the 'Buddy' Memory Manager */
 
+#define NULL (void*)0
+
 // Stores the free list for an allocation size
 static block_t *buckets[BUCKET_COUNT];
 // Any leaf node is disregarded, parent nodes are taken into account

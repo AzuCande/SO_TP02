@@ -122,3 +122,12 @@ void intToBaseString(int base, char * dest, uint64_t number) {
 
 	reveseString(dest,i);
 }
+
+int strlen(char *str){
+  int i =0;
+  for ( i = 0; *(str+i); i++)
+  {
+
+  }
+  return i;
+}

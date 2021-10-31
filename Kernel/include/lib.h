@@ -19,4 +19,6 @@ void _timerTick();
 
 int _xchg(int *mutex, int value);
 
+int strlen(char *str);
+
 #endif

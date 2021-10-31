@@ -6,9 +6,9 @@ typedef struct listBuddy {
     struct listBuddy *next;
 } listBuddy;
 
-static void listInit(listBuddy *list);
-static void listPush(listBuddy *list, listBuddy *entry);
-static void listRemove(listBuddy *entry);
-static listBuddy *listPop(listBuddy *list);
+/*static */void listInit(listBuddy *list);
+/*static */void listPush(listBuddy *list, listBuddy *entry);
+/*static */void listRemove(listBuddy *entry);
+/*static */listBuddy *listPop(listBuddy *list);
 
 #endif

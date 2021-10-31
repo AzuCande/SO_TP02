@@ -1,14 +1,7 @@
 #ifndef SHELLS
 #define SHELLS
 
-#include "include/stdGraphics.h"
-#include "include/colors.h"
-#include <stdint.h>
-#include <stdio.h>
-#include "include/shells.h"
-#include "include/commands.h"
-#include <stdlib.h>
-#include "include/syscalls_asm.h"
+#include <shells.h>
 
 #define TOTAL_LINES 63
 #define MAX_LINE_LENGTH 129
@@ -26,9 +19,9 @@ static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
 static int lineCursor = 0;
 
-char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe", "malloc", "free", "test","loop"};
-void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe, mallocCommand, freeCommand, testCommand, loop};
-static int totalCommands = 19;
+char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe",  "test","loop"};
+void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe, testCommand, loop};
+static int totalCommands = 17;
 
 void init_shell(uint64_t errCode) {
     for (int i = 0; i < TOTAL_LINES; i++) {
