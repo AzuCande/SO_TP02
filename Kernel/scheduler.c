@@ -6,7 +6,6 @@
 static void dummyFunc(int argc, char **argv);
 static void wrapper(void (*entryPoint) (int, char**), int argc, char ** argv);
 static void argscpy(char **destination, char **source, int size);
-static void exitProcess();
 
 
 unsigned int pidBaptizer = START_PID_BAPTIZER;
@@ -258,7 +257,7 @@ void resignCPU() {
     _timerTick();
 }
 
-static void exitProcess() {
+void exitProcess() {
     killProcess(currentProcess->pid);
     _timerTick();
 }

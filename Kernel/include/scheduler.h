@@ -52,6 +52,7 @@ void killProcess(unsigned int pid);
 void resignCPU();
 void printProcessList(char * buffer);
 void freeProcess(processData *process);
+void exitProcess();
 
 
 #endif

@@ -171,7 +171,7 @@ void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int pid = getPid();
+    unsigned int pid = getPidSyscall();
     
     while(1) {
         printf("%d\n", pid);
