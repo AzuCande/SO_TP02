@@ -1,6 +1,17 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdGraphics.h>
+#include <time.h>
+#include <inforeg.h>
+#include <shells.h>
+#include <syscalls_asm.h>
+#include <exceptions_asm.h>
+#include <stddef.h> // TODO: Borrar despues
+
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
 
@@ -12,8 +23,9 @@ void echo(char args[MAX_ARGS][MAX_ARG_LEN]);
 void printmem(char args[MAX_ARGS][MAX_ARG_LEN]);
 void divzero(char args[MAX_ARGS][MAX_ARG_LEN]);
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]);
-void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
-void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+
+// void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+// void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void mem(char args[MAX_ARGS][MAX_ARG_LEN]);

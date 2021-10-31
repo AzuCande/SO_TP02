@@ -2,9 +2,10 @@
 #define SCHEDULER_H
 
 #include <stdint.h>
-#include "lib.h"
-#include <circularListADT.h>
+#include <lib.h>
 #include <registers.h>
+#include <interrupts.h>
+#include <lib.h>
 
 #define STRING_SIZE 15
 #define STACK_SIZE (4*1024)
@@ -42,7 +43,7 @@ typedef struct processData {
 void initScheduler();
 int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
 void *scheduler(uint64_t *sp);
-int setProcessData(processData *, unsigned int, char *, unsigned int, uint64_t);
+int setProcessData(processData *, unsigned int, char *, unsigned int/*, uint64_t*/);
 void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp);
 void changeProcessPriority(unsigned int pid, unsigned int assignPriority);
 unsigned int getPid();
@@ -50,6 +51,7 @@ void blockProcess(unsigned int pid);
 void killProcess(unsigned int pid);
 void resignCPU();
 void printProcessList(char * buffer);
+void freeProcess(processData *process);
 
 
 #endif

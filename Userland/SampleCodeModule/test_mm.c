@@ -1,4 +1,5 @@
-#include <tests.h>
+#include <test_mm.h>
+
 #define NULL (void *)0
 #define MAX_BLOCKS 12
 #define MAX_MEMORY 1024*1024 //Should be around 80% of memory managed by the MM
@@ -9,7 +10,7 @@ typedef struct MM_rq
   uint32_t size;
 } mm_rq;
 
-void test_mem(int argc, char **argv)
+void test_mm(int argc, char **argv)
 {
   mm_rq mm_rqs[MAX_BLOCKS];
 

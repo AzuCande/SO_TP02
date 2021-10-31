@@ -1,5 +1,8 @@
-#include "scheduler.h"
-#include "memManager.h"
+#ifndef CIRCULAR_LIST_ADT_H
+#define CIRCULAR_LIST_ADT_H
+
+#include <scheduler.h>
+#include <memManager.h>
 
 typedef struct node {
     processData * value;
@@ -27,4 +30,7 @@ void toBeginingCircularList(circularList * list);
 void addProcessOnCircularList(circularList * list, processData * process);
 processData * deleteProcessOnList(circularList * list, unsigned int pid);
 processData * findProcessOnList(circularList * list, unsigned int pid);
+processData * changeProcessPriorityOnCircularList(circularList * list, unsigned int pid, unsigned int priority);
+
+#endif
 

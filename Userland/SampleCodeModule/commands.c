@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include "include/commands.h"
-#include <stdlib.h>
-#include "include/stdGraphics.h"
-#include <time.h>
-#include "include/inforeg.h"
-#include "include/shells.h"
-#include <stdint.h>
-#include "include/syscalls_asm.h"
-#include "include/exceptions_asm.h"
+#include <commands.h>
 
 static void format(char *str, int value);
 
@@ -144,16 +135,6 @@ void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
-}
-
-void * myMalloc(size_t size) 
-{
-    return (void * ) mallocSyscall(size)
-}
-
-void myFree(void * dir)
-{
-    freeSyscall((uint64_t) dir)
 }
 
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
