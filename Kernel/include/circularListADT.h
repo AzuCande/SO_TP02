@@ -3,6 +3,7 @@
 
 #include <scheduler.h>
 #include <memManager.h>
+#include <stddef.h>
 
 typedef struct node {
     processData * value;

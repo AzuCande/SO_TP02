@@ -2,7 +2,7 @@
 #define MEM_MANAGER_H
 
 // #include <stdio.h>
-#include <stdlib.h>
+// #include <stdlib.h>
 #include <stdint.h>
 #include <listForBuddy.h>
 
@@ -26,7 +26,7 @@ typedef struct freeMemList_t {
     uint64_t freeBlockSize;
 }freeMemList_t;
 
-static void * memoryPosition = (void *) 0x600000;
+static void * memoryPosition = (void *) 0x700000;
 
 typedef freeMemList_t * freeMemList_p;
 

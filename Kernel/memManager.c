@@ -6,6 +6,8 @@
 #ifdef BUDDY
 /* Here starts the 'Buddy' Memory Manager */
 
+#define NULL (void*)0
+
 // Stores the free list for an allocation size
 static block_t *buckets[BUCKET_COUNT];
 // Any leaf node is disregarded, parent nodes are taken into account
@@ -162,7 +164,7 @@ static uint64_t nodeForPointer(uint64_t *ptr, uint64_t bucket) {
 /* Here starts the non 'Buddy' (default) Memory Manager */
 /* This implementation was extracted from the book "The C Programming Language" by Kernighan and Ritchie */
 
-// #define NULL 0 // TODO solo usar el NULL de stddef
+#define NULL 0 // TODO solo usar el NULL de stddef
 
 typedef long Align;
 typedef union header Header;

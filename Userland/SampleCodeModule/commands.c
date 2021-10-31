@@ -138,6 +138,7 @@ void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     test_mm();
     return;
 }
