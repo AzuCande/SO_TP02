@@ -90,6 +90,27 @@ void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t* F12 - saves the values of the registers\n");
 
     printf("\tCommands:\n");
+
+    //printf("\t sh [ARGUMENT] - allows user to execute apps\n");
+    printf("\t help - displays list of commands\n");
+
+    printf("\t mem - displays the state of memory\n");
+
+    printf("\t ps - displays list of processes with further data\n");
+    printf("\t loop - prints current process ID on loop\n");
+    printf("\t kill [ARGUMENT] - kills process with given ID\n");
+    printf("\t nice [ARGUMENT] - switches process priority with given ID and priority\n");
+    printf("\t block [ARGUMENT] - switches process state with given ID\n");
+
+    //printf("\t sem - displays list of semaphores with further data\n");
+
+    //printf("\t cat - displays stdin\n");
+    //printf("\t wc - prints amount of input lines\n");
+    //printf("\t filter - deletes vowels from the input\n");
+    //printf("\t pipe - displays list of pipes and further data\n");
+
+    //printf("\t phylo - starts phylo app\n");    
+
     printf("\t* datetime - displays the current date and time of the OS\n");
     printf("\t* inforeg - displays the values of each register\n");
     printf("\t(F12 must have been pressed before this command is used for\n");

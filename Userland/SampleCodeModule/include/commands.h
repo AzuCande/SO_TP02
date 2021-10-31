@@ -17,6 +17,7 @@ void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void mem(char args[MAX_ARGS][MAX_ARG_LEN]);
+
 void ps(char args[MAX_ARGS][MAX_ARG_LEN]);
 void kill(char args[MAX_ARGS][MAX_ARG_LEN]);
 void nice(char args[MAX_ARGS][MAX_ARG_LEN]);
