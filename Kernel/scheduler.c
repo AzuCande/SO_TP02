@@ -269,13 +269,11 @@ void printProcessList(char * buffer) {
         return;
     }
 
-    char header[51] = "PID    Name    Priority    State    FG    SP    BP";
+    char header[41] = "PID\t Name\t Priority\t State\t FG\t SP\t BP\n";
     char states[4][8] = {"Ready", "Blocked", "Killed"};
     unsigned int index = 0;
 
     strcat(buffer, header, &index);
-    index += 52;
-    buffer[index++] = '\n';
     processData * currentP;
     
     toBeginingCircularList(processList);

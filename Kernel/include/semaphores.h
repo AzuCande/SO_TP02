@@ -10,7 +10,7 @@
 
 typedef struct semType {
     uint32_t id;
-    // uint32_t value; // state ?
+    uint32_t value;
     uint32_t blockedPIDs[MAX_BLOCKED_PID];
     uint32_t blockedPIDsQty;
     int mutex;
@@ -23,5 +23,13 @@ typedef struct semList {
     semType * last;
     semType * iterator;
 } semList;
+
+int initSemaphores();
+semType * openSemaphore(uint32_t id, uint32_t initValue);
+int waitSemphore(uint32_t id);
+int postSemaphore(uint32_t id);
+int closeSemaphore(uint32_t id);
+void printSemaphore(char * buffer);
+
 
 #endif
