@@ -274,7 +274,7 @@ void freeMemory(void *freeMem)
 
 void printMemory(char *buffer) {
     char header[14] = "\nMEMORY INFO\n";
-    int i = 0;
+    unsigned int i = 0;
     strcat(buffer, header, &i);
 
     Header *current = startingNode;
