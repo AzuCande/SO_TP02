@@ -226,14 +226,6 @@ void addSpace(char *dest, int* from, int strSize, int numSpace){
   return;
 }
 
-char* strCopy(char* str){
-  int strSize = strlen(str);
-  char *copy = (char*) mallocMemory(sizeof(char*)*strSize);
-  if (copy == NULL) return 0;
-  strcpy(copy, str);
-  return copy;
-}
-
 int strcmp(char * str1, char * str2){
     int i =0;
     while(str1[i] != 0 && str2[i] != 0 ){

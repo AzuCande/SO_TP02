@@ -11,8 +11,8 @@ void * memcpy(void * destination, const void * source, uint64_t length);
 char * strcpy(char * destination, const char * source);
 void strcat(char * destination, char * source, unsigned int *index);
 void reveseString(char * string, int length);
-int intToString(char * dest, int number);
-int intToBaseString(int base, char * dest, uint64_t number);
+void intToString(char * dest, int number);
+void intToBaseString(int base, char * dest, uint64_t number);
 
 char *cpuVendor(char *result);
 
