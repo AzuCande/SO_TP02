@@ -205,15 +205,25 @@ void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    putChar('\n');
     unsigned int lines = 0;
-    for(int i = 1; args[i][0] && i < MAX_ARGS; i++){
-        if()
-        printf("%s ", args[i]);
+    char c;
+    while((c = getchar()) != '\0'){
+        if(c == '\n') {
+            lines++;
+        }
+        
     }
-    putChar('\n');
+    printf("\n Amount of lines: %d\n", lines);
 }
 
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char c;
+    putChar('\n');
 
+    while((c = getchar()) != '\0'){
+        if(!isVowel(c)) {
+            putchar(c);
+        }
+    }
+    putChar('\n');
 }

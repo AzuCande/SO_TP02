@@ -118,4 +118,21 @@ char * strcpy(char * dest, char * src) {
   return dest;
 }
 
+int isVowel(char letter) {
+    letter = toLower(letter);
+
+    switch(letter) {
+      case 'a':
+      case 'e':
+      case 'i':
+      case 'o':
+      case 'u':
+      return 1;
+      break;
+      
+      default:
+      return 0;
+    }
+}
+
 #endif
