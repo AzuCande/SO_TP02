@@ -207,7 +207,7 @@ void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int lines = 0;
     char c;
-    while((c = getchar()) != '\0'){
+    while((c = getChar()) != '\0'){
         if(c == '\n') {
             lines++;
         }
@@ -220,9 +220,9 @@ void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char c;
     putChar('\n');
 
-    while((c = getchar()) != '\0'){
+    while((c = getChar()) != '\0'){
         if(!isVowel(c)) {
-            putchar(c);
+            putChar(c);
         }
     }
     putChar('\n');

@@ -3,6 +3,7 @@
 static void acquire(int *lock);
 static void release(int *lock);
 static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore);
+static semType * findSemaphore(uint32_t id);
 
 
 semList * semaphoresList = NULL;
@@ -133,6 +134,7 @@ int closeSemaphore(uint32_t id) {
 
     semaphoresList->semQty--;
     freeMemory(semaphore);
+    return 0;
 }
 
 void printSemaphore(char * buffer) { 
