@@ -1,5 +1,6 @@
 #ifndef SYSCALLS
 #define SYSCALLS
+
 #include <stdint.h>
 #include <registers.h>
 #include <keyboard_driver.h>
@@ -11,6 +12,7 @@
 #include <exceptions.h>
 #include <memManager.h>
 #include <scheduler.h>
+#include <pipes.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
@@ -113,18 +115,18 @@ void syscallHandler(registerStruct * registers) {
 
     case 17:
     //rdi -> buffer
-    printProcessList(registers->rdi);
+    printProcessList((char *) registers->rdi);
     break;
 
     case 18:
     // rdi -> pid
     // rsi -> new priority
-    changeProcessPriority(registers->rdi, registers->rsi);
+    changeProcessPriority((unsigned int) registers->rdi, (unsigned int) registers->rsi);
     break;
 
     case 19:
     // rdi -> pid
-    blockProcess(registers->rdi);
+    blockProcess((unsigned int) registers->rdi);
     break;
 
     case 20:
@@ -132,12 +134,12 @@ void syscallHandler(registerStruct * registers) {
     // rsi -> number of arguments
     // rdx -> arguments
     // rcx -> foreground
-    createProcess(registers->rdi, registers->rsi, registers->rdx, registers->rcx);
+    createProcess(registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx);
     break;
 
     case 21:
     // rdi -> pid
-    killProcess(registers->rdi);
+    killProcess((unsigned int) registers->rdi);
     break;
 
     case 22:
@@ -146,6 +148,63 @@ void syscallHandler(registerStruct * registers) {
   
     case 23:
     exitProcess();
+    break;
+
+    case 24:
+    // rdi -> id
+    pipeOpen((uint32_t) registers->rdi);
+    break;
+    
+    case 25:
+    // rdi -> id
+    pipeClose((uint32_t) registers->rdi);
+    break;
+
+    case 26:
+    // rdi -> id
+    pipeRead((uint32_t) registers->rdi);
+    break;
+
+    case 27:
+    // rdi -> id
+    // rsi -> string
+    pipeWrite((uint32_t) registers->rdi,(char *) registers->rsi);
+    break;
+
+    case 28:
+    // rdi -> id
+    createPipe((uint32_t) registers->rdi);
+    break;
+
+    case 29:
+    // rdi -> buffer
+    printPipes((char *) registers->rdi);
+    break;
+
+    case 30:
+    // rdi -> id
+    // rsi -> initValue
+    openSemaphore((uint32_t) registers->rdi, (uint32_t) registers->rsi);
+    break;
+
+    case 31:
+    // rdi -> id
+    waitSemphore((uint32_t) registers->rdi);
+    break;
+
+    case 32:
+    // rdi -> id
+    postSemaphore((uint32_t) registers->rdi);
+    break;
+
+    case 33:
+    // rdi -> id
+    closeSemaphore((uint32_t) registers->rdi);
+    break;
+
+    case 34:
+    // rdi -> buffer
+    printSemaphore((char *) registers->rdi);
     break;
 
   }

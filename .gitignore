@@ -17,3 +17,10 @@
 
 givepermissions.sh
 .DS_Store
+
+#GDB
+.gdbinit
+.gdb_history
+
+kernel.elf
+0000-sampleCodeModule.elf

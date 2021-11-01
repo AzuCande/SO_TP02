@@ -19,6 +19,18 @@ GLOBAL createProcessSyscall
 GLOBAL killSyscall
 GLOBAL yieldSyscall
 GLOBAL exitProcessSyscall
+GLOBAL pipeOpenSyscall
+GLOBAL pipeCloseSyscall
+GLOBAL pipeReadSyscall
+GLOBAL pipeWriteSyscall
+GLOBAL createPipeSyscall
+GLOBAL pipeSyscall
+GLOBAL initSemaphoresSyscall
+GLOBAL openSemaphoreSyscall
+GLOBAL waitSemphoreSyscall
+GLOBAL postSemaphoreSyscall
+GLOBAL closeSemaphoreSyscall
+GLOBAL semSyscall
 
 section .text
 
@@ -252,6 +264,127 @@ exitProcessSyscall:    ;exitProcess
     mov rbp, rsp
 
     mov rax, 23
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+pipeOpenSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 24
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+pipeCloseSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 25
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+pipeReadSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 26
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+pipeWriteSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 27
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+createPipeSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 28
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+pipeSyscall:    ;printPipes
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 29
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+openSemaphoreSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 30
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+waitSemphoreSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 31
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+postSemaphoreSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 32
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+closeSemaphoreSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 33
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+semSyscall: ;printSemaphore
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 34
     int 80h
 
     mov rsp, rbp

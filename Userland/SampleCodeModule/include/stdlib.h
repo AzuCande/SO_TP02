@@ -11,5 +11,6 @@ char * strcpy(char * dest, char * src);
 int atohex(char * str);
 char toUpper(char letter);
 char toLower(char letter);
+int isVowel(char letter);
 
 #endif

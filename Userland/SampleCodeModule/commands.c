@@ -93,12 +93,12 @@ void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t nice [ARGUMENT] - switches process priority with given ID and priority\n");
     printf("\t block [ARGUMENT] - switches process state with given ID\n");
 
-    //printf("\t sem - displays list of semaphores with further data\n");
+    printf("\t sem - displays list of semaphores with further data\n");
 
     //printf("\t cat - displays stdin\n");
     //printf("\t wc - prints amount of input lines\n");
     //printf("\t filter - deletes vowels from the input\n");
-    //printf("\t pipe - displays list of pipes and further data\n");
+    printf("\t pipe - displays list of pipes and further data\n");
 
     //printf("\t phylo - starts phylo app\n");    
 
@@ -141,27 +141,40 @@ void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    char buffer[BUFFER_SIZE];
+    psSyscall(buffer);
+    printf("%s\n", buffer);
 }
 
 void kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    unsigned int id = atoi(args[0]);
+    killSyscall(id);
+    printf("Process successfully killed\n");
 }
 
 void nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    unsigned int id = atoi(args[0]);
+    unsigned int priority = atoi(args[1]);
+    niceSyscall(id, priority);
+    printf("Priority successfully changed\n");
 }
 
 void block(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    unsigned int id = atoi(args[0]);
+    blockSyscall(id);
+    printf("Process state successfully switched\n");
 }
 
 void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    char buffer[BUFFER_SIZE];
+    semSyscall(buffer);
+    printf("%s\n", buffer);
 }
 
 void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    char buffer[BUFFER_SIZE];
+    pipeSyscall(buffer);
+    printf("%s\n", buffer);
 }
 
 void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -181,4 +194,36 @@ void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
             ;
         }
     }
+}
+
+void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
+    for(int i = 1; args[i][0] && i < MAX_ARGS; i++){
+        printf("%s ", args[i]);
+    }
+    putChar('\n');
+}
+
+void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    unsigned int lines = 0;
+    char c;
+    while((c = getChar()) != '\0'){
+        if(c == '\n') {
+            lines++;
+        }
+        
+    }
+    printf("\n Amount of lines: %d\n", lines);
+}
+
+void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char c;
+    putChar('\n');
+
+    while((c = getChar()) != '\0'){
+        if(!isVowel(c)) {
+            putChar(c);
+        }
+    }
+    putChar('\n');
 }

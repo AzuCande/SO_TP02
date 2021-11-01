@@ -272,6 +272,21 @@ void freeMemory(void *freeMem)
       startingNode = currNode;
 }
 
+void printMemory(char *buffer) {
+    char header[14] = "\nMEMORY INFO\n";
+    unsigned int i = 0;
+    strcat(buffer, header, &i);
+
+    Header *current = startingNode;
+
+    strcat(buffer, "Total memory: ", &i);
+    
+    char aux[11] = {0};
+    int total = totalUnits * sizeof(Header);
+    intToString(aux, total);
+    strcat(buffer, aux, &i);
+}
+
 // void dumpMM()
 // {
 //       long long idx = 1;
