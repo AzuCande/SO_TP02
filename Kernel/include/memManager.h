@@ -5,6 +5,7 @@
 // #include <stdlib.h>
 #include <stdint.h>
 #include <listForBuddy.h>
+#include <lib.h>
 
 #define TOTAL_HEAP_SIZE (1024*1024)
 #define MEM_SIZE (64*1024*1024)
@@ -34,5 +35,6 @@ void initMemory();
 void *mallocMemory(unsigned long sizeRequired);
 void freeMemory(void * free);
 void insertFreeBlockOnList(freeMemList_p block);
+void printMemory(char *buffer);
 
 #endif

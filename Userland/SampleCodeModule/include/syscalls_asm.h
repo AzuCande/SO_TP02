@@ -28,4 +28,17 @@ void killSyscall(unsigned int pid);
 void yieldSyscall();
 void exitProcessSyscall();
 
+int pipeOpenSyscall(uint32_t id);
+int pipeCloseSyscall(uint32_t id);
+int pipeReadSyscall(uint32_t id);
+int pipeWriteSyscall(uint32_t id, char *string);
+int createPipeSyscall(uint32_t id);
+void pipeSyscall(char * buffer);
+
+void openSemaphoreSyscall();
+int waitSemphoreSyscall(uint32_t id);
+int postSemaphoreSyscall(uint32_t id);
+int closeSemaphoreSyscall(uint32_t id);
+void semSyscall(char * buffer);
+
 #endif

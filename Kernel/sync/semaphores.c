@@ -1,8 +1,8 @@
 #include <semaphores.h>
 
-static semType * findSemaphore(uint32_t id);
 static void acquire(int *lock);
 static void release(int *lock);
+static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore);
 
 
 semList * semaphoresList = NULL;
@@ -43,17 +43,16 @@ static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaph
     semaphore->id = id;
     semaphore->value = initValue;
     semaphore->next = NULL;
-    semaphore->mutex = 0;
     semaphore->blockedPIDsQty = 0;
 
     if(semaphoresList->first == NULL) {
         semaphoresList->first = semaphore;
-        semaphoresList->last = semaphore;
         semaphoresList->iterator = semaphore;
+    } else {
+        semaphoresList->last->next = semaphore;
     }
 
     semaphoresList->semQty++;
-    semaphoresList->last->next = semaphore;
     semaphoresList->last = semaphore;
 
     return;
@@ -92,21 +91,26 @@ int postSemaphore(uint32_t id) {
     }
 
     acquire(&(sem->mutex));
+
     if(sem->blockedPIDsQty > 0) {
         int nextPID = sem->blockedPIDs[0];
+
         for(int i = 0; i < sem->blockedPIDsQty - 1; i++) {
             sem->blockedPIDs[i] = sem->blockedPIDs[i + 1];
         }
+
         sem->blockedPIDsQty--;
         blockProcess(nextPID);
         release(&(sem->mutex));
         return 0;
+
     } else {
         sem->value++;
     }
 
     release(&(sem->mutex));
-    return 0; // TODO mejorar diseno
+
+    return 0;
 }
 
 int closeSemaphore(uint32_t id) {
@@ -115,6 +119,19 @@ int closeSemaphore(uint32_t id) {
         return -1;
     }
     
+    if(semaphore == semaphoresList->first) {
+        semaphoresList->first = semaphore->next;
+    } else {
+        semaphoresList->iterator = semaphoresList->first;
+
+        while(semaphoresList->iterator->next != semaphore) {
+            semaphoresList->iterator = semaphoresList->iterator->next;
+        }
+        semaphoresList->iterator->next = semaphore->next;
+    }
+
+    semaphoresList->semQty--;
+    freeMemory(semaphore);
 }
 
 void printSemaphore(char * buffer) { 

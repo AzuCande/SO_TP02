@@ -1,5 +1,6 @@
 #ifndef SYSCALLS
 #define SYSCALLS
+
 #include <stdint.h>
 #include <registers.h>
 #include <keyboard_driver.h>
@@ -11,6 +12,7 @@
 #include <exceptions.h>
 #include <memManager.h>
 #include <scheduler.h>
+#include <pipes.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
@@ -146,6 +148,63 @@ void syscallHandler(registerStruct * registers) {
   
     case 23:
     exitProcess();
+    break;
+
+    case 24:
+    // rdi -> id
+    pipeOpen(registers->rdi);
+    break;
+    
+    case 25:
+    // rdi -> id
+    pipeClose(registers->rdi);
+    break;
+
+    case 26:
+    // rdi -> id
+    pipeRead(registers->rdi);
+    break;
+
+    case 27:
+    // rdi -> id
+    // rsi -> string
+    pipeWrite(registers->rdi,registers->rsi);
+    break;
+
+    case 28:
+    // rdi -> id
+    createPipe(registers->rdi);
+    break;
+
+    case 29:
+    // rdi -> buffer
+    printPipes(registers->rdi);
+    break;
+
+    case 30:
+    // rdi -> id
+    // rsi -> initValue
+    openSemaphore(registers->rdi,registers->rsi);
+    break;
+
+    case 31:
+    // rdi -> id
+    waitSemphore(registers->rdi);
+    break;
+
+    case 32:
+    // rdi -> id
+    postSemaphore(registers->rdi);
+    break;
+
+    case 33:
+    // rdi -> id
+    closeSemaphore(registers->rdi);
+    break;
+
+    case 34:
+    // rdi -> buffer
+    printSemaphore(registers->rdi);
     break;
 
   }

@@ -1,23 +1,13 @@
-#include "./include/pipes.h"
+#include <pipes.h>
 
-typedef struct pipe{
-    // Despues nos fijamos bien si usar id o no
-    int id;
-    char buffer[PIPE_BUF_SIZE];
-
-    unsigned int readIdx;
-    unsigned int writeIdx;
-
-    int readSem;
-    int writeSem;
-
-    int active; // 1 -> active | 0 -> idle
-    int processCount; // Number of processes using the pipe
-} pipe_t;
+static int writeCharPipe(int pipeIdx, char c);
+static int findPipe(uint32_t id);
+static int getAvailablePipe();
 
 pipe_t pipes[MAX_PIPES];
 // Semaphore id
-uint32_t sem_id; // TODO: Fijarse que valor poner
+uint32_t sem_id = 1; // Notify user of the id of pipes' semaphores
+unsigned int pipesCount = 0;
 
 int pipeOpen(uint32_t id) {
     int pipeIdx = findPipe(id);
@@ -36,6 +26,7 @@ int pipeOpen(uint32_t id) {
     return id;
 }
 
+// When pipe closed, the memory assigned to semaphore will be freed
 int pipeClose(uint32_t id) {
     int pipeIdx = findPipe(id);
 
@@ -57,6 +48,7 @@ int pipeClose(uint32_t id) {
         return ERROR;
 
     toClose.active = 0;
+    pipesCount--;
 
     return 1;
 }
@@ -122,6 +114,7 @@ int createPipe(uint32_t id) {
     newPipe.writeIdx = 0;
     newPipe.processCount = 0;
     newPipe.active = 1;
+    pipesCount++;
 
     // Check if semaphores were created
     if((newPipe.readSem = openSemaphore(sem_id++, 0)->id) == ERROR) {
@@ -135,7 +128,8 @@ int createPipe(uint32_t id) {
     return id;
 }
 
-int findPipe(uint32_t id) {
+// Returns position of pipe in the array
+static int findPipe(uint32_t id) {
     for(int i = 0; i < MAX_PIPES; i++) {
         if(pipes[i].active && pipes[i].id == id)
             return i;
@@ -143,8 +137,8 @@ int findPipe(uint32_t id) {
     return ERROR;
 }
 
-// Get index of the array if there is no active pipe
-int getAvailablePipe() {
+// Get position of the array where there is no active pipe
+static int getAvailablePipe() {
     for(int i = 0; i < MAX_PIPES; i++) {
         if(!pipes[i].active) {
             return i;
@@ -154,5 +148,48 @@ int getAvailablePipe() {
 }
 
 void printPipes(char *buffer) {
+    unsigned int i = 0;
+    if(pipesCount == 0)
+        strcat(buffer, "There are no pipes to print", &i);
+    
+    char header[8] = "\nPIPES\n";
+    char *subheader = "Pipe ID\t ReadIdx\t WriteIdx\t ReadSem\t WriteSem\n";
 
+    strcat(buffer, header, &i);
+    strcat(buffer, subheader, &i);
+
+    for(int j = 0; j < pipesCount; j++) {
+        pipe_t toPrint = pipes[j];
+        
+        if(toPrint.active) {
+            char aux[11] = {0};
+
+            intToString(aux, toPrint.id);
+            strcat(buffer, aux, &i);
+
+            buffer[i++] = '\t';
+            
+            intToString(aux, toPrint.readIdx);
+            strcat(buffer, aux, &i);
+
+            buffer[i++] = '\t';
+
+            intToString(aux, toPrint.writeIdx);
+            strcat(buffer, aux, &i);
+
+            buffer[i++] = '\t';
+
+            intToString(aux, toPrint.readSem);
+            strcat(buffer, aux, &i);
+
+            buffer[i++] = '\t';
+
+            intToString(aux, toPrint.writeSem);
+            strcat(buffer, aux, &i);
+
+            buffer[i++] = '\n';
+        }
+    }
+
+    buffer[i] = '\0';
 }
