@@ -153,7 +153,7 @@ void kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int id = atoi(args[0);
+    unsigned int id = atoi(args[0]);
     unsigned int priority = atoi(args[1]);
     niceSyscall(id, priority);
     printf("Priority successfully changed\n");
