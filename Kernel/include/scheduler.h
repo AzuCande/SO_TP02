@@ -5,7 +5,6 @@
 #include <lib.h>
 #include <registers.h>
 #include <interrupts.h>
-#include <lib.h>
 #include <memManager.h>
 
 #define STRING_SIZE 15
