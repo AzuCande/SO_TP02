@@ -1,9 +1,11 @@
 #ifndef CIRCULAR_LIST_ADT_H
 #define CIRCULAR_LIST_ADT_H
 
-#include <scheduler.h>
 #include <memManager.h>
+#include <scheduler.h>
 #include <stddef.h>
+#include <memoryDriver.h>
+#include <lib.h>
 
 typedef struct node {
     processData * value;

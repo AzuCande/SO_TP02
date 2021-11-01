@@ -13,6 +13,8 @@
 #include <memManager.h>
 #include <scheduler.h>
 #include <pipes.h>
+#include <memoryDriver.h>
+#include <lib.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
@@ -101,7 +103,7 @@ void syscallHandler(registerStruct * registers) {
 
     case 14:
     //rdi -> tamaño de memoria pedido
-    mallocMemory(registers->rdi);
+    mallocSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
     case 15:
@@ -205,6 +207,11 @@ void syscallHandler(registerStruct * registers) {
     case 34:
     // rdi -> buffer
     printSemaphore((char *) registers->rdi);
+    break;
+
+    case 35:
+    //rdi -> trae el size a pedir  rsi -> puntero a la memoria 
+    sbrSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
   }

@@ -4,6 +4,6 @@
 #include <test_util.h>
 #include <memorylib.h>
 
-void test_mm(int argc, char **argv);
+void test_mm();
 
 #endif

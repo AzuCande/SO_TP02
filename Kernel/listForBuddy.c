@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <listForBuddy.h>
 
 /*static */void listInit(listBuddy *list) {
