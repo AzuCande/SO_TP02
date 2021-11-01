@@ -17,3 +17,6 @@
 
 givepermissions.sh
 .DS_Store
+
+#GDB Init
+.gdbinit
