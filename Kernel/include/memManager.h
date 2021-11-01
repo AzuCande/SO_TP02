@@ -5,6 +5,7 @@
 #include <lib.h>
 #include <stddef.h>
 #include <checkMemData.h>
+#include <memoryDriver.h>
 
 #define TOTAL_HEAP_SIZE (1024*1024)
 #define MEM_SIZE (64*1024*1024)

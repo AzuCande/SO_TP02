@@ -4,6 +4,8 @@
 #include <memManager.h>
 #include <scheduler.h>
 #include <stddef.h>
+#include <memoryDriver.h>
+#include <lib.h>
 
 typedef struct node {
     processData * value;

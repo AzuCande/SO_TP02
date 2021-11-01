@@ -13,6 +13,7 @@
 #include <memManager.h>
 #include <scheduler.h>
 #include <memoryDriver.h>
+#include <lib.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
