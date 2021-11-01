@@ -10,7 +10,7 @@
 #define ERROR -1
 
 typedef struct pipe{
-    // Despues nos fijamos bien si usar id o no
+    // TODO Despues nos fijamos bien si usar id o no
     int id;
     char buffer[PIPE_BUF_SIZE];
 

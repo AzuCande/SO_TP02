@@ -44,6 +44,7 @@ static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaph
     semaphore->value = initValue;
     semaphore->next = NULL;
     semaphore->blockedPIDsQty = 0;
+    semaphore->mutex = 0;
 
     if(semaphoresList->first == NULL) {
         semaphoresList->first = semaphore;

@@ -11,6 +11,7 @@
 typedef struct semType {
     uint32_t id;
     uint32_t value;
+    int mutex;
     uint32_t blockedPIDs[MAX_BLOCKED_PID];
     uint32_t blockedPIDsQty;
     struct semType * next;
