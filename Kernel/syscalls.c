@@ -1,5 +1,6 @@
 #ifndef SYSCALLS
 #define SYSCALLS
+
 #include <stdint.h>
 #include <registers.h>
 #include <keyboard_driver.h>
@@ -11,6 +12,7 @@
 #include <exceptions.h>
 #include <memManager.h>
 #include <scheduler.h>
+#include <memoryDriver.h>
 
 void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
@@ -99,7 +101,7 @@ void syscallHandler(registerStruct * registers) {
 
     case 14:
     //rdi -> tamaño de memoria pedido
-    mallocMemory(registers->rdi);
+    mallocSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
     case 15:
@@ -113,7 +115,7 @@ void syscallHandler(registerStruct * registers) {
 
     case 17:
     //rdi -> buffer
-    printProcessList(registers->rdi);
+    printProcessList(registers->rdi); // TODO: fix cast warning
     break;
 
     case 18:
@@ -132,7 +134,7 @@ void syscallHandler(registerStruct * registers) {
     // rsi -> number of arguments
     // rdx -> arguments
     // rcx -> foreground
-    createProcess(registers->rdi, registers->rsi, registers->rdx, registers->rcx);
+    createProcess(registers->rdi, registers->rsi, registers->rdx, registers->rcx); // TODO: fix cast warning
     break;
 
     case 21:
@@ -146,6 +148,11 @@ void syscallHandler(registerStruct * registers) {
   
     case 23:
     exitProcess();
+    break;
+
+    case 24:
+    //rdi -> trae el size a pedir  rsi -> puntero a la memoria 
+    sbrSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
   }

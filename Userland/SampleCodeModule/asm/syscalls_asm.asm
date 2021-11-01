@@ -19,6 +19,7 @@ GLOBAL createProcessSyscall
 GLOBAL killSyscall
 GLOBAL yieldSyscall
 GLOBAL exitProcessSyscall
+GLOBAL sbrkSyscall
 
 section .text
 
@@ -257,3 +258,14 @@ exitProcessSyscall:    ;exitProcess
     mov rsp, rbp
     pop rbp
     ret
+
+sbrkSyscall:
+  push rbp
+  mov rbp, rsp
+
+  mov rax, 24
+  int 80h
+
+  mov rsp, rbp
+  pop rbp
+  ret

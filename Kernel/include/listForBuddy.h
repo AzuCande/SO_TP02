@@ -1,6 +1,9 @@
 #ifndef LIST_FOR_BUDDY_H
 #define LIST_FOR_BUDDY_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 typedef struct listBuddy {
     struct listBuddy *prev;
     struct listBuddy *next;

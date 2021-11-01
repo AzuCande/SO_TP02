@@ -1,11 +1,17 @@
 #include <memorylib.h>
 
-void * myMalloc(size_t size) 
-{
-    return (void * ) mallocSyscall(size);
+void* myMalloc(long int size){
+  void *result = NULL; 
+  mallocSyscall(size, &result);
+  return (void*) (result);
 }
 
-void myFree(void * dir)
-{
-    freeSyscall(dir);
+void myFree(void *ptr){
+  freeSyscall(ptr);
+}
+
+void* sbrk(long int size){
+  void *result = NULL; 
+  sbrkSyscall(size, &result);
+  return (void*) (result);
 }
