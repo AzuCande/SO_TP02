@@ -42,7 +42,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
     
     processData *process;
     // Check if there is enough memory available
-    if( (process = mallocMemory(sizeof(processData)) == NULL)) { // TODO: fix cast warning
+    if( (process = (processData *) mallocMemory(sizeof(processData)) == NULL)) { 
         return -1;
     }
 
@@ -293,10 +293,10 @@ void printProcessList(char * buffer) {
 
         strcat(buffer,currentP->foreground? "FG":"BG", &index);
 
-        intToBaseString(16,aux,currentP->sp); //TODO: fix pointer warning
+        intToBaseString(16,aux,*(currentP->sp));
         strcat(buffer,aux,&index);
         
-        intToBaseString(16,aux,currentP->bp); // TODO: fix pointer warning
+        intToBaseString(16,aux,*(currentP->bp));
         strcat(buffer,aux,&index);
 
         buffer[index++] = '\n'; 
