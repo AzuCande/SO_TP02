@@ -3,7 +3,8 @@
 
 #include <stddef.h> // TODO: Borrar despues
 
-void * myMalloc(size_t size);
+void * myMalloc(long int size);
 void myFree(void * dir);
+void* sbrk(long int size);
 
 #endif
