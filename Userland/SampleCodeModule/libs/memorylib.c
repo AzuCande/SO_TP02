@@ -11,7 +11,8 @@ void myFree(void *ptr){
 }
 
 void* sbrk(long int size){
-  void *result = NULL; 
-  sbrkSyscall(size, &result);
+  void * result = NULL; 
+  
+  sbrkSyscall((uint64_t) size, &result);
   return (void*) (result);
 }

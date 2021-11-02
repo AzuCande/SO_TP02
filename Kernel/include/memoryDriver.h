@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <memManager.h>
 
-#define HEAP_SIZE (1024*1024*4)
+#define HEAP_SIZE (1024*1024*64)
 
 void* sbrk(uint64_t size);
 void sbrSyscall(uint64_t size, void** result);

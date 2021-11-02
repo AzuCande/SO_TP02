@@ -210,7 +210,8 @@ void syscallHandler(registerStruct * registers) {
     break;
 
     case 35:
-    //rdi -> trae el size a pedir  rsi -> puntero a la memoria 
+    //rdi -> trae el size a pedir  
+    //rsi -> puntero a la memoria 
     sbrSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
