@@ -1,6 +1,6 @@
 #include <test_mm.h>
+#include <stddef.h>
 
-#define NULL (void *)0
 #define MAX_BLOCKS 128
 #define MAX_MEMORY 1024*1024*32 //Should be around 80% of memory managed by the MM
 
