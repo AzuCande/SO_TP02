@@ -3,6 +3,7 @@
 
 #include <test_util.h>
 #include <memorylib.h>
+#include <stdio.h>
 
 void test_mm();
 

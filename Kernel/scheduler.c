@@ -40,9 +40,9 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
         return -1;
     }
     
-    processData *process;
+    processData *process = mallocMemory(sizeof(processData));
     // Check if there is enough memory available
-    if( (process = (processData *) mallocMemory(sizeof(processData)) == NULL)) { 
+    if( process == NULL) { 
         return -1;
     }
 
@@ -132,7 +132,7 @@ void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, 
     stackFrame->rcx = 0x00D;
     stackFrame->rbx = 0x00E;
     stackFrame->rax = 0x00F;
-    stackFrame->rip = wrapper; // TODO: fix cast warning
+    stackFrame->rip = (uint64_t) wrapper;
     stackFrame->cs = 0x008;
     stackFrame->flags = 0x202;
     stackFrame->rsp = (uint64_t) bp;
