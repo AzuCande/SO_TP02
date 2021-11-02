@@ -194,192 +194,20 @@ static uint64_t nodeForPointer(uint64_t *ptr, uint64_t bucket)
 ** ------------------------------------------------------------------------------------------------------------------
 */
 
+
 #else
-/* Here starts the non 'Buddy' (default) Memory Manager */
 
-// #include <memManager.h>
+static char * current = (char*)0x600000;
 
-//INFO_BLOCK_SIZE = 32 bytes
-void *firstInfoBlock;
-void *memorySize; //(memorySize-firstInfoBlock) tamaño total de la memoria
-void *memoryDim;  //(memoryDim-firstInfoBlock) bytes usados
-
-int index = 0; //variable auxiliar del printMem
-
-struct infoBlock
-{
-    uint64_t size; //12 bytes
-    char free;
-    struct infoBlock *next;
-    struct infoBlock *previous;
-};
-
-typedef struct infoBlock *infoBlockPtr;
-
-//private:
-infoBlockPtr findFreeBlock(infoBlockPtr *last, uint64_t size);
-infoBlockPtr requestSpace(infoBlockPtr last, uint64_t size);
-void splitBlock(infoBlockPtr block, uint64_t size);
-infoBlockPtr getBlockPtr(void *ptr);
-void *syscallManager(uint64_t size);
-
-void initMemory()
-{
-    firstInfoBlock = NULL;
-    memorySize = NULL;
-    memoryDim = NULL;
-}
+void initMemory() {
+    return;
+} 
 
 void *mallocMemory(uint64_t size)
 {
-    if (size <= 0)
-        return NULL;
-
-    infoBlockPtr block;
-    if (firstInfoBlock == NULL)
-    { //primer llamado
-        block = requestSpace(NULL, size);
-        if (block == NULL)
-            return NULL;
-        firstInfoBlock = block;
-    }
-    else
-    {
-        infoBlockPtr last = firstInfoBlock;
-        block = findFreeBlock(&last, size);
-        if (block == NULL)
-        {                                     //no se encontro un bloque
-            block = requestSpace(last, size); //agrega un nuevo bloque al final
-            if (block == NULL)
-                return NULL;
-        }
-        else
-        { //se encontro un boque
-            block->free = 0;
-            if ((int)block->size - (int)size - (int)INFO_BLOCK_SIZE > (int)MAX_DIFF_SIZE) //si es muy grande lo divido
-                splitBlock(block, size);                                                  //no esta testiado
-        }
-    }
-    return (block + 1); //la direccion justo despues de infoBlock
-}
-
-void splitBlock(infoBlockPtr block, uint64_t size)
-{
-    infoBlockPtr newBlock = (void *)(block + 1) + size;
-    newBlock->free = 1;
-    newBlock->size = (block->size) - size - INFO_BLOCK_SIZE;
-    newBlock->previous = block;
-    newBlock->next = block->next;
-
-    if (block->next != NULL)
-        block->next->previous = newBlock;
-
-    block->next = newBlock;
-    block->size = size;
-    return;
-}
-
-infoBlockPtr findFreeBlock(infoBlockPtr *last, uint64_t size)
-{
-    infoBlockPtr current = firstInfoBlock;
-    infoBlockPtr blockAptSize = NULL;
-    uint64_t aptSize = SIZE_MAX;
-    while (current != NULL)
-    {
-        if (current->free && current->size >= size && current->size < aptSize)
-        {
-            if (current->size == size)
-                return current; // current tiene el tamaño mas apto
-            aptSize = current->size;
-            blockAptSize = current;
-        }
-        *last = current;
-        current = current->next;
-    }
-    if (blockAptSize != NULL)
-        return blockAptSize;
-    return current;
-}
-
-infoBlockPtr requestSpace(infoBlockPtr last, uint64_t size)
-{
-    infoBlockPtr block = syscallManager(size + INFO_BLOCK_SIZE);
-    if (block == NULL) //no hay mas espacio en el heap
-        return NULL;
-
-    if (last != NULL)
-    { // si last==NULL es el primer llamado
-        last->next = block;
-    }
-    block->size = size;
-    block->free = 0;
-    block->next = NULL;
-    block->previous = last;
-
-    return block;
-}
-
-void *syscallManager(uint64_t size)
-{
-    if (memoryDim == NULL)
-    { //primer llamado
-        memorySize = sbrk(0);
-        memoryDim = memorySize;
-    }
-    void *resutl = memoryDim;
-    if (memorySize - memoryDim < size)
-    {
-        void *check = NULL;
-        if (size <= MIN_BYTES_REQUEST)
-        {
-            check = sbrk(MIN_BYTES_REQUEST);
-        }
-        else
-        {
-            check = sbrk(size + MIN_BYTES_REQUEST);
-        }
-        if (check == NULL)
-            return NULL; //no hay mas espacio en el heap
-        memorySize = check;
-        memoryDim += size; //ver si funciona bien
-    }
-    else
-        memoryDim += size;
-    return resutl;
-}
-
-infoBlockPtr getBlockPtr(void *ptr)
-{
-    return (infoBlockPtr)ptr - 1;
-}
-
-void freeMemory(void *ptr)
-{
-    if (ptr == NULL || ptr < getStartMemory())
-        return;
-    infoBlockPtr current = getBlockPtr(ptr);
-    current->free = 1;
-    infoBlockPtr aux = current->next;
-    if (aux != NULL && aux->free)
-    { //el siguiente esta libre
-        current->size += aux->size + INFO_BLOCK_SIZE;
-        if (aux->next != NULL)
-            aux->next->previous = current;
-        current->next = aux->next;
-        aux->next = NULL;
-        aux->previous = NULL;
-    }
-    aux = current->previous;
-    if (aux != NULL && aux->free)
-    { //el anterior esta libre
-        aux->size += current->size + INFO_BLOCK_SIZE;
-        if (current->next != NULL)
-            current->next->previous = aux;
-        aux->next = current->next;
-        current->next = NULL;
-        current->previous = NULL;
-    }
-    return;
+    void *ans = (void *)current;
+    current += size;
+    return ans;
 }
 
 void mallocSyscall(uint64_t size, void **result)
@@ -387,142 +215,343 @@ void mallocSyscall(uint64_t size, void **result)
     (*result) = mallocMemory(size);
 }
 
-/*
-  (*) No puede haber dos free juntos
-  (*) distancia entre bloques - size - INFO_BLOCK_SIZE < MAX_DIFF_SIZE
-  (*) memoryDim-firstInfoBlock = la sumatoria de "block->next - block" en todos
-  los bloques
-  (*) en todo los bloques pasa que, current = current->next->previous
-  (*) currentMemoryLimit = memorySize
-  (*) firstInfoBlock = startMemory
-  (*) totalBytes es igual a la suma de bytesUsedByBLocks, bytesUsedByUser,
-  unusedBytes y bytesUsedByAlign
-  (*) numeberOfBlocks es igual a los bloque libre y usados
-*/
-void checkMemory(struct checkMemdata *data)
+
+void freeMemory(void * p) 
 {
-    infoBlockPtr current = firstInfoBlock;
-    int freeFlag = 0;
-
-    while (current != NULL)
-    {
-        data->numeberOfBlocks++;
-        if (current->free)
-        {
-            data->freeBlock++;
-        }
-        else
-        {
-            data->blockused++;
-        }
-        data->bytesUsedByBLocks += INFO_BLOCK_SIZE;
-
-        if (current->next != NULL)
-        {
-            data->lostBytes += (long)current->next - (long)current - (int)current->size - INFO_BLOCK_SIZE;
-            data->totalBytes += (long)current->next - (long)current;
-        }
-        else
-        {
-            data->lostBytes += (long)memoryDim - (long)current - (int)current->size - INFO_BLOCK_SIZE;
-            data->totalBytes += (long)memoryDim - (long)current;
-        }
-        if (current->free)
-        { // no puede haber dos free juntos
-            data->freeBytes += current->size;
-            if (freeFlag)
-            {
-                data->freeBlocksTogether++;
-                data->numError++;
-            }
-            else
-                freeFlag = 1;
-        }
-        else
-        {
-            data->bytesUsedByUser += current->size;
-            freeFlag = 0;
-        }
-        if (current->next != NULL)
-        {
-            long notUsed = (long)current->next - (long)current - (int)current->size - INFO_BLOCK_SIZE;
-            if (notUsed > MAX_DIFF_SIZE)
-            {
-                data->lostBytes += (notUsed - MAX_DIFF_SIZE);
-                data->numError++;
-            }
-            if (current != current->next->previous)
-            {
-                data->curNextPrev++;
-                data->numError++;
-            }
-        }
-        current = current->next;
-    }
-    if (data->totalBytes != (data->bytesUsedByBLocks + data->bytesUsedByUser + data->lostBytes + data->freeBytes))
-    {
-        data->bytesError = 1;
-        data->numError++;
-    }
-    if (data->numeberOfBlocks != data->blockused + data->freeBlock)
-    {
-        data->numblocksError = 1;
-        data->numError++;
-    }
-    if (memoryDim - firstInfoBlock != data->totalBytes)
-    {
-        data->memError = 1;
-        data->numError++;
-    }
     return;
 }
 
-void printMem(char * buffer, int bufferLength)
-{
-    int i = 0;
-    bufferLength--; //reservo el lugar del \n
-
-    char *header = "\nBlock\t Free\t Size\t Address\n";
-    strcat(buffer, header, &i);
-
-    infoBlockPtr current = firstInfoBlock;
-
-    //avanzo hasta donde imprimi la ultima vez
-    for (int j = 0; j < index && current != NULL; j++)
-        current = current->next;
-
-    while (current != NULL && i < bufferLength)
-    {
-
-        char aux[10];
-
-        intToString(aux, index);
-        strcat(buffer, aux, &i);
-
-        if (current->free)
-            strcat(buffer, "Y", &i);
-        else
-            strcat(buffer, "N",  &i);
-
-        intToString(aux, current->size);
-        strcat(buffer, bufferLength, &i);
-
-        intToBaseString(16, aux, (unsigned long long)(current + 1));
-        strcat(buffer, aux, &i);
-
-        current = current->next;
-        buffer[i++] = '\n';
-    }
-
-    if (current == NULL && i != bufferLength)
-        index = 0;
-    if (i == bufferLength)
-        index--;
-
-    buffer[i] = '\0';
-}
-
 #endif
+
+// #else
+// /* Here starts the non 'Buddy' (default) Memory Manager */
+
+// // #include <memManager.h>
+
+// //INFO_BLOCK_SIZE = 32 bytes
+// void *firstInfoBlock;
+// void *memorySize; //(memorySize-firstInfoBlock) tamaño total de la memoria
+// void *memoryDim;  //(memoryDim-firstInfoBlock) bytes usados
+
+// int index = 0; //variable auxiliar del printMem
+
+// struct infoBlock
+// {
+//     uint64_t size; //12 bytes
+//     char free;
+//     struct infoBlock *next;
+//     struct infoBlock *previous;
+// };
+
+// typedef struct infoBlock *infoBlockPtr;
+
+// //private:
+// infoBlockPtr findFreeBlock(infoBlockPtr *last, uint64_t size);
+// infoBlockPtr requestSpace(infoBlockPtr last, uint64_t size);
+// void splitBlock(infoBlockPtr block, uint64_t size);
+// infoBlockPtr getBlockPtr(void *ptr);
+// void *syscallManager(uint64_t size);
+
+// void initMemory()
+// {
+//     firstInfoBlock = NULL;
+//     memorySize = NULL;
+//     memoryDim = NULL;
+// }
+
+// void *mallocMemory(uint64_t size)
+// {
+//     if (size <= 0)
+//         return NULL;
+
+//     infoBlockPtr block;
+//     if (firstInfoBlock == NULL)
+//     { //primer llamado
+//         block = requestSpace(NULL, size);
+//         if (block == NULL)
+//             return NULL;
+//         firstInfoBlock = block;
+//     }
+//     else
+//     {
+//         infoBlockPtr last = firstInfoBlock;
+//         block = findFreeBlock(&last, size);
+//         if (block == NULL)
+//         {                                     //no se encontro un bloque
+//             block = requestSpace(last, size); //agrega un nuevo bloque al final
+//             if (block == NULL)
+//                 return NULL;
+//         }
+//         else
+//         { //se encontro un boque
+//             block->free = 0;
+//             if ((int)block->size - (int)size - (int)INFO_BLOCK_SIZE > (int)MAX_DIFF_SIZE) //si es muy grande lo divido
+//                 splitBlock(block, size);                                                  //no esta testiado
+//         }
+//     }
+//     return (block + 1); //la direccion justo despues de infoBlock
+// }
+
+// void splitBlock(infoBlockPtr block, uint64_t size)
+// {
+//     infoBlockPtr newBlock = (void *)(block + 1) + size;
+//     newBlock->free = 1;
+//     newBlock->size = (block->size) - size - INFO_BLOCK_SIZE;
+//     newBlock->previous = block;
+//     newBlock->next = block->next;
+
+//     if (block->next != NULL)
+//         block->next->previous = newBlock;
+
+//     block->next = newBlock;
+//     block->size = size;
+//     return;
+// }
+
+// infoBlockPtr findFreeBlock(infoBlockPtr *last, uint64_t size)
+// {
+//     infoBlockPtr current = firstInfoBlock;
+//     infoBlockPtr blockAptSize = NULL;
+//     uint64_t aptSize = SIZE_MAX;
+//     while (current != NULL)
+//     {
+//         if (current->free && current->size >= size && current->size < aptSize)
+//         {
+//             if (current->size == size)
+//                 return current; // current tiene el tamaño mas apto
+//             aptSize = current->size;
+//             blockAptSize = current;
+//         }
+//         *last = current;
+//         current = current->next;
+//     }
+//     if (blockAptSize != NULL)
+//         return blockAptSize;
+//     return current;
+// }
+
+// infoBlockPtr requestSpace(infoBlockPtr last, uint64_t size)
+// {
+//     infoBlockPtr block = syscallManager(size + INFO_BLOCK_SIZE);
+//     if (block == NULL) //no hay mas espacio en el heap
+//         return NULL;
+
+//     if (last != NULL)
+//     { // si last==NULL es el primer llamado
+//         last->next = block;
+//     }
+//     block->size = size;
+//     block->free = 0;
+//     block->next = NULL;
+//     block->previous = last;
+
+//     return block;
+// }
+
+// void *syscallManager(uint64_t size)
+// {
+//     if (memoryDim == NULL)
+//     { //primer llamado
+//         memorySize = sbrk(0);
+//         memoryDim = memorySize;
+//     }
+//     void *resutl = memoryDim;
+//     if (memorySize - memoryDim < size)
+//     {
+//         void *check = NULL;
+//         if (size <= MIN_BYTES_REQUEST)
+//         {
+//             check = sbrk(MIN_BYTES_REQUEST);
+//         }
+//         else
+//         {
+//             check = sbrk(size + MIN_BYTES_REQUEST);
+//         }
+//         if (check == NULL)
+//             return NULL; //no hay mas espacio en el heap
+//         memorySize = check;
+//         memoryDim += size; //ver si funciona bien
+//     }
+//     else
+//         memoryDim += size;
+//     return resutl;
+// }
+
+// infoBlockPtr getBlockPtr(void *ptr)
+// {
+//     return (infoBlockPtr)ptr - 1;
+// }
+
+// void freeMemory(void *ptr)
+// {
+//     if (ptr == NULL || ptr < getStartMemory())
+//         return;
+//     infoBlockPtr current = getBlockPtr(ptr);
+//     current->free = 1;
+//     infoBlockPtr aux = current->next;
+//     if (aux != NULL && aux->free)
+//     { //el siguiente esta libre
+//         current->size += aux->size + INFO_BLOCK_SIZE;
+//         if (aux->next != NULL)
+//             aux->next->previous = current;
+//         current->next = aux->next;
+//         aux->next = NULL;
+//         aux->previous = NULL;
+//     }
+//     aux = current->previous;
+//     if (aux != NULL && aux->free)
+//     { //el anterior esta libre
+//         aux->size += current->size + INFO_BLOCK_SIZE;
+//         if (current->next != NULL)
+//             current->next->previous = aux;
+//         aux->next = current->next;
+//         current->next = NULL;
+//         current->previous = NULL;
+//     }
+//     return;
+// }
+
+// void mallocSyscall(uint64_t size, void **result)
+// {
+//     (*result) = mallocMemory(size);
+// }
+
+// /*
+//   (*) No puede haber dos free juntos
+//   (*) distancia entre bloques - size - INFO_BLOCK_SIZE < MAX_DIFF_SIZE
+//   (*) memoryDim-firstInfoBlock = la sumatoria de "block->next - block" en todos
+//   los bloques
+//   (*) en todo los bloques pasa que, current = current->next->previous
+//   (*) currentMemoryLimit = memorySize
+//   (*) firstInfoBlock = startMemory
+//   (*) totalBytes es igual a la suma de bytesUsedByBLocks, bytesUsedByUser,
+//   unusedBytes y bytesUsedByAlign
+//   (*) numeberOfBlocks es igual a los bloque libre y usados
+// */
+// void checkMemory(struct checkMemdata *data)
+// {
+//     infoBlockPtr current = firstInfoBlock;
+//     int freeFlag = 0;
+
+//     while (current != NULL)
+//     {
+//         data->numeberOfBlocks++;
+//         if (current->free)
+//         {
+//             data->freeBlock++;
+//         }
+//         else
+//         {
+//             data->blockused++;
+//         }
+//         data->bytesUsedByBLocks += INFO_BLOCK_SIZE;
+
+//         if (current->next != NULL)
+//         {
+//             data->lostBytes += (long)current->next - (long)current - (int)current->size - INFO_BLOCK_SIZE;
+//             data->totalBytes += (long)current->next - (long)current;
+//         }
+//         else
+//         {
+//             data->lostBytes += (long)memoryDim - (long)current - (int)current->size - INFO_BLOCK_SIZE;
+//             data->totalBytes += (long)memoryDim - (long)current;
+//         }
+//         if (current->free)
+//         { // no puede haber dos free juntos
+//             data->freeBytes += current->size;
+//             if (freeFlag)
+//             {
+//                 data->freeBlocksTogether++;
+//                 data->numError++;
+//             }
+//             else
+//                 freeFlag = 1;
+//         }
+//         else
+//         {
+//             data->bytesUsedByUser += current->size;
+//             freeFlag = 0;
+//         }
+//         if (current->next != NULL)
+//         {
+//             long notUsed = (long)current->next - (long)current - (int)current->size - INFO_BLOCK_SIZE;
+//             if (notUsed > MAX_DIFF_SIZE)
+//             {
+//                 data->lostBytes += (notUsed - MAX_DIFF_SIZE);
+//                 data->numError++;
+//             }
+//             if (current != current->next->previous)
+//             {
+//                 data->curNextPrev++;
+//                 data->numError++;
+//             }
+//         }
+//         current = current->next;
+//     }
+//     if (data->totalBytes != (data->bytesUsedByBLocks + data->bytesUsedByUser + data->lostBytes + data->freeBytes))
+//     {
+//         data->bytesError = 1;
+//         data->numError++;
+//     }
+//     if (data->numeberOfBlocks != data->blockused + data->freeBlock)
+//     {
+//         data->numblocksError = 1;
+//         data->numError++;
+//     }
+//     if (memoryDim - firstInfoBlock != data->totalBytes)
+//     {
+//         data->memError = 1;
+//         data->numError++;
+//     }
+//     return;
+// }
+
+// void printMem(char * buffer, int bufferLength)
+// {
+//     int i = 0;
+//     bufferLength--; //reservo el lugar del \n
+
+//     char *header = "\nBlock\t Free\t Size\t Address\n";
+//     strcat(buffer, header, &i);
+
+//     infoBlockPtr current = firstInfoBlock;
+
+//     //avanzo hasta donde imprimi la ultima vez
+//     for (int j = 0; j < index && current != NULL; j++)
+//         current = current->next;
+
+//     while (current != NULL && i < bufferLength)
+//     {
+
+//         char aux[10];
+
+//         intToString(aux, index);
+//         strcat(buffer, aux, &i);
+
+//         if (current->free)
+//             strcat(buffer, "Y", &i);
+//         else
+//             strcat(buffer, "N",  &i);
+
+//         intToString(aux, current->size);
+//         strcat(buffer, bufferLength, &i);
+
+//         intToBaseString(16, aux, (unsigned long long)(current + 1));
+//         strcat(buffer, aux, &i);
+
+//         current = current->next;
+//         buffer[i++] = '\n';
+//     }
+
+//     if (current == NULL && i != bufferLength)
+//         index = 0;
+//     if (i == bufferLength)
+//         index--;
+
+//     buffer[i] = '\0';
+// }
+
+// #endif
 
 /* ------------------------------------------------------------------------------------------------------------------
 ** ------------------------------------------------------------------------------------------------------------------

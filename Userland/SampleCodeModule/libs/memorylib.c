@@ -2,7 +2,7 @@
 
 void* myMalloc(long int size){
   void *result = NULL; 
-  result = mallocSyscall(size);
+  mallocSyscall(size, &result);
   return (void*) (result);
 }
 

@@ -68,9 +68,9 @@ void test_mm() {
           printf("error");
     
     // Free
-    for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address != NULL)
-        myFree(mm_rqs[i].address);
+    // for (i = 0; i < rq; i++)
+    //   if (mm_rqs[i].address != NULL)
+    //     myFree(mm_rqs[i].address);
   }
   
 }
