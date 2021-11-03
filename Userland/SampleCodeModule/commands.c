@@ -152,11 +152,13 @@ int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return 1;
 }
 
-void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     int strSize = 2048; //lo que ntra en una pantalla
     char str[strSize];
     memSyscall(str, strSize);
     printf("%s", str);
+
+    return 1;
 }
 
 int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -205,13 +207,6 @@ int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     pipeSyscall(buffer);
-    printf("%s\n", buffer);
-    return 1;
-}
-
-int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    char buffer[BUFFER_SIZE];
-    //TODO add syscall
     printf("%s\n", buffer);
     return 1;
 }
