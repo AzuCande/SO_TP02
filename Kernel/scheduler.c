@@ -34,7 +34,7 @@ static void dummyFunc(int argc, char **argv) {
     }
 }
 
-int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, int *fds) {
+int createProcess(void (*entryPoint) (/*int, */char **), int argc, char **argv, unsigned int foreground, int *fds) {
 
     if(entryPoint == NULL) {
         return -1;
@@ -116,7 +116,7 @@ int setProcessData(processData * p, unsigned int pid, char * name, unsigned int 
     return 0;
 }
 
-void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp) {
+void setNewStackFrame(void (*entryPoint) (/*int, */char **), int argc, char **argv, void *bp) {
     registerStruct *stackFrame = (registerStruct *) bp - 1;
 
     stackFrame->r15 = 0x001;

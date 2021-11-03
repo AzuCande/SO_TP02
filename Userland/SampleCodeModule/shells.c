@@ -364,6 +364,7 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     }
 
     // TODO: terminar esto
+    return 1;
 }
 
 void keyPressedShell(char ch) {

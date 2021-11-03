@@ -42,10 +42,10 @@ typedef struct processData {
 } processData;
 
 void initScheduler();
-int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, int *fds);
+int createProcess(void (*entryPoint) (/*int, */char **), int argc, char **argv, unsigned int foreground, int *fds);
 void *scheduler(uint64_t *sp);
 int setProcessData(processData *, unsigned int, char *, unsigned int, int * fds);
-void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp);
+void setNewStackFrame(void (*entryPoint) (/*int, */char **), int argc, char **argv, void *bp);
 void changeProcessPriority(unsigned int pid, unsigned int assignPriority);
 unsigned int getPid();
 void blockProcess(unsigned int pid);
