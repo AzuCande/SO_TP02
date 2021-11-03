@@ -13,7 +13,7 @@ GLOBAL _hlt
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
-; EXTERN scheduler
+EXTERN scheduler
 
 SECTION .text
 

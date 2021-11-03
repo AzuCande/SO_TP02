@@ -11,11 +11,13 @@ char * v = (char*)0xB8000 + 79 * 2;
 
 int main() {
 
-	uint64_t errCode = getError();
+	// uint64_t errCode = getError();
 
-	init_shell(errCode);
+	// init_shell(errCode);
 
-	createProcess(init_shell, );
+	char *argv[] = {"shell"};
+
+	createProcessSyscall(init_shell, 1, argv, 1, NULL);
 	
 	return 0;
 }

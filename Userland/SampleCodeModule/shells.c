@@ -31,7 +31,10 @@ static int totalCommands = 22;
 
 char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter"};
 
-void init_shell(uint64_t errCode) {
+void init_shell() {
+
+    uint64_t errCode = getError();
+
     for (int i = 0; i < TOTAL_LINES; i++) {
         for (int j = 0; j < TOTAL_LINES; j++) {
             lines[i][j] = 0;
