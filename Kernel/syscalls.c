@@ -27,7 +27,7 @@ void syscallHandler(registerStruct * registers) {
     //rdi -> puntero a buffer
     //rsi -> uint8_t size
     //rdx -> putero a uint64_t count
-    readFrom((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx)
+    readFrom((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx);
     // readKeyboard((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx);
     break;
 
@@ -41,7 +41,7 @@ void syscallHandler(registerStruct * registers) {
     //r9 -> backgroundColor
     //r10 -> fontSize
     //r11 -> alphaBackground
-    writeTo(registers)
+    writeTo(registers);
     // writeStr(registers);
     break;
 
@@ -137,7 +137,7 @@ void syscallHandler(registerStruct * registers) {
     // rsi -> number of arguments
     // rdx -> arguments
     // rcx -> foreground
-    createProcess((void (*)(int, char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx);
+    createProcess((void (*)(int, char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx, (unsigned int) registers->r8);
     break;
     //
 
