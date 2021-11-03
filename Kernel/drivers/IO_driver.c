@@ -50,13 +50,14 @@ uint64_t getErrCode() {
   return errNum;
 }
 
-void readFrom(char * buff, uint64_t size, uint64_t * count) {
+int readFrom(char * buff, uint64_t size, uint64_t * count) {
   int readFd = currentReadFd();
   if(readFd == IN) {
     if(isCurrentFg()) {
-      return readKeyboard(buff, size, &count);  // TODO: chequear count
+      readKeyboard(buff, size, &count);  // TODO: chequear count
+      return 1;
     } else {
-      return - 1;
+      return -1;
     }
   }
   return pipeRead(readFd);

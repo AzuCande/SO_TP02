@@ -274,7 +274,7 @@ static int isAmpersand(char *arg) {
     return arg[0] == '&';
 }
 
-static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char **args2, int argc2, int foreground) {
+static int pipe(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground) {
     int pids[2];
     int fds[2];
 
@@ -282,7 +282,7 @@ static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char 
 
     if(pipe == ERROR) {
         printf(" - ERROR CREATING PIPE");
-        return;
+        return ERROR;
     }
 
     fds[0] = pipe;
