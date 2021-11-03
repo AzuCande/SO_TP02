@@ -11,7 +11,7 @@
 #include <syscalls_asm.h>
 #include <exceptions_asm.h>
 #include <test_mm.h>
-#include <stddef.h> // TODO: Borrar despues
+#include <stddef.h>
 
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
@@ -38,14 +38,23 @@ void ps(char args[MAX_ARGS][MAX_ARG_LEN]);
 void kill(char args[MAX_ARGS][MAX_ARG_LEN]);
 void nice(char args[MAX_ARGS][MAX_ARG_LEN]);
 void block(char args[MAX_ARGS][MAX_ARG_LEN]);
+void unblock(char args[MAX_ARGS][MAX_ARG_LEN]);
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]);
+void loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void sem(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
+void catCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]);
+void wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]);
+void filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+
 void pipe(char args[MAX_ARGS][MAX_ARG_LEN]);
 void phylo(char args[MAX_ARGS][MAX_ARG_LEN]);
+void phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+
+void testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 #endif

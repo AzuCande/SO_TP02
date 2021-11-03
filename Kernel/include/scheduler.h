@@ -27,8 +27,9 @@ typedef struct processData {
     unsigned int ppid;
     char name[STRING_SIZE];
 
-    // foreground 1 | background 0
-    unsigned int foreground;
+    unsigned int foreground;    // foreground 1 | background 0
+    unsigned int fds[2];         // 0 -> IN | 1 -> OUT
+
     unsigned int priority;
     processState state;
 
@@ -41,13 +42,14 @@ typedef struct processData {
 } processData;
 
 void initScheduler();
-int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
+int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, unsigned int *fds);
 void *scheduler(uint64_t *sp);
-int setProcessData(processData *, unsigned int, char *, unsigned int/*, uint64_t*/);
+int setProcessData(processData *, unsigned int, char *, unsigned int, unsigned int * fds);
 void setNewStackFrame(void (*entryPoint) (int, char **), int argc, char **argv, void *bp);
 void changeProcessPriority(unsigned int pid, unsigned int assignPriority);
 unsigned int getPid();
 void blockProcess(unsigned int pid);
+void unblockProcess(unsigned int pid);
 void killProcess(unsigned int pid);
 void resignCPU();
 void printProcessList(char * buffer);

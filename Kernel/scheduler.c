@@ -22,7 +22,7 @@ void initScheduler() {
 
     // Runs by default a dummy process
     char *argv[] = {"Dummy Process"};
-    createProcess((void *) &dummyFunc, 1, argv, 0);
+    createProcess((void *) &dummyFunc, 1, argv, 0, 0);
     dummyProcess = nextCircularList(processList);
     // The dummy process should not be in the list
     deleteProcessOnList(processList, dummyProcess->pid);
@@ -34,7 +34,7 @@ static void dummyFunc(int argc, char **argv) {
     }
 }
 
-int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground) {
+int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, unsigned int *fds) {
 
     if(entryPoint == NULL) {
         return -1;
@@ -46,7 +46,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
         return -1;
     }
 
-   if(setProcessData(process, pidBaptizer, argv[0], foreground)) {
+   if(setProcessData(process, pidBaptizer, argv[0], foreground, fds)) {
        freeMemory(process);
        return -1;
    }
@@ -76,7 +76,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
     return process->pid;
 }
 
-int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground) {
+int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground, unsigned int *fds) {
 
     p->pid = pid;
 
@@ -99,6 +99,9 @@ int setProcessData(processData * p, unsigned int pid, char * name, unsigned int 
         else
             p->foreground = 0;
     }
+
+    p->fds[0] = (fds[0]) ? fds[0] : 0;
+    p->fds[1] = (fds[1]) ? fds[1] : 1;
 
     p->priority = DEFAULT_PRIORITY;
     p->state = READY;
@@ -221,11 +224,18 @@ void blockProcess(unsigned int pid) {
     processData * process;
     process = findProcessOnList(processList, pid);
 
-    if(process != NULL && process->state == READY) {
+    if(process != NULL) {
         process->state = BLOCKED;
         _timerTick();
-        
-    } else {
+    }
+}
+
+void unblockProcess(unsigned int pid) {
+
+    processData * process;
+    process = findProcessOnList(processList, pid);
+
+    if(process != NULL) {
         process->state = READY;
     }
 }

@@ -24,6 +24,7 @@ unsigned int getPidSyscall();
 void psSyscall(char *buffer);
 void niceSyscall(unsigned int pid, unsigned int assignPriority);
 void blockSyscall(unsigned int pid);
+void unblockSyscall(unsigned int pid);
 int createProcessSyscall(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
 void killSyscall(unsigned int pid);
 void yieldSyscall();

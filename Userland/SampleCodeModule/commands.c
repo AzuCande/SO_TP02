@@ -102,6 +102,7 @@ void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
     //printf("\t phylo - starts phylo app\n");    
 
+    /* Old commands
     printf("\t* datetime - displays the current date and time of the OS\n");
     printf("\t* inforeg - displays the values of each register\n");
     printf("\t(F12 must have been pressed before this command is used for\n");
@@ -114,6 +115,7 @@ void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\tgenerated exception\n");
     printf("\t* invalidopcode - forces an invalid OP code and shows\n");
     printf("\tthe generated exception\n");
+    */
 }
 
 void clear(char args[MAX_ARGS][MAX_ARG_LEN]){
@@ -134,10 +136,6 @@ void divzero(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
     _invalidopcode();
-}
-
-void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
 }
 
 void ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -165,6 +163,12 @@ void block(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("Process state successfully switched\n");
 }
 
+void unblock(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    unsigned int id = atoi(args[0]);
+    unblockSyscall(id);
+    printf("Process state successfully switched\n");
+}
+
 void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     semSyscall(buffer);
@@ -177,9 +181,16 @@ void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("%s\n", buffer);
 }
 
-void testCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char buffer[BUFFER_SIZE];
+    //TODO add syscall
+    printf("%s\n", buffer);
+}
+
+void testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    test_mm();
+    char *argv[] = {"testmem"};
+    createProcessSyscall(test_mm, 1, argv, 1);
     return;
 }
 
@@ -196,12 +207,23 @@ void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
     }
 }
 
+void loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
+    char *argv[] = {"loop"};
+    createProcessSyscall(loop, 1, argv, 1);
+}
+
 void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     for(int i = 1; args[i][0] && i < MAX_ARGS; i++){
         printf("%s ", args[i]);
     }
     putChar('\n');
+}
+
+void catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char *argv[] = {"cat"};
+    createProcessSyscall(cat, 1, argv, 1);
 }
 
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -216,6 +238,11 @@ void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\n Amount of lines: %d\n", lines);
 }
 
+void wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char *argv[] = {"wc"};
+    createProcessSyscall(wc, 1, argv, 1);
+}
+
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char c;
     putChar('\n');
@@ -226,4 +253,18 @@ void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
         }
     }
     putChar('\n');
+}
+
+void filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char *argv[] = {"filter"};
+    createProcessSyscall(filter, 1, argv, 1);
+}
+
+void phylo(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    //TODO develope
+}
+
+void phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    char *argv[] = {"phylo"};
+    createProcessSyscall(filter, 1, argv, 1);
 }
