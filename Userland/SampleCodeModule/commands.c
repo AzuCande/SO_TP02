@@ -1,9 +1,9 @@
 #include <commands.h>
 
 static void format(char *str, int value);
-static int buildProcess(char *name, void (*entryPoint) (int, char **));
+static int buildProcess(char *name, void (*entryPoint) (int, char **), char **args);
 
-void dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
 
     char days[] = "00";
@@ -21,6 +21,8 @@ void dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     format(seconds, getSeconds());
 
     printf("%s/%s/20%s %s:%s:%s", days, month, year, hours, minutes, seconds);
+
+    return 1;
 }
 
 static void format(char *str, int value) {
@@ -33,7 +35,7 @@ static void format(char *str, int value) {
     str[2] = 0;
 }
 
-void infoReg(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int infoReg(char args[MAX_ARGS][MAX_ARG_LEN]) {
     uint64_t registers[19];
     getRegisters(registers);
     putChar('\n');
@@ -48,9 +50,11 @@ void infoReg(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("RAX: %X - RIP: %X\n", registers[4], registers[3]);
     printf("CS: %X - FLAGS: %X\n", registers[2], registers[1]);
     printf("RSP: %X\n", registers[0]);
+
+    return 1;
 }
 
-void printmem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int printmem(char args[MAX_ARGS][MAX_ARG_LEN]) {
   putChar('\n');
   
   int with0x = 0;
@@ -71,9 +75,10 @@ void printmem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     }
   }
 
+    return 1;
 }
 
-void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     printf("This is the Help Center\n");
 
@@ -117,80 +122,96 @@ void help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t* invalidopcode - forces an invalid OP code and shows\n");
     printf("\tthe generated exception\n");
     */
+
+    return 1;
 }
 
-void clear(char args[MAX_ARGS][MAX_ARG_LEN]){
+int clear(char args[MAX_ARGS][MAX_ARG_LEN]){
     clearAll();
+
+    return 1;
 }
 
-void echo(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int echo(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     for(int i = 1; args[i][0] && i < MAX_ARGS; i++){
         printf("%s ", args[i]);
     }
     putChar('\n');
+
+    return 1;
 }
 
-void divzero(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int divzero(char args[MAX_ARGS][MAX_ARG_LEN]) {
     _divzero();
+    return 1;
 }
 
-void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
     _invalidopcode();
+    return 1;
 }
 
-void ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     psSyscall(buffer);
     printf("%s\n", buffer);
+    return 1;
 }
 
-void kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
     killSyscall(id);
     printf("Process successfully killed\n");
+    return 1;
 }
 
-void nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
     unsigned int priority = atoi(args[1]);
     niceSyscall(id, priority);
     printf("Priority successfully changed\n");
+    return 1;
 }
 
-void block(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int block(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
     blockSyscall(id);
     printf("Process state successfully switched\n");
+    return 1;
 }
 
-void unblock(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int unblock(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
     unblockSyscall(id);
     printf("Process state successfully switched\n");
+    return 1;
 }
 
-void sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     semSyscall(buffer);
     printf("%s\n", buffer);
+    return 1;
 }
 
-void pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     pipeSyscall(buffer);
     printf("%s\n", buffer);
+    return 1;
 }
 
-void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char buffer[BUFFER_SIZE];
     //TODO add syscall
     printf("%s\n", buffer);
+    return 1;
 }
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    return buildProcess("testmem", test_mm);
+    return buildProcess("testmem", test_mm, args);
 }
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -207,7 +228,7 @@ void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return buildProcess("loop", loop);
+    return buildProcess("loop", loop, args);
 }
 
 void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -219,10 +240,10 @@ void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return buildProcess("cat", cat);
+    return buildProcess("cat", cat, args);
 }
 
-void wc(char args[MAX_ARGS][MAX_ARG_LEN]) { // wc | cat
+void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int lines = 0;
     char c;
     while((c = getChar()) != '\0'){
@@ -235,7 +256,7 @@ void wc(char args[MAX_ARGS][MAX_ARG_LEN]) { // wc | cat
 }
 
 int wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return buildProcess("wc", wc);
+    return buildProcess("wc", wc, args);
 }
 
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -252,20 +273,20 @@ void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
-    return buildProcess("filter", filter);
+    return buildProcess("filter", filter, args);
 }
 
 void phylo(char args[MAX_ARGS][MAX_ARG_LEN]) {
     //TODO develope
 }
 
-int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) 
-    return buildProcess("phylo", phylo);
+int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return buildProcess("phylo", phylo, args);
 }
 
-static int buildProcess(char *name, void (*entryPoint) (int, char **)) {
-    int argc = atoi(args[0]);
-    char argv[argc+1][MAX_ARG_LEN] = {{0}};
+static int buildProcess(char *name, void (*entryPoint) (int, char **), char **args) {
+    unsigned int argc = atoi(args[0]);
+    char argv[argc+1][MAX_ARG_LEN];
     
     int i = 0;
     strcpy(argv[i], name);

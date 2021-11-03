@@ -22,7 +22,7 @@ static int lineCursor = 0;
 static int pipeId = 1;
 
 char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem","loop", "cat", "wc", "filter", "phylo"};
-void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, unblock, sem, pipe, testMemCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
+int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, unblock, sem, pipe, testMemCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
 static int totalCommands = 22;
 
 char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter"};
@@ -177,14 +177,14 @@ static void exeCommand(char * line) {
     int readyArgc1;
 
     for(readyArgc1 = 0; readyArgc1 < pipePos; readyArgc1++) {
-        readyArgv1[readyArgc1] = commandArgs[readyArgc1+1];
+        strcpy(readyArgv1[readyArgc1], commandArgs[readyArgc1+1]);
     }
 
     char readyArgv2[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
     int readyArgc2;
 
     for(readyArgc1 = pipePos+2; readyArgc1 < foundArgs; readyArgc2++) {
-        readyArgv2[readyArgc2] = commandArgs[readyArgc2+1];
+        strcpy(readyArgv2[readyArgc2], commandArgs[readyArgc2+1]);
     }
 
     // Check if pipe
@@ -222,11 +222,11 @@ static void exeCommand(char * line) {
                     strcpy(arguments[i], aux);
                 } else if(i == argQty - 2) {
                     //fdin
-                    intToString(fds[0], aux);
+                    intToString(0, aux);
                     strcpy(arguments[i],aux);
                 }  else if (i == argQty -1) {
                     //fdout
-                    intToString(fds[1], aux);
+                    intToString(0, aux);
                     strcpy(arguments[i], aux); 
                 } else{
                     //argvs
@@ -291,34 +291,28 @@ static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char 
     
     for(int i=0; i<argQty; i++) {
         char aux[11] = {0};
-        switch(i) {
-            case 0:
+
+        if(i==0) {
             //argc
             intToString(argc1, aux);
             strcpy(arguments1[i], aux);
-            break;
-            case argQty-3:
+        } else if(i==argQty-3){
             //fg
             intToString(foreground, aux);
             strcpy(arguments1[i], aux);
-            break;
-            case argQty-2:
+        } else if(i == argQty - 2) {
             //fdin
             intToString(fds[0], aux);
             strcpy(arguments1[i],aux);
-            break;
-            case argQty-1:
+        }  else if (i == argQty -1) {
             //fdout
             intToString(fds[1], aux);
-            strcpy(arguments1[i], aux); 
-            break;
-
-            default:
+            strcpy(arguments1[i], aux);  
+        } else{
             //argvs
             strcpy(arguments1[i], args1[i+1]);
-        }    
+        }
     }
-        
 
     pids[0] = run[posCommand1](arguments1);
 
@@ -334,36 +328,32 @@ static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char 
     argQty = argc2 + 4;    // argc, args1, foreground, fdIn, fdOut
 
     for(int i=0; i<argQty; i++) {
+
         char aux[11] = {0};
-        switch(i) {
-            case 0:
+
+        if(i==0) {
             //argc
             intToString(argc2, aux);
             strcpy(arguments2[i], aux);
-            break;
-            case argQty-3:
+        } else if(i==argQty-3){
             //fg
             intToString(foreground, aux);
             strcpy(arguments2[i], aux);
-            break;
-            case argQty-2:
+        } else if(i == argQty - 2) {
             //fdin
             intToString(fds[0], aux);
             strcpy(arguments2[i],aux);
-            break;
-            case argQty-1:
+        }  else if (i == argQty -1) {
             //fdout
             intToString(fds[1], aux);
-            strcpy(arguments2[i], aux); 
-            break;
-
-            default:
+            strcpy(arguments2[i], aux);   
+        } else{
             //argvs
             strcpy(arguments2[i], args1[i+1]);
-        }    
+        }
     }
 
-    pids[1] = run[posCommand2](arguments2);
+    pids[1] = (int) run[posCommand2](arguments2);
 
     if(pids[1] == ERROR) {
         pipeCloseSyscall(pipe);

@@ -270,7 +270,7 @@ void resignCPU() {
 // Returns read fd from current process
 int currentReadFd() {
     if(currentProcess) {
-        return currentProcess.fds[0];
+        return currentProcess->fds[0];
     }
     return -1;
 }
@@ -278,14 +278,14 @@ int currentReadFd() {
 // Returns write fd from current process
 int currentWriteFd() {
     if(currentProcess) {
-        return currentProcess.fds[1];
+        return currentProcess->fds[1];
     }
     return -1;
 }
 
 int isCurrentFg() {
     if(currentProcess) {
-        return currentProcess.foreground;
+        return currentProcess->foreground;
     }
     return -1;
 }
