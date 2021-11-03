@@ -137,7 +137,10 @@ void invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-
+    int strSize = 2048; //lo que ntra en una pantalla
+    char str[strSize];
+    memSyscall(str, strSize);
+    printf("%s", str);
 }
 
 void ps(char args[MAX_ARGS][MAX_ARG_LEN]) {

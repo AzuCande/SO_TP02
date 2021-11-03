@@ -32,6 +32,7 @@ GLOBAL postSemaphoreSyscall
 GLOBAL closeSemaphoreSyscall
 GLOBAL semSyscall
 GLOBAL sbrkSyscall
+GLOBAL memSyscall
 
 section .text
 
@@ -402,3 +403,14 @@ sbrkSyscall:
   mov rsp, rbp
   pop rbp
   ret
+
+memSyscall:
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 36
+    int 80h
+    
+    mov rsp, rbp
+    pop rbp
+    ret

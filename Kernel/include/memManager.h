@@ -35,7 +35,7 @@ static void * const memoryPosition = (void *) 0x600000;
 
 typedef freeMemList_t * freeMemList_p;
 
-void initMemory();
+void initMemory(char *base, unsigned long totalSize);
 void *mallocMemory(uint64_t size);
 void freeMemory(void * free);
 void insertFreeBlockOnList(freeMemList_p block);
