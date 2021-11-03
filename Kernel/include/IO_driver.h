@@ -15,4 +15,7 @@ void getRegisters(uint64_t * arr);
 void getBytesFromAddress(uint64_t address, uint64_t * target, uint8_t totalBytes);
 void saveErrCode(uint64_t err);
 uint64_t getErrCode();
+void readFrom(char * buff, uint64_t size, uint64_t * count);
+void writeTo(registerStruct *registers);
+
 #endif

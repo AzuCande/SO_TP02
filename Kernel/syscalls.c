@@ -137,7 +137,7 @@ void syscallHandler(registerStruct * registers) {
     // rsi -> number of arguments
     // rdx -> arguments
     // rcx -> foreground
-    createProcess((void (*)(int, char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx, (unsigned int) registers->r8);
+    createProcess((void (*)(int, char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx, (unsigned int *) registers->r8);
     break;
     //
 

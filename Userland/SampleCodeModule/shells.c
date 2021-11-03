@@ -14,6 +14,10 @@ void keyPressedShell(char ch);
 static void clearShellLine(int line);
 static void drawBottomLine();
 static int isCommand(char * name);
+static int isBuiltin(char *command);
+static int isPipe(char *pipe);
+static int isAmpersand(char *arg);
+static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char **args2, int argc2, int foreground);
 
 static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
@@ -145,7 +149,6 @@ static void exeCommand(char * line) {
     int foreground = 1;
 
     int pipePos = 0;
-    int maxArgvs = MAX_ARGS-3;
     
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
         if (line[index] != ' ' && line[index] != '-') {
