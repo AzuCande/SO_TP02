@@ -1,5 +1,4 @@
 #include <stdint.h>
-// #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
@@ -23,6 +22,7 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
 static void * const sampleDataModuleAddress = (void*)0x500000;
+static void * const startingMemoryAddress = (void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -90,10 +90,10 @@ void * initializeKernelBinary()
 
 int main()
 {
+	initMemory((char*)startingMemoryAddress, 1020*1024*64);
 	loadIdt();
 	initVideoDriver();
 	initializeFunctionKeys();
-	initMemory();
 
 	//Test para printmem
 	// uint8_t * pos = 0x12345678;

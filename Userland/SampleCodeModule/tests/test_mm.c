@@ -33,8 +33,8 @@ void test_mm() {
   mm_rq mm_rqs[MAX_BLOCKS];
 
   printf("Comienza el test de memoria:\n");
-  while(1)
-  {
+  // while(1)
+  // {
     uint8_t rq = 0;
     uint32_t total = 0;
   
@@ -68,9 +68,9 @@ void test_mm() {
           printf("error");
     
     // Free
-    // for (i = 0; i < rq; i++)
-    //   if (mm_rqs[i].address != NULL)
-    //     myFree(mm_rqs[i].address);
-  }
+    for (i = 0; i < rq; i++)
+      if (mm_rqs[i].address != NULL)
+        myFree(mm_rqs[i].address);
+  // }
   
 }
