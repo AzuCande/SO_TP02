@@ -14,6 +14,8 @@ int main() {
 	uint64_t errCode = getError();
 
 	init_shell(errCode);
+
+	createProcess(init_shell, );
 	
 	return 0;
 }
