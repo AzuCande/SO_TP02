@@ -222,7 +222,7 @@ int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("cat", cat);
 }
 
-void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
+void wc(char args[MAX_ARGS][MAX_ARG_LEN]) { // wc | cat
     unsigned int lines = 0;
     char c;
     while((c = getChar()) != '\0'){

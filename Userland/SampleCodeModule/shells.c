@@ -139,7 +139,7 @@ static void drawBottomLine() {
 static void exeCommand(char * line) {
     
     char commandArgs[MAX_ARGS][MAX_ARG_LEN] = {{0}}; //Max of 10 arguments with 32 chars each
-    int foundArgs = 0;
+    int foundArgs = 0; // echo a v s
     int index = 0;
     int nameIndex = 0;
     int foreground = 1;
@@ -147,21 +147,20 @@ static void exeCommand(char * line) {
     int pipePos = 0;
     int maxArgvs = MAX_ARGS-3;
     
-    
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
         if (line[index] != ' ' && line[index] != '-') {
             commandArgs[foundArgs][nameIndex++] = line[index];
-        }
-        else if (line[index] == ' ') {
+        } else if (index!= 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
             foundArgs++;
             nameIndex = 0;
         } else if(line[index] == '|') {
             pipePos = index;
         }
+
         index++;
     }
 
-    if(isAmpersand(commandArgs[foundArgs - 1])) {
+    if(isAmpersand(commandArgs[foundArgs])) {
         foreground = 0;
     }
     
@@ -212,32 +211,27 @@ static void exeCommand(char * line) {
             
             for(int i=0; i<argQty; i++) {
                 char aux[11] = {0};
-                switch(i) {
-                    case 0:
+
+                if(i==0) {
                     //argc
-                    intToString(argc1, aux);
+                    intToString(foundArgs - 1, aux);
                     strcpy(arguments[i], aux);
-                    break;
-                    case argQty-3:
+                } else if(i==argQty-3){
                     //fg
                     intToString(foreground, aux);
                     strcpy(arguments[i], aux);
-                    break;
-                    case argQty-2:
+                } else if(i == argQty - 2) {
                     //fdin
                     intToString(fds[0], aux);
                     strcpy(arguments[i],aux);
-                    break;
-                    case argQty-1:
+                }  else if (i == argQty -1) {
                     //fdout
                     intToString(fds[1], aux);
                     strcpy(arguments[i], aux); 
-                    break;
-
-                    default:
+                } else{
                     //argvs
                     strcpy(arguments[i], commandArgs[i+1]);
-                }    
+                }
             }
         }
     }

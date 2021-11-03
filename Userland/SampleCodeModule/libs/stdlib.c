@@ -8,6 +8,7 @@ int strlen(char *str);
 int strcmp(char * str1, char * str2);
 int intToBase(unsigned long long num, int base, char*buffer);
 int iabs(int num);
+int isAlfaNum(char c);
 
 int atoi(char * str){
   int aux = 0;
@@ -133,6 +134,14 @@ int isVowel(char letter) {
       default:
       return 0;
     }
+}
+
+int isAlfaNum(char c) {
+  if((c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9')) {
+    return 1;
+  }
+
+  return 0;
 }
 
 #endif
