@@ -10,10 +10,7 @@ void * memset(void * destination, int32_t character, uint64_t length);
 void * memcpy(void * destination, const void * source, uint64_t length);
 char * strcpy(char * destination, const char * source);
 void strcat(char * destination, char * source, unsigned int *index);
-void reveseString(char * string, int length);
 char* itoa(uint64_t value, char* buffer, int base);
-void intToString(char * dest, uint64_t number); // TODO: borrar
-void intToBaseString(int base, char * dest, uint64_t number); // TODO: borrar
 
 char *cpuVendor(char *result);
 

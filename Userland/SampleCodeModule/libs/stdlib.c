@@ -93,9 +93,8 @@ int intToString(unsigned long long num, char * buffer){
 
 int strlen(char *str){
   int i =0;
-  for ( i = 0; *(str+i); i++)
-  {
-
+  for ( i = 0; *(str+i); i++) {
+    ;
   }
   return i;
 }

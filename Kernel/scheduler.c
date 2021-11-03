@@ -281,22 +281,22 @@ void printProcessList(char * buffer) {
     while(( currentP = nextCircularList(processList)) != NULL) {
         char aux[11] = {0};
         
-        intToString(aux,currentP->pid);
+        itoa(currentP->pid,aux,10);
         strcat(buffer, aux, &index);
 
         strcat(buffer,currentP->name,&index);
         
-        intToString(aux,currentP->priority);
+        itoa(currentP->priority,aux,10);
         strcat(buffer, aux, &index);
         
         strcat(buffer,states[currentP->state], &index);
 
         strcat(buffer,currentP->foreground? "FG":"BG", &index);
-
-        intToBaseString(16,aux,*(currentP->sp));
+        
+        itoa(*(currentP->sp),aux,16);
         strcat(buffer,aux,&index);
         
-        intToBaseString(16,aux,*(currentP->bp));
+        itoa(*(currentP->bp),aux,16);
         strcat(buffer,aux,&index);
 
         buffer[index++] = '\n'; 

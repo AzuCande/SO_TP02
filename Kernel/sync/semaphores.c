@@ -77,7 +77,7 @@ int waitSemphore(uint32_t id) {
     }
     else
     {
-        int thisPID = getPid();
+        unsigned int thisPID = getPid();
         sem->blockedPIDs[sem->blockedPIDsQty++] = thisPID;
         release(&(sem->mutex));
         blockProcess(thisPID);
@@ -156,10 +156,10 @@ void printSemaphore(char * buffer) {
     while(semaphoresList->iterator != NULL) {
         char aux[11] = {0};
 
-        intToString(aux,semaphoresList->iterator->id);
+        itoa(semaphoresList->iterator->id,aux,10);
         strcat(buffer, aux, &index);
 
-        intToString(aux,semaphoresList->iterator->value);
+        itoa(semaphoresList->iterator->value,aux,10);
         strcat(buffer, aux, &index);
 
         buffer[index++] = '\n';

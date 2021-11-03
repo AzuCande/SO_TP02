@@ -126,69 +126,6 @@ char* itoa(uint64_t value, char* buffer, int base)
     return reverse(buffer, 0, i - 1);
 }
 
-// TODO: borrar
-void reveseString(char * string, int length) {
-	for(int i=0; i<length/2; i++) {
-		char aux = string[i];
-		string[i] = string[length-i];
-		string[length-i] = aux;
-	}
-}
-
-// TODO: borrar
-void intToString(char * dest, uint64_t number) {
-	int i = 0;
-	int isNegative = 0;
-
-    if(number == 0) {
-        dest[i++] = '0';
-        dest[i] = '\0';
-        return;
-    }
-    
-    if(number<0) {
-        isNegative = 1;
-        number = number * (-1);
-    }
-
-    for(i = 0; number > 0; i++) {
-        int aux = number % 10;
-        dest[i] = aux + '0';
-        number /= 10;
-    }
-
-    if(isNegative) {
-        dest[i++] = '-';
-    }
-
-    dest[i] = '\0';
-
-    reveseString(dest,i);
-}
-
-// TODO: borrar
-void intToBaseString(int base, char * dest, uint64_t number) {
-
-    if(number == 0) {
-        dest[0] = '0';
-        dest[1] = '\0';
-        return;
-    }
-
-	int i;
-	for(i=0; number>0; i++) {
-		int aux = number%base;
-		int add = aux<10? '0': 'A'-10;
-		dest[i] = aux + add;
-
-		number = number/base;
-	}
-
-	dest[i] = '\0';
-
-	reveseString(dest,i);
-}
-
 int strlen(char *str){
   int i =0;
   for ( i = 0; *(str+i); i++)

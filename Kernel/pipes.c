@@ -164,27 +164,27 @@ void printPipes(char *buffer) {
         if(toPrint.active) {
             char aux[11] = {0};
 
-            intToString(aux, toPrint.id);
+            itoa(toPrint.id,aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
             
-            intToString(aux, toPrint.readIdx);
+            itoa(toPrint.readIdx,aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
 
-            intToString(aux, toPrint.writeIdx);
+            itoa(toPrint.writeIdx, aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
 
-            intToString(aux, toPrint.readSem);
+            itoa(toPrint.readSem,aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
 
-            intToString(aux, toPrint.writeSem);
+            itoa(toPrint.writeSem,aux, 10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\n';

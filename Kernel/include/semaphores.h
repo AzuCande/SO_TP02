@@ -2,6 +2,7 @@
 #define SEMAPHORES_H
 
 #include <stdint.h>
+#include <scheduler.h>
 #include <memManager.h>
 #include <lib.h>
 #include <stddef.h>
