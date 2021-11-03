@@ -19,6 +19,7 @@ void readErrorSyscall(uint64_t * err);
 void * mallocSyscall(uint64_t size, void ** result);
 void freeSyscall(void * free);
 void sbrkSyscall(uint64_t size, void** result);
+void memSyscall(char *str, int strSize);
 
 unsigned int getPidSyscall();
 void psSyscall(char *buffer);

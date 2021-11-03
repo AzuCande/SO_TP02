@@ -216,6 +216,10 @@ void syscallHandler(registerStruct * registers) {
     sbrSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
+    case 36:
+    printMem((char *)registers->rdi, (int)registers->rsi);
+    break;
+
   }
 }
 

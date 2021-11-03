@@ -1,7 +1,7 @@
 #include <lib.h>
 
-void swap(char *a, char * b); // TODO: delete if not used
-void reverse(char str[], int length); // TODO: delete if not used
+char* reverse(char *buffer, int i, int j);
+void swap(char *x, char *y);
 
 void * memset(void * destination, int32_t c, uint64_t length)
 {
@@ -67,6 +67,66 @@ void strcat(char * destination, char * source, unsigned int *index) {
 	}
 }
 
+// Function to swap two numbers
+void swap(char *x, char *y) {
+    char t = *x; *x = *y; *y = t;
+}
+ 
+// Function to reverse `buffer[i…j]`
+char* reverse(char *buffer, int i, int j)
+{
+    while (i < j) {
+        swap(&buffer[i++], &buffer[j--]);
+    }
+ 
+    return buffer;
+}
+ 
+// Iterative function to implement `itoa()` function in C
+char* itoa(uint64_t value, char* buffer, int base)
+{
+    // invalid input
+    if (base < 2 || base > 32) {
+        return buffer;
+    }
+ 
+    // consider the absolute value of the number
+    int n = (value >= 0)? value : value * (-1);
+ 
+    int i = 0;
+    while (n)
+    {
+        int r = n % base;
+ 
+        if (r >= 10) {
+            buffer[i++] = 65 + (r - 10);
+        }
+        else {
+            buffer[i++] = 48 + r;
+        }
+ 
+        n = n / base;
+    }
+ 
+    // if the number is 0
+    if (i == 0) {
+        buffer[i++] = '0';
+    }
+ 
+    // If the base is 10 and the value is negative, the resulting string
+    // is preceded with a minus sign (-)
+    // With any other base, value is always considered unsigned
+    if (value < 0 && base == 10) {
+        buffer[i++] = '-';
+    }
+ 
+    buffer[i] = '\0'; // null terminate string
+ 
+    // reverse the string and return it
+    return reverse(buffer, 0, i - 1);
+}
+
+// TODO: borrar
 void reveseString(char * string, int length) {
 	for(int i=0; i<length/2; i++) {
 		char aux = string[i];
@@ -75,14 +135,15 @@ void reveseString(char * string, int length) {
 	}
 }
 
-void intToString(char * dest, int number) {
+// TODO: borrar
+void intToString(char * dest, uint64_t number) {
 	int i = 0;
 	int isNegative = 0;
 
     if(number == 0) {
         dest[i++] = '0';
         dest[i] = '\0';
-        return i;
+        return;
     }
     
     if(number<0) {
@@ -105,6 +166,7 @@ void intToString(char * dest, int number) {
     reveseString(dest,i);
 }
 
+// TODO: borrar
 void intToBaseString(int base, char * dest, uint64_t number) {
 
     if(number == 0) {
@@ -142,26 +204,6 @@ int strlen(char *str){
 ** ------------------------------------------------------------------------------------------------------------------
 ** ------------------------------------------------------------------------------------------------------------------
 */
-
-void swap(char *a, char * b) {
-	if(!a || !b)
-		return;
-
-	char temp = *(a);
-	*(a) = *(b);
-	*(b) = temp;
-}
-
-void reverse(char str[], int length) {
-    int start = 0;
-    int end = length -1;
-    while (start < end)
-    {
-        swap((str+start), (str+end));
-        start++;
-        end--;
-    }
-}
 
 int atoi(char * str){
   int aux = 0;

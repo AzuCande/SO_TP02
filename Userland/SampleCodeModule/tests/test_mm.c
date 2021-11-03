@@ -18,23 +18,25 @@ void test_mm() {
   //   memoryset(test,1,10);
   //   if(memcheck(test,1,10) == 0)
   //     printf("todo mal 2\n");
-  //   else
-  //     {
-  //       myFree(test);
-  //       printf("hizo free\n");
-  //       test = myMalloc(10);
-  //       memoryset(test,2,10);
-  //       if (memcheck(test,2,10) == 0)
-  //         printf("todo mal 3\n");
-  //       else
-  //         printf("anduvo 2\n");
-  //     }
+    // else
+    //   {
+    //     myFree(test);
+    //     printf("hizo free\n");
+        // test = myMalloc(10);
+        // memoryset(test,2,10);
+        // if (memcheck(test,2,10) == 0)
+        //   printf("todo mal 3\n");
+        // else {
+    //       printf("anduvo 2\n");
+    //       myFree(test);
+    //       printf("hizo free 2\n");
+    //     }
+    //   }
   // }
   mm_rq mm_rqs[MAX_BLOCKS];
 
   printf("Comienza el test de memoria:\n");
-  // while(1)
-  // {
+  for (int i = 0; i < 50; i++) { //while (1)
     uint8_t rq = 0;
     uint32_t total = 0;
   
@@ -71,6 +73,7 @@ void test_mm() {
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address != NULL)
         myFree(mm_rqs[i].address);
-  // }
+  }
   
+  printf("termina el test de memoria");
 }

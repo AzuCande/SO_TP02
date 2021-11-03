@@ -195,95 +195,8 @@
 ** ------------------------------------------------------------------------------------------------------------------
 */
 
-// #ifdef NO_BUDDY
+#ifdef NO_BUDDY // this would be '#else' if we had a buddy manager
 /* Here starts the non 'Buddy' (default) Memory Manager */
-
-// static char * current = (char*)0x600000;
-
-// typedef long Align;
-
-// union header {
-//     struct {
-//         union header *ptr;
-//         unsigned size;
-//     } s;
-
-//     Align x;
-
-// };
-
-// typedef union header Header;
-// static Header *base;
-// static Header *freep = NULL;
-
-// unsigned long totalUnits;
-
-// void initMemory(char *base, unsigned long totalSize) {
-//     // if (base == NULL) {
-//     //     return;
-//     // }
-//     totalUnits = (totalSize + sizeof(Header) - 1) / sizeof(Header) + 1;
-//     freep = base = (Header *)base;
-//     freep->s.size = totalUnits;
-//     freep->s.ptr = freep;
-// } 
-
-// void *mallocMemory(uint64_t nbytes) {
-
-//     if (nbytes == 0) {
-//         return 0;
-//     }
-
-//     Header *p, *prevp;
-//     unsigned long nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
-//     // void *result;
-//     // bool is_allocating = true;
-
-//     prevp = freep;
-
-//     for (p = prevp->s.ptr; is_allocating; prevp = p, p = p->s.ptr) {
-//         if (p->s.size >= nunits) {
-//             if (p->s.size == nunits) {
-//                 prevp->s.ptr = p->s.ptr; 
-//             } else {
-//                 p->s.size -= nunits;
-//                 p += p->s.size;
-//                 p->s.size = nunits;
-//             }
-//             freep = prevp;
-//             return (void *)(p+1);
-//         }
-//         if (p == freep) {
-//             return NULL;
-//         }
-//     }
-
-// }
-
-// void *mallocMemory(unsigned long size)
-// {
-//         void *ans = (void *)current;
-//         current += size;
-//         return ans;
-// }
-
-// void mallocSyscall(uint64_t size, void **result)
-// {
-//     (*result) = mallocMemory(size);
-// }
-
-
-// void freeMemory(void * p) 
-// {
-//     return;
-// }
-
-// #endif
-
-#ifdef NO_BUDDY
-/* Here starts the non 'Buddy' (default) Memory Manager */
-
-// #include <memManager.h>
 
 //INFO_BLOCK_SIZE = 32 bytes
 void *firstInfoBlock;
@@ -565,11 +478,12 @@ void checkMemory(struct checkMemdata *data)
 
 void printMem(char * buffer, int bufferLength)
 {
-    int i = 0;
+    unsigned int i = 0;
     bufferLength--; //reservo el lugar del \n
 
-    char *header = "\nBlock\t Free\t Size\t Address\n";
-    strcat(buffer, header, &i);
+    char *header = "\nBlock\tFree\tSize\tAddress\n";
+
+    char aux[100];
 
     infoBlockPtr current = firstInfoBlock;
 
@@ -577,27 +491,31 @@ void printMem(char * buffer, int bufferLength)
     for (int j = 0; j < index && current != NULL; j++)
         current = current->next;
 
+    strcat(buffer, header, &i);
+
     while (current != NULL && i < bufferLength)
     {
 
-        char aux[10];
-
-        intToString(aux, index);
+        itoa(index, aux, 10);
         strcat(buffer, aux, &i);
+        strcat(buffer, "\t\t\t\t\t", &i);
 
         if (current->free)
-            strcat(buffer, "Y", &i);
+            strcat(buffer, "Y\t\t\t\t\t", &i);
         else
-            strcat(buffer, "N",  &i);
+            strcat(buffer, "N\t\t\t\t\t",  &i);
 
-        intToString(aux, current->size);
-        strcat(buffer, bufferLength, &i);
-
-        intToBaseString(16, aux, (unsigned long long)(current + 1));
+        itoa(current->size, aux, 10);
         strcat(buffer, aux, &i);
+        strcat(buffer, "\t\t\t\t", &i);
+
+        itoa((unsigned long long)(current + 1), aux, 16);
+        strcat(buffer, "0x", &i);
+        strcat(buffer, aux, &i);
+        strcat(buffer, "\n", &i);
 
         current = current->next;
-        buffer[i++] = '\n';
+        index++;
     }
 
     if (current == NULL && i != bufferLength)
@@ -610,6 +528,8 @@ void printMem(char * buffer, int bufferLength)
 
 #endif
 
+// A partir de aca son implementaciones que no nos funcionaron:
+
 /* ------------------------------------------------------------------------------------------------------------------
 ** ------------------------------------------------------------------------------------------------------------------
 ** ------------------------------------------------------------------------------------------------------------------
@@ -617,145 +537,92 @@ void printMem(char * buffer, int bufferLength)
 ** ------------------------------------------------------------------------------------------------------------------
 */
 
-// LO DE JUAN
-
-// #define NULL 0 // TODO solo usar el NULL de stddef
+// static char * current = (char*)0x600000;
 
 // typedef long Align;
-// typedef union header Header;
 
-// union header
-// {
-//       struct
-//       {
-//             union header *ptr;
-//             unsigned size;
-//       } data;
-//       Align x;
+// union header {
+//     struct {
+//         union header *ptr;
+//         unsigned size;
+//     } s;
+
+//     Align x;
+
 // };
 
+// typedef union header Header;
 // static Header *base;
-// static Header *startingNode = NULL;
+// static Header *freep = NULL;
 
 // unsigned long totalUnits;
 
-// void initMemory()
-// {
-//       // Initially its all a very large block
-//       totalUnits = (MEM_SIZE + sizeof(Header) - 1) / sizeof(Header) + 1;
-//       startingNode = base = (Header *)memoryPosition;
-//       startingNode->data.size = totalUnits;
-//       startingNode->data.ptr = startingNode;
-// }
+// void initMemory(char *base, unsigned long totalSize) {
+//     // if (base == NULL) {
+//     //     return;
+//     // }
+//     totalUnits = (totalSize + sizeof(Header) - 1) / sizeof(Header) + 1;
+//     freep = base = (Header *)base;
+//     freep->s.size = totalUnits;
+//     freep->s.ptr = freep;
+// } 
 
-// // Ref for malloc/free : The C Programming Language  - K&R
-// void *mallocMemory(unsigned long nbytes)
-// {
-//       if (nbytes == 0)
+// void *mallocMemory(uint64_t nbytes) {
+
+//     if (nbytes == 0) {
+//         return 0;
+//     }
+
+//     Header *p, *prevp;
+//     unsigned long nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
+//     // void *result;
+//     // bool is_allocating = true;
+
+//     prevp = freep;
+
+//     for (p = prevp->s.ptr; is_allocating; prevp = p, p = p->s.ptr) {
+//         if (p->s.size >= nunits) {
+//             if (p->s.size == nunits) {
+//                 prevp->s.ptr = p->s.ptr; 
+//             } else {
+//                 p->s.size -= nunits;
+//                 p += p->s.size;
+//                 p->s.size = nunits;
+//             }
+//             freep = prevp;
+//             return (void *)(p+1);
+//         }
+//         if (p == freep) {
 //             return NULL;
+//         }
+//     }
 
-//       unsigned long nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1; //Normalize to header units
-
-//       Header *currNode, *prevNode;
-//       prevNode = startingNode;
-
-//       for (currNode = prevNode->data.ptr;; prevNode = currNode, currNode = currNode->data.ptr)
-//       {
-//             if (currNode->data.size >= nunits)
-//             {
-//                   if (currNode->data.size == nunits) // Equal just use
-//                         prevNode->data.ptr = currNode->data.ptr;
-//                   else
-//                   {
-//                         currNode->data.size -= nunits;
-//                         currNode += currNode->data.size;
-//                         currNode->data.size = nunits;
-//                   }
-//                   startingNode = prevNode;
-//                   return (void *)(currNode + 1); //Return new memspace WITHOUT header
-//             }
-//             if (currNode == startingNode)
-//                   return NULL;
-//       }
 // }
 
-// void freeMemory(void *freeMem)
+// void *mallocMemory(unsigned long size)
 // {
-//       if (freeMem == NULL || (((long)freeMem - (long)base) % sizeof(Header)) != 0)
-//             return;
-
-//       Header *freeBlock, *currNode;
-//       freeBlock = (Header *)freeMem - 1; //Add header to mem to free
-
-//       if (freeBlock < base || freeBlock >= (base + totalUnits * sizeof(Header)))
-//             return;
-
-//       char isExternal = 0;
-
-//       for (currNode = startingNode; !(freeBlock > currNode && freeBlock < currNode->data.ptr); currNode = currNode->data.ptr)
-//       {
-
-//             if (freeBlock == currNode || freeBlock == currNode->data.ptr)
-//                   return;
-
-//             if (currNode >= currNode->data.ptr && (freeBlock > currNode || freeBlock < currNode->data.ptr))
-//             {
-//                   isExternal = 1;
-//                   break;
-//             }
-//       }
-
-//       if (!isExternal && (currNode + currNode->data.size > freeBlock || freeBlock + freeBlock->data.size > currNode->data.ptr)) //Absurd!!
-//             return;
-
-//       if (freeBlock + freeBlock->data.size == currNode->data.ptr) //Join right
-//       {
-//             freeBlock->data.size += currNode->data.ptr->data.size;
-//             freeBlock->data.ptr = currNode->data.ptr->data.ptr;
-//       }
-//       else
-//             freeBlock->data.ptr = currNode->data.ptr;
-
-//       if (currNode + currNode->data.size == freeBlock) //Join left
-//       {
-//             currNode->data.size += freeBlock->data.size;
-//             currNode->data.ptr = freeBlock->data.ptr;
-//       }
-//       else
-//             currNode->data.ptr = freeBlock;
-
-//       startingNode = currNode;
+//         void *ans = (void *)current;
+//         current += size;
+//         return ans;
 // }
 
-// void dumpMM()
+// void mallocSyscall(uint64_t size, void **result)
 // {
-//       long long idx = 1;
-//       Header *original, *current;
-//       original = current = startingNode;
-//       int flag = 1;
-
-//       print("\nMEMORY DUMP (Free List)\n");
-//       print("- - Units of 16 bytes\n");
-//       print("------------------------------------------------\n");
-//       print("Total memory: %d bytes\n\n", totalUnits * sizeof(Header));
-//       if (startingNode == NULL)
-//             print("    No free blocks\n");
-//       print("Free blocks: \n");
-//       print("-------------------------------\n");
-//       while (current != original || flag)
-//       {
-//             flag = 0;
-//             print("    Block number %d\n", idx);
-//             print("        Base: %x\n", (uint64_t)current);
-//             print("        Free units: %d\n", current->data.size);
-//             print("-------------------------------\n");
-//             current = current->data.ptr;
-//             idx++;
-//       }
-//       print("\n\n");
+//     (*result) = mallocMemory(size);
 // }
 
-// lo nuestro:
+
+// void freeMemory(void * p) 
+// {
+//     return;
+// }
+
+/* ------------------------------------------------------------------------------------------------------------------
+** ------------------------------------------------------------------------------------------------------------------
+** ------------------------------------------------------------------------------------------------------------------
+** ------------------------------------------------------------------------------------------------------------------
+** ------------------------------------------------------------------------------------------------------------------
+*/
 
 // static void * memoryPosition = (void *) 0x600000;
 
