@@ -17,7 +17,7 @@ static int isCommand(char * name);
 static int isBuiltin(char *command);
 static int isPipe(char *pipe);
 static int isAmpersand(char *arg);
-static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char **args2, int argc2, int foreground);
+static int pipeWrapper(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground);
 
 static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
@@ -196,7 +196,7 @@ static void exeCommand(char * line) {
         if(k != ERROR) {
             // Check if commands are builtin
             if(!(isBuiltin(commandArgs[0]) || isBuiltin(commandArgs[pipePos+1]))) {
-                pipe(i, k, readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
+                pipeWrapper(i, k, readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
             } else {
                 printf(" - INVALID COMMANDS FOR PIPE");
                 return;
@@ -274,7 +274,7 @@ static int isAmpersand(char *arg) {
     return arg[0] == '&';
 }
 
-static int pipe(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground) {
+static int pipeWrapper(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground) {
     int pids[2];
     int fds[2];
 

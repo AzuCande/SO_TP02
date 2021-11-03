@@ -54,7 +54,7 @@ int readFrom(char * buff, uint64_t size, uint64_t * count) {
   int readFd = currentReadFd();
   if(readFd == IN) {
     if(isCurrentFg()) {
-      readKeyboard(buff, size, &count);  // TODO: chequear count
+      readKeyboard(buff, size, count);  // TODO: chequear count
       return 1;
     } else {
       return -1;
