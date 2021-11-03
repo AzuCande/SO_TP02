@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define MAX_ARG_LEN 32
+
 void drawStringSysCall(char * buff, uint64_t size, uint64_t x, uint64_t y, uint64_t fontColor, uint64_t backgroundColor, uint64_t fontSize, uint64_t alphaBackground);
 void isKeyboardEmptySyscall(uint64_t * target);
 void readKeyboardSysCall(char * buffer, uint64_t size, uint64_t * count);
@@ -25,7 +27,8 @@ unsigned int getPidSyscall();
 void psSyscall(char *buffer);
 void niceSyscall(unsigned int pid, unsigned int assignPriority);
 void blockSyscall(unsigned int pid);
-int createProcessSyscall(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground);
+void unblockSyscall(unsigned int pid);
+int createProcessSyscall(void (*entryPoint) (char [][MAX_ARG_LEN]), int argc, char argv[][MAX_ARG_LEN], unsigned int foreground, int *fds);
 void killSyscall(unsigned int pid);
 void yieldSyscall();
 void exitProcessSyscall();

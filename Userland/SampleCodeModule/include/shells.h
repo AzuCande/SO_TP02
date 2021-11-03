@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <syscalls_asm.h>
 
+#define NO_BUILTIN_SIZE 4
+#define ERROR -1
+
 void drawShellLines();
 void init_shell();
 void clearAll();

@@ -14,14 +14,22 @@ void keyPressedShell(char ch);
 static void clearShellLine(int line);
 static void drawBottomLine();
 static int isCommand(char * name);
+static int isBuiltin(char *command);
+static int isPipe(char *pipe);
+static int isAmpersand(char *arg);
+static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground);
 
 static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
 static int lineCursor = 0;
 
-char commandsNames[][MAX_ARG_LEN]={"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo","mem","ps","kill","nice","block","sem","pipe",  "test","loop"};
-void  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, sem, pipe, testCommand, loop};
-static int totalCommands = 17;
+static int pipeId = 1;
+
+char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem","loop", "cat", "wc", "filter", "phylo"};
+int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, unblock, sem, pipe, testMemCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
+static int totalCommands = 22;
+
+char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter"};
 
 void init_shell(uint64_t errCode) {
     for (int i = 0; i < TOTAL_LINES; i++) {
@@ -133,27 +141,109 @@ static void drawBottomLine() {
 
 
 static void exeCommand(char * line) {
-    char commandArgs[10][32] = {{0}}; //Max of 10 arguments with 32 chars each
-    int foundArgs = 0;
+    
+    char commandArgs[MAX_ARGS][MAX_ARG_LEN] = {{0}}; //Max of 10 arguments with 32 chars each
+    int foundArgs = 0; // echo a v s
     int index = 0;
     int nameIndex = 0;
+    int foreground = 1;
+
+    int pipePos = 0;
+    
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
         if (line[index] != ' ' && line[index] != '-') {
             commandArgs[foundArgs][nameIndex++] = line[index];
-        }
-        else if (line[index] == ' ') {
+        } else if (index!= 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
             foundArgs++;
             nameIndex = 0;
+        } else if(line[index] == '|') {
+            pipePos = index;
         }
+
         index++;
     }
 
-      int i = isCommand(commandArgs[0]);
-      if (i >= 0) {
-          run[i](commandArgs);
-      } else {
-          printf(" - INVALID COMMAND");
-      }
+    if(isAmpersand(commandArgs[foundArgs])) {
+        foreground = 0;
+    }
+    
+    int i = isCommand(commandArgs[0]);
+    int j = isPipe(commandArgs[pipePos]);
+    int k = isCommand(commandArgs[pipePos + 1]);
+    
+    if(i == ERROR)  {
+        printf(" - INVALID COMMAND");
+        return;
+    }
+
+    char readyArgv1[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
+    int readyArgc1;
+
+    for(readyArgc1 = 0; readyArgc1 < pipePos; readyArgc1++) {
+        strcpy(readyArgv1[readyArgc1], commandArgs[readyArgc1+1]);
+    }
+
+    char readyArgv2[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
+    int readyArgc2;
+
+    for(readyArgc1 = pipePos+2; readyArgc1 < foundArgs; readyArgc2++) {
+        strcpy(readyArgv2[readyArgc2], commandArgs[readyArgc2+1]);
+    }
+
+    // Check if pipe
+    if(j) {
+        // Check if second command is valid
+        if(k != ERROR) {
+            // Check if commands are builtin
+            if(!(isBuiltin(commandArgs[0]) || isBuiltin(commandArgs[pipePos+1]))) {
+                pipeWrapper(i, k, readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
+            } else {
+                printf(" - INVALID COMMANDS FOR PIPE");
+                return;
+            }
+        } else {
+            printf(" - INVALID PIPE");
+            return;
+        }
+    } else {
+        if(isBuiltin(commandArgs[0])) {
+            run[i] (commandArgs);
+        } else {
+            int argQty = foundArgs + 3;    // argc, args, foreground, fdIn, fdOut
+            char arguments[argQty][MAX_ARG_LEN];
+            
+            for(int i=0; i<argQty; i++) {
+                char aux[11] = {0};
+
+                if(i==0) {
+                    //argc
+                    intToString(foundArgs - 1, aux);
+                    strcpy(arguments[i], aux);
+                } else if(i==argQty-3){
+                    //fg
+                    intToString(foreground, aux);
+                    strcpy(arguments[i], aux);
+                } else if(i == argQty - 2) {
+                    //fdin
+                    intToString(0, aux);
+                    strcpy(arguments[i],aux);
+                }  else if (i == argQty -1) {
+                    //fdout
+                    intToString(0, aux);
+                    strcpy(arguments[i], aux); 
+                } else{
+                    //argvs
+                    strcpy(arguments[i], commandArgs[i+1]);
+                }
+            }
+        }
+    }
+
+    if (i >= 0) {
+        run[i](commandArgs);
+    } else {
+        printf(" - INVALID COMMAND");
+    }
 
 }
 
@@ -166,6 +256,115 @@ static int isCommand(char * name){
         }
     }
     return -1;
+}
+
+static int isBuiltin(char *command) {
+    for(int i = 0; i < NO_BUILTIN_SIZE; i++) {
+        if(strcmp(notBuiltInCommands[i], command) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+static int isPipe(char *pipe) {
+    return pipe[0] == '|';
+}
+
+static int isAmpersand(char *arg) {
+    return arg[0] == '&';
+}
+
+static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground) {
+    int pids[2];
+    unsigned int fds[2];
+
+    int pipe = pipeOpenSyscall(pipeId++);
+
+    if(pipe == ERROR) {
+        printf(" - ERROR CREATING PIPE");
+        return ERROR;
+    }
+
+    fds[0] = pipe;
+    fds[1] = 1;
+
+    // cat asdj ajodas | cat asca a
+    int argQty = argc1 + 4;    // argc, args1, foreground, fdIn, fdOut
+    char arguments1[argQty][MAX_ARG_LEN];
+    
+    for(int i=0; i<argQty; i++) {
+        char aux[11] = {0};
+
+        if(i==0) {
+            //argc
+            intToString(argc1, aux);
+            strcpy(arguments1[i], aux);
+        } else if(i==argQty-3){
+            //fg
+            intToString(foreground, aux);
+            strcpy(arguments1[i], aux);
+        } else if(i == argQty - 2) {
+            //fdin
+            intToString(fds[0], aux);
+            strcpy(arguments1[i],aux);
+        }  else if (i == argQty -1) {
+            //fdout
+            intToString(fds[1], aux);
+            strcpy(arguments1[i], aux);  
+        } else{
+            //argvs
+            strcpy(arguments1[i], args1[i+1]);
+        }
+    }
+
+    pids[0] = run[posCommand1](arguments1);
+
+    if(pids[0] == ERROR) {
+        pipeCloseSyscall(pipe);
+        return ERROR;
+    }
+
+    fds[0] = 0;
+    fds[1] = pipe;
+
+    char arguments2[argQty][MAX_ARG_LEN];
+    argQty = argc2 + 4;    // argc, args1, foreground, fdIn, fdOut
+
+    for(int i=0; i<argQty; i++) {
+
+        char aux[11] = {0};
+
+        if(i==0) {
+            //argc
+            intToString(argc2, aux);
+            strcpy(arguments2[i], aux);
+        } else if(i==argQty-3){
+            //fg
+            intToString(foreground, aux);
+            strcpy(arguments2[i], aux);
+        } else if(i == argQty - 2) {
+            //fdin
+            intToString(fds[0], aux);
+            strcpy(arguments2[i],aux);
+        }  else if (i == argQty -1) {
+            //fdout
+            intToString(fds[1], aux);
+            strcpy(arguments2[i], aux);   
+        } else{
+            //argvs
+            strcpy(arguments2[i], args1[i+1]);
+        }
+    }
+
+    pids[1] = (int) run[posCommand2](arguments2);
+
+    if(pids[1] == ERROR) {
+        pipeCloseSyscall(pipe);
+        return ERROR;
+    }
+
+    // TODO: terminar esto
+    return 1;
 }
 
 void keyPressedShell(char ch) {

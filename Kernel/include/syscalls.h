@@ -4,5 +4,6 @@
 #include <registers.h>
 
 void syscallHandler(registerStruct * registers);
+void writeStr(registerStruct * registers);
 
 #endif

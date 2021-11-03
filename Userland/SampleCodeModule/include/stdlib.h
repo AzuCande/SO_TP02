@@ -12,5 +12,6 @@ int atohex(char * str);
 char toUpper(char letter);
 char toLower(char letter);
 int isVowel(char letter);
+int isAlfaNum(char c);
 
 #endif

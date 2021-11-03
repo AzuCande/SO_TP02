@@ -33,6 +33,7 @@ GLOBAL closeSemaphoreSyscall
 GLOBAL semSyscall
 GLOBAL sbrkSyscall
 GLOBAL memSyscall
+GLOBAL unblockSyscall
 
 section .text
 
@@ -411,6 +412,18 @@ memSyscall:
     mov rax, 36
     int 80h
     
+    mov rsp, rbp
+    pop rbp
+    ret
+
+
+unblockSyscall:    ;unblockProcess
+    push rbp
+    mov rbp, rsp
+
+    mov rax, 37
+    int 80h
+
     mov rsp, rbp
     pop rbp
     ret
