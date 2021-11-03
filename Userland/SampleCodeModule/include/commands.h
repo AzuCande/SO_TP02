@@ -40,21 +40,21 @@ void nice(char args[MAX_ARGS][MAX_ARG_LEN]);
 void block(char args[MAX_ARGS][MAX_ARG_LEN]);
 void unblock(char args[MAX_ARGS][MAX_ARG_LEN]);
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]);
-void loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void sem(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
-void catCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]);
-void wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]);
-void filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 void pipe(char args[MAX_ARGS][MAX_ARG_LEN]);
 void phylo(char args[MAX_ARGS][MAX_ARG_LEN]);
-void phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
-void testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 #endif

@@ -1,6 +1,7 @@
 #include <commands.h>
 
 static void format(char *str, int value);
+static int buildProcess(char *name, void (*entryPoint) (int, char **));
 
 void dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
@@ -187,11 +188,9 @@ void mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("%s\n", buffer);
 }
 
-void testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    char *argv[] = {"testmem"};
-    createProcessSyscall(test_mm, 1, argv, 1);
-    return;
+    return buildProcess("testmem", test_mm);
 }
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -207,10 +206,8 @@ void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
     }
 }
 
-void loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    putChar('\n');
-    char *argv[] = {"loop"};
-    createProcessSyscall(loop, 1, argv, 1);
+int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return buildProcess("loop", loop);
 }
 
 void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -221,9 +218,8 @@ void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
 }
 
-void catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    char *argv[] = {"cat"};
-    createProcessSyscall(cat, 1, argv, 1);
+int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return buildProcess("cat", cat);
 }
 
 void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -238,9 +234,8 @@ void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\n Amount of lines: %d\n", lines);
 }
 
-void wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    char *argv[] = {"wc"};
-    createProcessSyscall(wc, 1, argv, 1);
+int wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    return buildProcess("wc", wc);
 }
 
 void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -255,16 +250,34 @@ void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
 }
 
-void filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    char *argv[] = {"filter"};
-    createProcessSyscall(filter, 1, argv, 1);
+int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+
+    return buildProcess("filter", filter);
 }
 
 void phylo(char args[MAX_ARGS][MAX_ARG_LEN]) {
     //TODO develope
 }
 
-void phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    char *argv[] = {"phylo"};
-    createProcessSyscall(filter, 1, argv, 1);
+int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) 
+    return buildProcess("phylo", phylo);
+}
+
+static int buildProcess(char *name, void (*entryPoint) (int, char **)) {
+    int argc = atoi(args[0]);
+    char argv[argc+1][MAX_ARG_LEN] = {{0}};
+    
+    int i = 0;
+    strcpy(argv[i], name);
+    i++;
+    for(int j = 0; j < argc; j++, i++) {
+        strcpy(argv[i], args[j]);
+    }
+    
+    int foreground = atoi(args[i++]);
+    int fds[2];
+    fds[0] = atoi(args[i++]);  
+    fds[1] = atoi(args[i++]);
+    
+    return createProcessSyscall(entryPoint, argc, argv, foreground, fds);
 }

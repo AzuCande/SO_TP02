@@ -188,9 +188,57 @@ static void exeCommand(char * line) {
         readyArgv2[readyArgc2] = commandArgs[readyArgc2+1];
     }
 
-    if(j && k) {
-        if(!(isBuiltin(commandArgs[0]) || isBuiltin(commandArgs[pipePos+1]))) {
-            pipe(readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
+    // Check if pipe
+    if(j) {
+        // Check if second command is valid
+        if(k != ERROR) {
+            // Check if commands are builtin
+            if(!(isBuiltin(commandArgs[0]) || isBuiltin(commandArgs[pipePos+1]))) {
+                pipe(i, k, readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
+            } else {
+                printf(" - INVALID COMMANDS FOR PIPE");
+                return;
+            }
+        } else {
+            printf(" - INVALID PIPE");
+            return;
+        }
+    } else {
+        if(isBuiltin(commandArgs[0])) {
+            run[i] (commandArgs);
+        } else {
+            int argQty = foundArgs + 3;    // argc, args, foreground, fdIn, fdOut
+            char arguments[argQty][MAX_ARG_LEN];
+            
+            for(int i=0; i<argQty; i++) {
+                char aux[11] = {0};
+                switch(i) {
+                    case 0:
+                    //argc
+                    intToString(argc1, aux);
+                    strcpy(arguments[i], aux);
+                    break;
+                    case argQty-3:
+                    //fg
+                    intToString(foreground, aux);
+                    strcpy(arguments[i], aux);
+                    break;
+                    case argQty-2:
+                    //fdin
+                    intToString(fds[0], aux);
+                    strcpy(arguments[i],aux);
+                    break;
+                    case argQty-1:
+                    //fdout
+                    intToString(fds[1], aux);
+                    strcpy(arguments[i], aux); 
+                    break;
+
+                    default:
+                    //argvs
+                    strcpy(arguments[i], commandArgs[i+1]);
+                }    
+            }
         }
     }
 
@@ -199,8 +247,6 @@ static void exeCommand(char * line) {
     } else {
         printf(" - INVALID COMMAND");
     }
-
-    
 
 }
 
@@ -231,8 +277,9 @@ static int isAmpersand(char *arg) {
     return arg[0] == '&';
 }
 
-static int pipe(char **args1, int argc1, char **args2, int argc2, int foreground) {
+static int pipe(int posCommand1, int posCommand2, char **args1, int argc1, char **args2, int argc2, int foreground) {
     int pids[2];
+    int fds[2];
 
     int pipe = pipeOpenSyscall(pipeId++);
 
@@ -241,25 +288,95 @@ static int pipe(char **args1, int argc1, char **args2, int argc2, int foreground
         return;
     }
 
-    pids[0] = createPipeProcess(args1, argc1, foreground, pipe, 1);
+    fds[0] = pipe;
+    fds[1] = 1;
+
+    // cat asdj ajodas | cat asca a
+    int argQty = argc1 + 4;    // argc, args1, foreground, fdIn, fdOut
+    char arguments1[argQty][MAX_ARG_LEN];
+    
+    for(int i=0; i<argQty; i++) {
+        char aux[11] = {0};
+        switch(i) {
+            case 0:
+            //argc
+            intToString(argc1, aux);
+            strcpy(arguments1[i], aux);
+            break;
+            case argQty-3:
+            //fg
+            intToString(foreground, aux);
+            strcpy(arguments1[i], aux);
+            break;
+            case argQty-2:
+            //fdin
+            intToString(fds[0], aux);
+            strcpy(arguments1[i],aux);
+            break;
+            case argQty-1:
+            //fdout
+            intToString(fds[1], aux);
+            strcpy(arguments1[i], aux); 
+            break;
+
+            default:
+            //argvs
+            strcpy(arguments1[i], args1[i+1]);
+        }    
+    }
+        
+
+    pids[0] = run[posCommand1](arguments1);
 
     if(pids[0] == ERROR) {
         pipeCloseSyscall(pipe);
-        return;
+        return ERROR;
     }
 
-    pids[1] = createPipeProcess(args2, argc2, foreground, 0, pipe);
+    fds[0] = 0;
+    fds[1] = pipe;
+
+    char arguments2[argQty][MAX_ARG_LEN];
+    argQty = argc2 + 4;    // argc, args1, foreground, fdIn, fdOut
+
+    for(int i=0; i<argQty; i++) {
+        char aux[11] = {0};
+        switch(i) {
+            case 0:
+            //argc
+            intToString(argc2, aux);
+            strcpy(arguments2[i], aux);
+            break;
+            case argQty-3:
+            //fg
+            intToString(foreground, aux);
+            strcpy(arguments2[i], aux);
+            break;
+            case argQty-2:
+            //fdin
+            intToString(fds[0], aux);
+            strcpy(arguments2[i],aux);
+            break;
+            case argQty-1:
+            //fdout
+            intToString(fds[1], aux);
+            strcpy(arguments2[i], aux); 
+            break;
+
+            default:
+            //argvs
+            strcpy(arguments2[i], args1[i+1]);
+        }    
+    }
+
+    pids[1] = run[posCommand2](arguments2);
 
     if(pids[1] == ERROR) {
         pipeCloseSyscall(pipe);
-        return;
+        return ERROR;
     }
 
     // TODO: terminar esto
-}
-
-static int createPipeProcess(char **args, int argc, int foreground, int readFd, int writeFd) {
-    // TODO: terminar por favor
 }
 
 void keyPressedShell(char ch) {
