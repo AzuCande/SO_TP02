@@ -267,6 +267,29 @@ void resignCPU() {
     _timerTick();
 }
 
+// Returns read fd from current process
+int currentReadFd() {
+    if(currentProcess) {
+        return currentProcess.fds[0];
+    }
+    return -1;
+}
+
+// Returns write fd from current process
+int currentWriteFd() {
+    if(currentProcess) {
+        return currentProcess.fds[1];
+    }
+    return -1;
+}
+
+int isCurrentFg() {
+    if(currentProcess) {
+        return currentProcess.foreground;
+    }
+    return -1;
+}
+
 void exitProcess() {
     killProcess(currentProcess->pid);
     _timerTick();

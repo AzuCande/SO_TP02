@@ -16,7 +16,6 @@
 #include <memoryDriver.h>
 #include <lib.h>
 
-void writeStr(registerStruct * registers);
 void getDateInfo(uint8_t mode, uint8_t * target);
 
 void syscallHandler(registerStruct * registers) {
@@ -28,7 +27,8 @@ void syscallHandler(registerStruct * registers) {
     //rdi -> puntero a buffer
     //rsi -> uint8_t size
     //rdx -> putero a uint64_t count
-    readKeyboard((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx);
+    readFrom((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx)
+    // readKeyboard((char *)registers->rdi, (uint8_t) registers->rsi, (uint64_t*)registers->rdx);
     break;
 
     //WRITE STR
@@ -41,7 +41,8 @@ void syscallHandler(registerStruct * registers) {
     //r9 -> backgroundColor
     //r10 -> fontSize
     //r11 -> alphaBackground
-    writeStr(registers);
+    writeTo(registers)
+    // writeStr(registers);
     break;
 
     case 2:

@@ -1,7 +1,6 @@
 #ifndef IO_DRIVER
 #define IO_DRIVER
-#include <registers.h>
-#include <stdint.h>
+#include <IO_driver.h>
 
 static registerStruct registerSnapshot;
 static uint64_t errNum = 32;
@@ -50,4 +49,26 @@ void saveErrCode(uint64_t err) {
 uint64_t getErrCode() {
   return errNum;
 }
+
+void readFrom(char * buff, uint64_t size, uint64_t * count) {
+  int readFd = currentReadFd();
+  if(readFd == IN) {
+    if(isCurrentFg()) {
+      return readKeyboard(buff, size, &count);  // TODO: chequear count
+    } else {
+      return - 1;
+    }
+  }
+  return pipeRead(readFd);
+}
+
+void writeTo(registerStruct *registers) {
+  int writeFd = currentWriteFd();
+  if(writeFd == OUT) {
+    writeStr(registers);
+  } else {
+    pipeWrite(writeFd, (char *) registers->rdi);
+  }
+}
+
 #endif
