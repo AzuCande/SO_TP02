@@ -1,7 +1,7 @@
 #include <commands.h>
 
 static void format(char *str, int value);
-static int buildProcess(char *name, void (*entryPoint) (int, char **), char **args);
+static int buildProcess(char *name, void (*entryPoint) (int, char [MAX_ARGS][MAX_ARG_LEN]), char * args[]);
 
 int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
@@ -284,7 +284,7 @@ int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("phylo", phylo, args);
 }
 
-static int buildProcess(char *name, void (*entryPoint) (int, char **), char **args) {
+static int buildProcess(char *name, void (*entryPoint) (int, char [MAX_ARGS][MAX_ARG_LEN]), char * args[]) {
     unsigned int argc = atoi(args[0]);
     char argv[argc+1][MAX_ARG_LEN];
     

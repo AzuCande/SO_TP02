@@ -17,7 +17,7 @@ static int isCommand(char * name);
 static int isBuiltin(char *command);
 static int isPipe(char *pipe);
 static int isAmpersand(char *arg);
-static int pipeWrapper(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground);
+static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground);
 
 static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
@@ -274,9 +274,9 @@ static int isAmpersand(char *arg) {
     return arg[0] == '&';
 }
 
-static int pipeWrapper(int posCommand1, int posCommand2, char *args1[MAX_ARG_LEN], int argc1, char *args2[MAX_ARG_LEN], int argc2, int foreground) {
+static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground) {
     int pids[2];
-    int fds[2];
+    unsigned int fds[2];
 
     int pipe = pipeOpenSyscall(pipeId++);
 

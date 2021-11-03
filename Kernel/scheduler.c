@@ -34,7 +34,7 @@ static void dummyFunc(int argc, char **argv) {
     }
 }
 
-int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, unsigned int *fds) {
+int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsigned int foreground, int *fds) {
 
     if(entryPoint == NULL) {
         return -1;
@@ -76,7 +76,7 @@ int createProcess(void (*entryPoint) (int, char **), int argc, char **argv, unsi
     return process->pid;
 }
 
-int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground, unsigned int *fds) {
+int setProcessData(processData * p, unsigned int pid, char * name, unsigned int foreground, int *fds) {
 
     p->pid = pid;
 
