@@ -38,7 +38,7 @@
 * `cat` Muestra el standard input.
 * `wc` Muestra la cantidad de líneas del standard input.
 * `filter` Muestra el standard input, eliminando vocales.
-
+* `testmem` Corre el test para el memory manager.
 
 ##### Comandos anteriores
 * `datetime` Muestra la fecha y hora del Sistema Operativo.

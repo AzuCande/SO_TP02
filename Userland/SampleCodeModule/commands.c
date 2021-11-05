@@ -106,6 +106,10 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t filter - deletes vowels from the input\n");
     printf("\t pipe - displays list of pipes and further data\n");
 
+    //Tests
+    printf("\t testmem - runs test for memory manager\n");
+
+
     //printf("\t phylo - starts phylo app\n");    
 
     //Old commands
@@ -154,7 +158,7 @@ int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    int strSize = 2048; //lo que ntra en una pantalla
+    int strSize = 2048; //lo que entra en una pantalla
     char str[strSize];
     memSyscall(str, strSize);
     printf("%s", str);
