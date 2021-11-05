@@ -83,7 +83,7 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("This is the Help Center\n");
 
     printf("\tSpecial keys:\n");   
-    printf("\t* F1 - switch between shells\n");
+    //printf("\t* F1 - switch between shells\n");
     printf("\t* F12 - saves the values of the registers\n");
 
     printf("\tCommands:\n");
@@ -95,20 +95,22 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
     printf("\t ps - displays list of processes with further data\n");
     printf("\t loop - prints current process ID on loop\n");
-    printf("\t kill [ARGUMENT] - kills process with given ID\n");
-    printf("\t nice [ARGUMENT] - switches process priority with given ID and priority\n");
-    printf("\t block [ARGUMENT] - switches process state with given ID\n");
+    printf("\t kill [PID] - kills process with given ID\n");
+    printf("\t nice [PID,priority] - switches process priority with given ID and priority\n");
+    printf("\t block [PID] - switches process state with given ID\n");
 
     printf("\t sem - displays list of semaphores with further data\n");
 
-    //printf("\t cat - displays stdin\n");
-    //printf("\t wc - prints amount of input lines\n");
-    //printf("\t filter - deletes vowels from the input\n");
+    printf("\t cat - displays stdin\n");
+    printf("\t wc - prints amount of input lines\n");
+    printf("\t filter - deletes vowels from the input\n");
     printf("\t pipe - displays list of pipes and further data\n");
 
     //printf("\t phylo - starts phylo app\n");    
 
-    /* Old commands
+    //Old commands
+    printf("\tOld ommands:\n");
+
     printf("\t* datetime - displays the current date and time of the OS\n");
     printf("\t* inforeg - displays the values of each register\n");
     printf("\t(F12 must have been pressed before this command is used for\n");
@@ -121,7 +123,6 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\tgenerated exception\n");
     printf("\t* invalidopcode - forces an invalid OP code and shows\n");
     printf("\tthe generated exception\n");
-    */
 
     return 1;
 }

@@ -25,7 +25,22 @@
 
 ### Funcionalidades
 
-#### Comandos
+#### Comandos 
+* `help` Despliega el centro de ayuda.
+* `mem` Muestra el estado de la memoria.
+* `ps` Imprime el estado de todos los procesos.
+* `loop` Imprime el ID del proceso corriendo cada cierto tiempo en bucle.
+* `kill [PID]` Mata al proceso con el ID pedido.
+* `nice [PID,priority]` Cambia la prioridad del proceso PID por la asignada.
+* `block [PID]` Bloquea un proceso con el dado PID.
+* `sem` Despliega el estado de los semáforos.
+* `pipe` Despliega el estado de las tuberías.
+* `cat` Muestra el standard input.
+* `wc` Muestra la cantidad de líneas del standard input.
+* `filter` Muestra el standard input, eliminando vocales.
+
+
+##### Comandos anteriores
 * `datetime` Muestra la fecha y hora del Sistema Operativo.
 * `inforeg` Muestra el estado de los registros. Para su correcto funcionamiento, presionar la tecla F12 antes de correrlo para así guardar el estado de los registros.
 * `printmem [ARGUMENTO]` Realiza un volcado de 32 bytes de memoria a partir de la dirección provista en el argumento.
@@ -33,13 +48,10 @@
 * `echo [ARGUMENTO]` Imprime en pantalla el string provisto en el argumento.
 * `divzero` Fuerza una división por 0 para que se prodzca una excepción. Luego reinicia la shell y muestra el mensaje de error correspondiente junto con el estado de los registros.
 * `invalidopcode` Fuerza un código de operación inválido para que se produzca una excepción. Luego reinicia la shell y muestra el mensaje de error correspondiente junto con el estado de los registros.
-* `help` Despliega el centro de ayuda.
+
 
 #### Teclas especiales
-* F1 - Sirve para cambiar la terminal seleccionada.
-* F12 - Sirve para guardar el estado de los registros.
-
-Además, un progrmador podría setear la funcionalidad que quiera para las teclas F1 a F10 mediante punteros a función.
+Un progrmador podría setear la funcionalidad que quiera para las teclas F1 a F10 mediante punteros a función.
 
 #### Syscalls
 Las syscalls a disposición del usuario son las siguientes: <br>
@@ -60,6 +72,30 @@ Las syscalls a disposición del usuario son las siguientes: <br>
 | 11   | isKeyboardEmpty      | uint64_t * target    | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 12   | readError            | uint64_t * err       | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 13   | setFunctionKeyMethod | uint64_t index       | void(*)()        | -                 | -               | -                  | -                 | -                 | -                 |
+| 14   | mallocSyscall        | uint64_t size        | void** result    | -                 | -               | -                  | -                 | -                 | -                 |
+| 15   | freeMemory           | void * pointer       | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 16   | getPid               | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 17   | printProcessList     | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 18   | changeProcessPriority| unsigned int pid     | unsigned int prio| -                 | -               | -                  | -                 | -                 | -                 |
+| 19   | blockProcess         | unsigned int pid     | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 20   | createProcess        | void(*)(char**) entry| int argc         | char ** argv      | unsigned int fg | int * fd                 | -                 | -                 | -                 |
+| 21   | killProcess          | unsigned int pid     | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 22   | resignCPU            | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 23   | exitProcess          | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 24   | pipeOpen             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 25   | pipeClose            | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 26   | pipeRead             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 27   | pipeWrite            | uint32_t id          | char * argv      | -                 | -               | -                  | -                 | -                 | -                 |
+| 28   | createPipe           | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 29   | printPipes           | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 30   | openSemaphore        | uint32_t id          | uint32_t initVal | -                 | -               | -                  | -                 | -                 | -                 |
+| 31   | waitSemphore         | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 32   | postSemaphore        | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 33   | closeSemaphore       | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 34   | printSemaphore       | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 35   | sbrSyscall           | uint64_t size        | void ** pointMem | -                 | -               | -                  | -                 | -                 | -                 |
+| 36   | printMem             | char * buffer        | int size         | -                 | -               | -                  | -                 | -                 | -                 |
+| 37   | unblockProcess       | unsigned int pid     | -                | -                 | -               | -                  | -                 | -                 | -                 |
 
 #### stdio
 Las funciones implementadas son:
