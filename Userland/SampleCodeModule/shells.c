@@ -29,7 +29,7 @@ char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", 
 int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, testProcessesCommand, testPrioCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
 static int totalCommands = 24;
 
-char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter"};
+char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter", "testmem", "testprio", "testprocess", "phylo"};
 
 void init_shell() {
 

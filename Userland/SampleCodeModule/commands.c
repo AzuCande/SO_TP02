@@ -122,6 +122,8 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
     //Tests
     printf("\t testmem - runs test for memory manager\n");
+    printf("\t testprocess - runs test for scheduler\n");
+    printf("\t testprio - runs test for scheduler\n");
 
 
     //printf("\t phylo - starts phylo app\n");    
@@ -217,20 +219,17 @@ int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    // int aux = atoi(args[0]);
-    // printf("%d\n", aux);
-    // return 1;
     return buildProcess("testmem", test_mm, args);
 }
 
 int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    test_processes();
-    return 1;
+    putChar('\n');
+    return buildProcess("testprocess", test_processes, args);
 }
 
 int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN])  {
-    test_prio();
-    return 1;
+    putChar('\n');
+    return buildProcess("testprio", test_prio, args);
 }
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
