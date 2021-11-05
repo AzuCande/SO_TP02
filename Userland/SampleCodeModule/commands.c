@@ -156,7 +156,7 @@ int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     int strSize = 2048;
     char str[strSize];
     memSyscall(str, strSize);
-    printf("%s", str);
+    printf("%s\n", str);
 
     return 1;
 }
