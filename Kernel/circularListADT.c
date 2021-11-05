@@ -1,210 +1,276 @@
 #include <circularListADT.h>
 
-static void freeNodesRec(node * n);
+typedef struct node {
+	void* value;
+	struct node * next;
+    struct node * previous;
+}node;
+typedef struct node * nodeP;
+
+typedef struct listCDT{
+	nodeP first;
+    nodeP iteradorNext;
+	int valueBytes;
+    int (*equals)(void* elem1, void* elem2);
+    unsigned int size;
+}listCDT;
+
+//prtivate:
+int search(nodeP* current, void* element, int (*comparator)(void*, void*));
+nodeP createNode(int valueBytes, void* element);
+void removeNode(nodeP current, listADT list, void (*deleteElemValue)(void* value));
+int size(const listADT list);
 
 
-circularList * newCircularList() {
-    circularList * list;
-    list = mallocMemory(sizeof(circularList));
-    if(list == NULL) {
-        return NULL;
-    }
-
+listADT newList(int elemSize, int (*equals)(void* elem1, void* elem2)){
+    listADT list = mallocMemory(sizeof(struct listCDT));
+    if (list==NULL) return NULL;
     list->first = NULL;
-    list->last = NULL;
-    list->iterator = NULL;
-    list->readyCount = 0;
-
+    list->valueBytes = elemSize;
+    list->equals = equals;
+    list->size = 0;
+    list->iteradorNext = NULL;
     return list;
 }
 
-void addProcessOnCircularList(circularList * list, processData * process) {
-    node * newNode = mallocMemory(sizeof(node));
-    if(newNode == NULL) {
-        return;
+void * ListToArray(listADT list){
+    void **array = mallocMemory(sizeof(void*)*(size(list)+1));
+    if (array==NULL) return NULL;
+    nodeP current = list->first;
+    int i=0;
+    while(current != NULL){
+        array[i++] = current->value;
+        current = current->next;
     }
-    
-    if (isEmptyCircularList(list)) {
-        list->first = newNode;
-        list->iterator = newNode;
-        list->last = newNode;
-    } else {
-        list->last->next = newNode;
-        list->last = list->last->next;
-    }
-
-    newNode->next = list->first;
-
-    newNode->value = process;
-
-    if(process->state == READY)
-        list->readyCount++;
-
+    array[i] = NULL;
+    return array;
 }
 
-processData * changeProcessPriorityOnCircularList(circularList * list, unsigned int pid, unsigned int priority) {
+int insertBeforeNext(listADT list, void* element){
+    if(!hasNext(list)) // no se inicializo iteradorNext
+        toBegin(list);
 
-    node * current = list->first;
-    node * prev = list->last;
-    int firstChecked = 0;
-    int foundProcess = 0;
+    if(list->iteradorNext == list->first)
+        return addToTheEnd(list, element);
 
-    node * newPosition = list->first;
-    node * prevNewPos = list->last;
+    nodeP aux = createNode(list->valueBytes, element);
+    if(aux == NULL)
+        return -1;
 
-    while ((current != list->first || !firstChecked) && !foundProcess) {
+    list->iteradorNext->previous->next = aux;
+    aux->previous = list->iteradorNext->previous;
+    aux->next = list->iteradorNext;
+    list->iteradorNext->previous = aux;
+    list->size++;
 
-        if(newPosition->value->priority <= priority) {
-            newPosition = newPosition->next;
-            prevNewPos = prevNewPos->next;
-        }
-
-        if(current->value->pid == pid) {
-            foundProcess = 1;
-
-        } else {
-            firstChecked = 1;
-            current = current->next;
-            prev = prev->next;
-        }
-    }
-
-    if(foundProcess) {
-        prev->next = current->next;
-
-        current->next = newPosition;
-        prevNewPos->next = current;
-    }
-
-    return NULL;
+    return 0;
 }
 
-processData * deleteProcessOnList(circularList * list, unsigned int pid) { //todo
-    if(isEmptyCircularList(list)) {
+int addToTheEnd(listADT list, void* element){
+    if(isEmpty(list))//es el primer elemento
+        return insert(list, element);
+
+    nodeP aux = createNode(list->valueBytes, element);
+    if(aux == NULL)
+        return -1;
+
+    aux->next = NULL;
+    nodeP current = list->first;
+    while(current->next != NULL )
+        current = current->next;
+    current->next = aux;
+    aux->previous = current;
+    list->size++;
+    return 0;
+}
+
+//inserta los elementos al principio de la lista
+int insert(listADT list, void* element){
+
+    nodeP aux = createNode(list->valueBytes, element);
+    if(aux == NULL)
+        return -1;
+
+    aux->previous = NULL;
+    aux->next = list->first;
+    list->first = aux;
+    if(aux->next != NULL)
+        aux->next->previous = aux;
+    list->size++;
+    return 0;
+}
+
+//si hubo un error devulve NULL
+void* pop(listADT list){
+    if(isEmpty(list))
         return NULL;
-    }
 
-    processData * deleted = NULL;
+    void* result = mallocMemory(list->valueBytes);
+    if (result==NULL) return NULL;
+    memcpy(result, list->first->value, list->valueBytes);
 
-    if(list->first == list->last && list->first->value->pid == pid) {
-        deleted = list->first->value;
-        freeMemory(list->first);
-
-        list->first = NULL;
-        list->last = NULL;
-        list->iterator = NULL;
-
-        if(deleted->state == READY)
-            list->readyCount--;
-
-        return deleted;
-
-    } else if(list->first != list->last) {
-
-        node * current = list->first;
-        node * previous = list->last;
-        int hasToCheckFirst = 1;
-
-        while(current != list->first || hasToCheckFirst) {
-            if(current->value->pid == pid) {
-                deleted = current->value;
-
-                previous->next = current->next;
-                if(current == list->first) {
-                    list->first = current->next;
-                }
-                if(current == list->last) {
-                    list->last = previous;
-                }
-                if(list->iterator == current) {
-                    list->iterator = current->next;
-                }
-
-                freeMemory(current);
-
-                if(deleted->state == READY)
-                    list->readyCount--;
-
-                return deleted;
-            }
-
-            hasToCheckFirst = 0;
-            current = current->next;
-            previous = previous->next;
-        }
-    }
-
-    return NULL;
+    deleteFirstElem(list);
+    return result;
 }
 
-int isEmptyCircularList(circularList * list) {
-    return list->first == NULL;
+int deleteFirstElem(listADT list){
+    if(isEmpty(list))
+        return -1;
+
+    if (list->iteradorNext == list->first) next(list);
+    removeNode(list->first, list, NULL);
+    return 0;
 }
 
-int hasNextCircularList(circularList * list) {
-    if(isEmptyCircularList(list) || list->iterator->next == NULL || list->iterator==list->first) {
+int deleteCurrentElem(listADT list){
+    if(!hasNext(list))//si no lo fue inicializado, se inicializa
+        toBegin(list);
+
+    //variable auxiliares
+    nodeP deleteNode = list->iteradorNext->previous;
+    if(deleteNode == NULL){ //el elemento actual esta al final de la lista
+        deleteNode = list->first;
+        while(deleteNode->next == NULL)
+            deleteNode = deleteNode->next;
+        removeNode(deleteNode, list, NULL);
         return 0;
     }
+
+    nodeP previousNode = deleteNode->previous; //guardo el nodo anteriror
+    removeNode(deleteNode, list, NULL); //elimino el node
+
+    list->iteradorNext->previous = previousNode;
+    if(previousNode != NULL)
+        previousNode->next = list->iteradorNext;
+    else
+        list->first = list->iteradorNext;
+
+    return 0;
+}
+
+//retorna 1 si lo elimino y 0 si no lo encontro
+int delete(listADT list, void* element){
+    nodeP current = list->first;
+    if(!search(&current, element, list->equals))
+        return 0;
+
+    if (list->iteradorNext == current) next(list);
+    removeNode(current, list, NULL);
+
     return 1;
 }
 
-processData * nextCircularList(circularList * list) {
-    if(list->iterator == NULL) {
-        return NULL;
-    }
 
-    processData * retProcess = list->iterator->value;
-    if(list->iterator->next == list->first) {
-        list->iterator = NULL;
-    } else {
-        list->iterator = list->iterator->next;
-    }
+int deleteElem(listADT list, void* element, void (*deleteElemValue)(void* value)){
+    nodeP current = list->first;
+    if(!search(&current, element, list->equals))
+        return 0;
 
-    return retProcess;
+    if (list->iteradorNext == current) next(list);
+    removeNode(current, list, deleteElemValue);
+    
+    return 1;
 }
 
-void toBeginingCircularList(circularList * list) {
-    list->iterator = list->first;
-    return;
+void removeNode(nodeP current, listADT list, void (*deleteElemValue)(void* value)){
+    if(current == NULL)
+        return;
+
+    if(current->next != NULL)
+        current->next->previous = current->previous;
+    if(current->previous != NULL)
+        current->previous->next = current->next;
+    else
+        list->first = current->next;
+    list->size --;
+
+    if(deleteElemValue == NULL)
+        freeMemory(current->value);
+    else {
+        deleteElemValue(current->value);
+        freeMemory(current->value);
+    }
+    freeMemory(current);
 }
 
-processData * findProcessOnList(circularList * list, unsigned int pid) {
+int isEmpty(const listADT list){
+	return size(list) == 0;
+}
 
-    if(isEmptyCircularList(list)) {
-        return NULL;
-    }
+int size(const listADT list) {
+	return list->size;
+}
 
-    node * current = list->first;
-    int hasToCheckFirst = 1;
+int elementBelongs(const listADT list, void* element){
+	return search(&(list->first), element, list->equals);
+}
 
-    while(current!=list->first || hasToCheckFirst) {
-        
-        if(current->value->pid == pid) {
-            return current->value;
-        }
-
-        hasToCheckFirst = 0;
-        current = current->next;
-    }
-
+void* getElem(const listADT list, void* element){
+    nodeP elem = list->first;
+    if(search(&elem, element, list->equals))
+        return elem->value;
     return NULL;
 }
 
-static void freeNodesRec(node * n) {
-    if(n==NULL) {
-        return;
-    }
-
-    freeNodesRec(n->next);
-    freeMemory(n);
+void* getCurrentElem(const listADT list){
+    return list->iteradorNext->value;
 }
 
-void freeCircularList(circularList * list) {
+void cleanList(listADT list){
+    nodeP current = list->first, aux;
+	while (current != NULL) {
+		aux = current->next;
+		freeMemory(current->value);
+        freeMemory(current);
+		current = aux;
+	}
+    list->first = NULL;
+    list->size = 0;
+    list->iteradorNext = NULL;
+}
 
-    if(!isEmptyCircularList(list)) {
-        list->last->next = NULL;
-        freeNodesRec(list->first);
-    }
-
+void freeList( listADT list){
+	cleanList(list);
     freeMemory(list);
+}
+
+//   ITERADOR
+void toBegin(listADT list) {
+	list->iteradorNext = list->first;
+}
+
+int hasNext(const listADT list) {
+	return list->iteradorNext != NULL;
+}
+
+void* next(listADT list) {
+	if(!hasNext(list))
+		toBegin(list);
+
+    void* result = list->iteradorNext->value;
+    list->iteradorNext = list->iteradorNext->next;
+	return result;
+}
+
+//private:
+//si retorna 1 lo encontro sino -1 y en current esta el nodo buscado
+int search(nodeP* current, void* element, int (*equals)(void*, void*)) {
+    while (*current != NULL){
+        if(equals((*current)->value, element))
+            return 1;
+        *current = (*current)->next;
+    }
+    return 0;
+}
+
+nodeP createNode(int valueBytes, void* element){
+    nodeP aux = mallocMemory(sizeof(struct node));
+    if(aux == NULL)
+        return NULL;
+    aux->next = NULL;
+    aux->value = mallocMemory(valueBytes);
+    if(aux->value == NULL)
+        return NULL;
+    memcpy(aux->value, element, valueBytes);
+    return aux;
 }

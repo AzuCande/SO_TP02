@@ -12,6 +12,7 @@
 #include <exceptions_asm.h>
 #include <test_mm.h>
 #include <stddef.h>
+#include <processesUser.h>
 
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
@@ -27,7 +28,7 @@ int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 // void mallocCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 // void freeCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
-int testCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+// int testCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 //void sh(char args[MAX_ARGS][MAX_ARG_LEN]);
 int help(char args[MAX_ARGS][MAX_ARG_LEN]);
@@ -35,10 +36,10 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]);
 int mem(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int ps(char args[MAX_ARGS][MAX_ARG_LEN]);
-int kill(char args[MAX_ARGS][MAX_ARG_LEN]);
-int nice(char args[MAX_ARGS][MAX_ARG_LEN]);
-int block(char args[MAX_ARGS][MAX_ARG_LEN]);
-int unblock(char args[MAX_ARGS][MAX_ARG_LEN]);
+int killCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int niceCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int blockCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int unblockCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]);
 int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 

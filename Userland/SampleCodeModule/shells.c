@@ -26,7 +26,7 @@ static int lineCursor = 0;
 static int pipeId = 1;
 
 char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem","loop", "cat", "wc", "filter", "phylo"};
-int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, kill, nice, block, unblock, sem, pipe, testMemCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
+int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
 static int totalCommands = 22;
 
 char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter"};
@@ -210,7 +210,7 @@ static void exeCommand(char * line) {
         }
     } else {
         if(isBuiltin(commandArgs[0])) {
-            run[i] (commandArgs);
+            // run[i] (commandArgs);
         } else {
             int argQty = foundArgs + 3;    // argc, args, foreground, fdIn, fdOut
             char arguments[argQty][MAX_ARG_LEN];

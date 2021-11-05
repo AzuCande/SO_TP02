@@ -113,23 +113,23 @@ void syscallHandler(registerStruct * registers) {
     break;
     
     case 16:
-    getPid();
+    getPid((uint64_t *) registers->rdi);
     break;
 
     case 17:
     //rdi -> buffer
-    printProcessList((char *) registers->rdi);
+    ps((char *)registers->rdi);
     break;
 
     case 18:
     // rdi -> pid
     // rsi -> new priority
-    changeProcessPriority((unsigned int) registers->rdi, (unsigned int) registers->rsi);
+    nice((uint64_t) registers->rdi, (uint64_t) registers->rsi,(int *) registers->rdx);
     break;
 
     case 19:
     // rdi -> pid
-    blockProcess((unsigned int) registers->rdi);
+    blockProcess((uint64_t) registers->rdi,(int *) registers->rsi);
     break;
 
     case 20:
@@ -138,21 +138,21 @@ void syscallHandler(registerStruct * registers) {
     // rdx -> arguments
     // rcx -> foreground
     // r8 -> fds
-    createProcess((void (*)(char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx, (int *) registers->r8);
+    createProcess((void (*)()) registers->rdi, (int) registers->rsi, (char **) registers->rdx,(uint64_t *) registers->rcx, (int *) registers->r8);
     break;
     //
 
     case 21:
     // rdi -> pid
-    killProcess((unsigned int) registers->rdi);
+    endProcessWrapper((uint64_t) registers->rdi, (int *) registers->rsi);
     break;
 
     case 22:
-    resignCPU();
+    yield();
     break;
   
     case 23:
-    exitProcess();
+    // exitProcess();
     break;
 
     case 24:
@@ -224,7 +224,7 @@ void syscallHandler(registerStruct * registers) {
 
     case 37:
     // rdi -> pid
-    unblockProcess((unsigned int) registers->rdi);
+    unlockProcess((uint64_t) registers->rdi,(int *) registers->rsi);
     break;
   }
 }
