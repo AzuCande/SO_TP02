@@ -49,25 +49,31 @@ void syscallHandler(registerStruct * registers) {
     //rdi color
       clearDisplay((uint64_t) registers->rdi);
       break;
+
     case 3:
     // rdi xstart , rsi ystart, rdx xend, rcx yend, r8 color
       drawLine((uint64_t) registers->rdi,(uint64_t) registers->rsi,(uint64_t) registers->rdx,(uint64_t) registers->rcx,(uint64_t) registers->r8);
       break;
+
     case 4:
     // r9 xi, r8 yi, rsi color
       drawPixel((uint64_t) registers->rdi,(uint64_t) registers->rsi,(uint64_t) registers->rdx);
       break;
+
     case 5:
     // rdi xi, rsi yi , rdx width, rc8 height , r8 color
       drawRectangle((uint64_t) registers->rdi,(uint64_t) registers->rsi,(uint64_t) registers->rdx,(uint64_t) registers->rcx,(uint64_t) registers->r8);
       break;
+
     case 6:
     // rdi xi, rsi yi, rdx puntero a matriz, rcx width, r8 height , r9 size
       drawMatrix((uint64_t) registers->rdi,(uint64_t) registers->rsi,(uint64_t *) registers->rdx,(uint64_t) registers->rcx,(uint64_t) registers->r8,(uint64_t) registers->r9);
       break;
+
     case 7:
       * ((uint64_t *)registers->rdi) = getTicks();
       break;
+
     case 8:
     //rdi -> mode
     //rsi -> puntero a entero
@@ -103,8 +109,9 @@ void syscallHandler(registerStruct * registers) {
     break;
 
     case 14:
-    //rdi -> tamaño de memoria pedido
-    mallocSyscall((uint64_t) registers->rdi, (void**) registers->rsi);
+    // rdi -> tamaño de memoria pedido
+    // rsi -> result
+    mallocWrapper((uint64_t) registers->rdi, (void**) registers->rsi);
     break;
 
     case 15:
@@ -113,23 +120,25 @@ void syscallHandler(registerStruct * registers) {
     break;
     
     case 16:
-    getPid();
+    getPid((uint64_t *) registers->rdi);
     break;
 
     case 17:
     //rdi -> buffer
-    printProcessList((char *) registers->rdi);
+    ps((char *)registers->rdi);
     break;
 
     case 18:
     // rdi -> pid
     // rsi -> new priority
-    changeProcessPriority((unsigned int) registers->rdi, (unsigned int) registers->rsi);
+    // rdx -> result
+    nice((uint64_t) registers->rdi, (uint64_t) registers->rsi,(int *) registers->rdx);
     break;
 
     case 19:
     // rdi -> pid
-    blockProcess((unsigned int) registers->rdi);
+    // rsi -> result
+    blockProcess((uint64_t) registers->rdi,(int *) registers->rsi);
     break;
 
     case 20:
@@ -138,21 +147,24 @@ void syscallHandler(registerStruct * registers) {
     // rdx -> arguments
     // rcx -> foreground
     // r8 -> fds
-    createProcess((void (*)(char **)) registers->rdi, (int) registers->rsi, (char **) registers->rdx, (unsigned int) registers->rcx, (int *) registers->r8);
+    createProcess((void (*)()) registers->rdi, (int) registers->rsi, (char **) registers->rdx,(uint64_t *) registers->rcx, (int *) registers->r8);
     break;
     //
 
     case 21:
     // rdi -> pid
-    killProcess((unsigned int) registers->rdi);
+    // rsi -> result
+    endProcess((uint64_t) registers->rdi, (int *) registers->rsi);
     break;
 
     case 22:
-    resignCPU();
+    yield();
     break;
   
     case 23:
-    exitProcess();
+    // rdi -> pid
+    // rsi -> result
+    unlockProcess((uint64_t) registers->rdi,(int *) registers->rsi);
     break;
 
     case 24:
@@ -219,12 +231,9 @@ void syscallHandler(registerStruct * registers) {
     break;
 
     case 36:
+    // rdi -> buffer
+    // rsi -> size
     printMem((char *)registers->rdi, (int)registers->rsi);
-    break;
-
-    case 37:
-    // rdi -> pid
-    unblockProcess((unsigned int) registers->rdi);
     break;
   }
 }

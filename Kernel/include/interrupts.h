@@ -15,5 +15,7 @@ void _exception00Handler(void);
 void _exception06Handler(void);
 void saveInitialConditions(void* address);
 void _sendEOI(void);
+uint64_t * createProcessInt(void (*)(),uint64_t *,uint64_t,char **);
+void goToProcess(uint64_t *);
 
 #endif

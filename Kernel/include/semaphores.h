@@ -26,7 +26,7 @@ typedef struct semList {
 } semList;
 
 int initSemaphores();
-semType * openSemaphore(uint32_t id, uint32_t initValue);
+int openSemaphore(uint32_t id, uint32_t initValue);
 int waitSemphore(uint32_t id);
 int postSemaphore(uint32_t id);
 int closeSemaphore(uint32_t id);

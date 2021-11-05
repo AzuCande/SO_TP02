@@ -34,7 +34,7 @@ void printf(char * fmt, ...) {
     va_list vl;
   va_start(vl, fmt);
   char * auxPtr;
-  char buffer[128] = {0};
+  char buffer[2048] = {0};
   char tmp[20];
   int i = 0, j = 0;
   while (fmt && fmt[i]) {
@@ -45,14 +45,15 @@ void printf(char * fmt, ...) {
         buffer[j++] = (char)va_arg( vl, int );
         break;
         case 'd':
-        intToString(va_arg( vl, int ), tmp);
+        itoa(va_arg( vl, int ), tmp, 10);
         strcpy(&buffer[j], tmp);
         j+=strlen(tmp);
         break;
         case 's':
         auxPtr = va_arg(vl, char*);
-        strcpy(&buffer[j],auxPtr);
+        int varAux = j;
         j+=strlen(auxPtr);
+        strcpy(&buffer[varAux],auxPtr);
         break;
         case 'x':
         intToBase(va_arg( vl, int ),16, tmp);

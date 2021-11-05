@@ -215,3 +215,11 @@ int strcmp(char * str1, char * str2){
     }
     return str1[i]-str2[i];
 }
+
+char* strCopy(char* str){
+  int strSize = strlen(str);
+  char *copy = (char*) mallocMemory(sizeof(char*)*strSize);
+  if (copy == NULL) return 0;
+  strcpy(copy, str);
+  return copy;
+}

@@ -10,6 +10,7 @@
 #include <idtLoader.h>
 #include <interrupts.h>
 #include <memManager.h>
+#include <semaphores.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -94,6 +95,7 @@ int main()
 	loadIdt();
 	initVideoDriver();
 	initializeFunctionKeys();
+	initSemaphores();
 
 	//Test para printmem
 	// uint8_t * pos = 0x12345678;

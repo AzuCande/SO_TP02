@@ -35,17 +35,13 @@ static void * const memoryPosition = (void *) 0x600000;
 
 typedef freeMemList_t * freeMemList_p;
 
-void initMemory(char *base, unsigned long totalSize);
+void initMemory();
 void *mallocMemory(uint64_t size);
 void freeMemory(void * free);
 void insertFreeBlockOnList(freeMemList_p block);
 void printMemory(char *buffer);
 
-void mallocSyscall(uint64_t size, void** result);
-void reallocSyscall(void *ptr, uint64_t newSize, void** result);
-
-//debugger
-void checkMemory(struct checkMemdata* data);
+void mallocWrapper(uint64_t size, void** result);
 void printMem(char *str, int strSize);
 
 #endif

@@ -23,15 +23,14 @@ void freeSyscall(void * free);
 void sbrkSyscall(uint64_t size, void** result);
 void memSyscall(char *str, int strSize);
 
-unsigned int getPidSyscall();
-void psSyscall(char *buffer);
-void niceSyscall(unsigned int pid, unsigned int assignPriority);
-void blockSyscall(unsigned int pid);
-void unblockSyscall(unsigned int pid);
-int createProcessSyscall(void (*entryPoint) (char [][MAX_ARG_LEN]), int argc, char argv[][MAX_ARG_LEN], unsigned int foreground, int *fds);
-void killSyscall(unsigned int pid);
+void createProcessSyscall(void (*)(),int fg,char **,uint64_t *newPid, int *fds);
+void killSyscall(uint64_t pid, int *result);
+void getPidSyscall(uint64_t *);
+void psSyscall(char *);
+void blockSyscall(uint64_t pid, int *result);
+void unblockSyscall(uint64_t pid, int *result);
+void niceSyscall(uint64_t pid, uint64_t priority, int *result);
 void yieldSyscall();
-void exitProcessSyscall();
 
 int pipeOpenSyscall(uint32_t id);
 int pipeCloseSyscall(uint32_t id);
@@ -40,7 +39,7 @@ int pipeWriteSyscall(uint32_t id, char *string);
 int createPipeSyscall(uint32_t id);
 void pipeSyscall(char * buffer);
 
-void openSemaphoreSyscall();
+int openSemaphoreSyscall(int sem_id, uint64_t initialValue);
 int waitSemphoreSyscall(uint32_t id);
 int postSemaphoreSyscall(uint32_t id);
 int closeSemaphoreSyscall(uint32_t id);

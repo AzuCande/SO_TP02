@@ -83,10 +83,24 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("This is the Help Center\n");
 
     printf("\tSpecial keys:\n");   
-    //printf("\t* F1 - switch between shells\n");
+    // printf("\t* F1 - switch between shells\n");
     printf("\t* F12 - saves the values of the registers\n");
 
     printf("\tCommands:\n");
+
+    /* Old commands */
+    printf("\t* datetime - displays the current date and time of the OS\n");
+    printf("\t* inforeg - displays the values of each register\n");
+    printf("\t(F12 must have been pressed before this command is used for\n");
+    printf("\tit to work correctly)\n");
+    printf("\t* printmem [ARGUMENT] - displays 32 bytes of memory,\n");
+    printf("\tstarting from the address given in the argument\n");
+    printf("\t* clear - clears the current shell\n");
+    printf("\t* echo [ARGUMENT] - prints the given argument\n");
+    printf("\t* divzero - forces a division by zero and shows the\n");
+    printf("\tgenerated exception\n");
+    printf("\t* invalidopcode - forces an invalid OP code and shows\n");
+    printf("\tthe generated exception\n");
 
     //printf("\t sh [ARGUMENT] - allows user to execute apps\n");
     printf("\t help - displays list of commands\n");
@@ -112,21 +126,6 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
     //printf("\t phylo - starts phylo app\n");    
 
-    //Old commands
-    printf("\tOld ommands:\n");
-
-    printf("\t* datetime - displays the current date and time of the OS\n");
-    printf("\t* inforeg - displays the values of each register\n");
-    printf("\t(F12 must have been pressed before this command is used for\n");
-    printf("\tit to work correctly)\n");
-    printf("\t* printmem [ARGUMENT] - displays 32 bytes of memory,\n");
-    printf("\tstarting from the address given in the argument\n");
-    printf("\t* clear - clears the current shell\n");
-    printf("\t* echo [ARGUMENT] - prints the given argument\n");
-    printf("\t* divzero - forces a division by zero and shows the\n");
-    printf("\tgenerated exception\n");
-    printf("\t* invalidopcode - forces an invalid OP code and shows\n");
-    printf("\tthe generated exception\n");
 
     return 1;
 }
@@ -158,10 +157,10 @@ int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    int strSize = 2048; //lo que entra en una pantalla
+    int strSize = 2048;
     char str[strSize];
     memSyscall(str, strSize);
-    printf("%s", str);
+    printf("%s\n", str);
 
     return 1;
 }
@@ -173,31 +172,31 @@ int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return 1;
 }
 
-int kill(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int killCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
-    killSyscall(id);
+    kill(id);
     printf("Process successfully killed\n");
     return 1;
 }
 
-int nice(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int id = atoi(args[0]);
-    unsigned int priority = atoi(args[1]);
-    niceSyscall(id, priority);
+int niceCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    uint64_t id = atoi(args[0]);
+    uint64_t priority = atoi(args[1]);
+    nice(id, priority);
     printf("Priority successfully changed\n");
     return 1;
 }
 
-int block(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int blockCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
-    blockSyscall(id);
+    block(id);
     printf("Process state successfully switched\n");
     return 1;
 }
 
-int unblock(char args[MAX_ARGS][MAX_ARG_LEN]) {
+int unblockCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int id = atoi(args[0]);
-    unblockSyscall(id);
+    unblock(id);
     printf("Process state successfully switched\n");
     return 1;
 }
@@ -218,11 +217,24 @@ int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
+    // int aux = atoi(args[0]);
+    // printf("%d\n", aux);
+    // return 1;
     return buildProcess("testmem", test_mm, args);
 }
 
+int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    test_processes();
+    return 1;
+}
+
+int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN])  {
+    test_prio();
+    return 1;
+}
+
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int pid = getPidSyscall();
+    unsigned int pid = getPid();
     
     while(1) {
         printf("%d\n", pid);
@@ -292,20 +304,24 @@ int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG_LEN]), char args[][MAX_ARG_LEN]) {
-    unsigned int argc = atoi(args[0]);
-    char argv[argc+1][MAX_ARG_LEN];
+    int j = 0;
+    unsigned int argc = atoi(args[j++]);
     
+    int foreground = atoi(args[j++]);
+
+    int fds[2];
+    fds[0] = atoi(args[j++]);  
+    fds[1] = atoi(args[j++]);
+    
+    // First arg for name
+    char argv[argc+1][MAX_ARG_LEN];
     int i = 0;
     strcpy(argv[i], name);
     i++;
-    for(int j = 0; j < argc; j++, i++) {
-        strcpy(argv[i], args[j]);
+
+    for(; i < argc+1; i++) {
+        strcpy(argv[i], args[i + 3]);
     }
     
-    int foreground = atoi(args[i++]);
-    int fds[2];
-    fds[0] = atoi(args[i++]);  
-    fds[1] = atoi(args[i++]);
-    
-    return createProcessSyscall(entryPoint, argc, argv, foreground, fds);
+    return createProcess(entryPoint, foreground, (char**)argv, fds);
 }

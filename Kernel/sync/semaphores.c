@@ -2,7 +2,7 @@
 
 static void acquire(int *lock);
 static void release(int *lock);
-static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore);
+static int createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore);
 static semType * findSemaphore(uint32_t id);
 
 
@@ -23,7 +23,7 @@ int initSemaphores() {
     return 0;
 }
 
-semType * openSemaphore(uint32_t id, uint32_t initValue) {
+int openSemaphore(uint32_t id, uint32_t initValue) {
 
     if(semaphoresList == NULL) {
         initSemaphores();
@@ -32,14 +32,19 @@ semType * openSemaphore(uint32_t id, uint32_t initValue) {
     semType * semaphore = findSemaphore(id);
 
     if(semaphore == NULL) {
-        createNewSemaphore(id, initValue, semaphore);
+        if(createNewSemaphore(id, initValue, semaphore) == -1) {
+            return -1;
+        }
     }
-    return semaphore;
+    return id;
 }
 
-static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore) {
+static int createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore) {
 
     semaphore = mallocMemory(sizeof(semaphore));
+    if(semaphore == NULL) {
+        return -1;
+    }
 
     semaphore->id = id;
     semaphore->value = initValue;
@@ -57,7 +62,7 @@ static void createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaph
     semaphoresList->semQty++;
     semaphoresList->last = semaphore;
 
-    return;
+    return id;
 }
 
 int waitSemphore(uint32_t id) {
@@ -77,10 +82,12 @@ int waitSemphore(uint32_t id) {
     }
     else
     {
-        unsigned int thisPID = getPid();
+        uint64_t thisPID;
+        getPid(&thisPID);
         sem->blockedPIDs[sem->blockedPIDsQty++] = thisPID;
         release(&(sem->mutex));
-        blockProcess(thisPID);
+        int res;
+        blockProcess(thisPID, &res);
     }
 
     return 0;
@@ -102,7 +109,8 @@ int postSemaphore(uint32_t id) {
         }
 
         sem->blockedPIDsQty--;
-        blockProcess(nextPID);
+        int res;
+        blockProcess(nextPID, &res);
         release(&(sem->mutex));
         return 0;
 
@@ -144,6 +152,7 @@ void printSemaphore(char * buffer) {
 
     if(semaphoresList->iterator == NULL) {
         strcat(buffer, "There are no semaphores to print", &index);
+        return;
     }
 
     char header[13] = "\nSEMAPHORES\n";
