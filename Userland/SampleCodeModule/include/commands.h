@@ -10,7 +10,7 @@
 #include <shells.h>
 #include <syscalls_asm.h>
 #include <exceptions_asm.h>
-#include <test_mm.h>
+#include <tests.h>
 #include <stddef.h>
 #include <processesUser.h>
 
@@ -57,5 +57,7 @@ void phylo(char args[MAX_ARGS][MAX_ARG_LEN]);
 int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
+int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 #endif

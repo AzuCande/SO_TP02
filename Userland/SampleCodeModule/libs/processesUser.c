@@ -10,7 +10,7 @@ uint64_t createProcess(void (*function)(), int foreground,char **argv, int *fds)
     return pid;
 }
 
-void myExit(){
+void processKiller(){
     uint64_t pid;
     getPidSyscall(&pid);
     int ans;

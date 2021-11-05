@@ -213,7 +213,20 @@ int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
+    // int aux = atoi(args[0]);
+    // printf("%d\n", aux);
+    // return 1;
     return buildProcess("testmem", test_mm, args);
+}
+
+int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    test_processes();
+    return 1;
+}
+
+int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN])  {
+    test_prio();
+    return 1;
 }
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -287,20 +300,24 @@ int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG_LEN]), char args[][MAX_ARG_LEN]) {
-    unsigned int argc = atoi(args[0]);
-    char argv[argc+1][MAX_ARG_LEN];
+    int j = 0;
+    unsigned int argc = atoi(args[j++]);
     
+    int foreground = atoi(args[j++]);
+
+    int fds[2];
+    fds[0] = atoi(args[j++]);  
+    fds[1] = atoi(args[j++]);
+    
+    // First arg for name
+    char argv[argc+1][MAX_ARG_LEN];
     int i = 0;
     strcpy(argv[i], name);
     i++;
-    for(int j = 0; j < argc; j++, i++) {
-        strcpy(argv[i], args[j]);
+
+    for(; i < argc+1; i++) {
+        strcpy(argv[i], args[i + 3]);
     }
-    
-    int foreground = atoi(args[i++]);
-    int fds[2];
-    fds[0] = atoi(args[i++]);  
-    fds[1] = atoi(args[i++]);
     
     return createProcess(entryPoint, foreground, (char**)argv, fds);
 }

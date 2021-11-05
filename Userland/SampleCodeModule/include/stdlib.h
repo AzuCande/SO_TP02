@@ -1,6 +1,8 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
+#include <stdint.h>
+
 int atoi(char * str);
 int intToString(unsigned long long num, char * buffer);
 int strlen(char *str);
@@ -13,5 +15,6 @@ char toUpper(char letter);
 char toLower(char letter);
 int isVowel(char letter);
 int isAlfaNum(char c);
+char* itoa(uint64_t value, char* buffer, int base);
 
 #endif

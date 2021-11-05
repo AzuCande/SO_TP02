@@ -18,7 +18,6 @@ GLOBAL blockSyscall
 GLOBAL createProcessSyscall
 GLOBAL killSyscall
 GLOBAL yieldSyscall
-GLOBAL exitProcessSyscall
 GLOBAL pipeOpenSyscall
 GLOBAL pipeCloseSyscall
 GLOBAL pipeReadSyscall
@@ -262,7 +261,7 @@ yieldSyscall:    ;resignCPU
     pop rbp
     ret
 
-exitProcessSyscall:    ;exitProcess
+unblockSyscall:    ;exitProcess
     push rbp
     mov rbp, rsp
 
@@ -412,18 +411,6 @@ memSyscall:
     mov rax, 36
     int 80h
     
-    mov rsp, rbp
-    pop rbp
-    ret
-
-
-unblockSyscall:    ;unblockProcess
-    push rbp
-    mov rbp, rsp
-
-    mov rax, 37
-    int 80h
-
     mov rsp, rbp
     pop rbp
     ret

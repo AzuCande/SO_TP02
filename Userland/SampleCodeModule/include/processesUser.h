@@ -11,6 +11,6 @@ int unblock(uint64_t pid);
 int kill(uint64_t pid);
 uint64_t getPid();
 void yield();
-void myExit();
+void processKiller();
 
 #endif

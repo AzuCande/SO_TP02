@@ -36,14 +36,12 @@ static void * const memoryPosition = (void *) 0x600000;
 typedef freeMemList_t * freeMemList_p;
 
 void initMemory();
-void *mallocMemory(uint64_t size); // TODO: dejar solo la syscal
+void *mallocMemory(uint64_t size);
 void freeMemory(void * free);
 void insertFreeBlockOnList(freeMemList_p block);
 void printMemory(char *buffer);
 
-void mallocSyscall(uint64_t size, void** result);
-
-// void checkMemory(struct checkMemdata* data); // TODO: borrar
+void mallocWrapper(uint64_t size, void** result);
 void printMem(char *str, int strSize);
 
 #endif

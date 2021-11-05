@@ -45,7 +45,7 @@ void printf(char * fmt, ...) {
         buffer[j++] = (char)va_arg( vl, int );
         break;
         case 'd':
-        intToString(va_arg( vl, int ), tmp);
+        itoa(va_arg( vl, int ), tmp, 10);
         strcpy(&buffer[j], tmp);
         j+=strlen(tmp);
         break;

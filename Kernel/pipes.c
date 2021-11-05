@@ -117,11 +117,11 @@ int createPipe(uint32_t id) {
     pipesCount++;
 
     // Check if semaphores were created
-    if((newPipe.readSem = openSemaphore(sem_id++, 0)->id) == ERROR) {
+    if((newPipe.readSem = openSemaphore(sem_id++, 0)) == ERROR) {
         return ERROR;
     }
 
-    if((newPipe.writeSem = openSemaphore(sem_id++, 0)->id) == ERROR) {
+    if((newPipe.writeSem = openSemaphore(sem_id++, 0)) == ERROR) {
         return ERROR;
     }
 
@@ -149,9 +149,10 @@ static int getAvailablePipe() {
 
 void printPipes(char *buffer) {
     unsigned int i = 0;
-    if(pipesCount == 0)
+    if(pipesCount == 0) {
         strcat(buffer, "There are no pipes to print", &i);
-    
+        return;
+    }
     char header[8] = "\nPIPES\n";
     char *subheader = "Pipe ID\t ReadIdx\t WriteIdx\t ReadSem\t WriteSem\n";
 
