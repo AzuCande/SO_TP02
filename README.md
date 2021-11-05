@@ -51,6 +51,8 @@
 
 
 #### Teclas especiales
+* F12 - Sirve para guardar el estado de los registros.
+
 Un progrmador podría setear la funcionalidad que quiera para las teclas F1 a F10 mediante punteros a función.
 
 #### Syscalls
@@ -117,8 +119,10 @@ Las funciones implementadas son:
 * `int iabs(int num)` devuelve el valor absoluto del entero
 * `char * strcpy(char * dest, char * src)` copia src en dest
 * `int atohex(char * str)` convierte un hex ASCII a entero
-* `char toUpper(char letter)` pasa el string a mayúscula
-* `char toLower(char letter)` pasa el string a minúscula
+* `char toUpper(char letter)` pasa el char a mayúscula
+* `char toLower(char letter)` pasa el char a minúscula
+* `int isVowel(char letter)` devuelve 1 si el char es una vocal
+* `int isAlfaNum(char letter)` devuelve 1 si el char es una letra o número
 
 #### stdGraphics
 Las funciones implementadas son:
