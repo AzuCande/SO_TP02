@@ -6,7 +6,7 @@ typedef enum {ERROR, BLOCKED, KILLED, READY}State;
 typedef struct {
     uint64_t *BP;
     uint64_t *SP;
-    uint64_t *EP; // End Pointer
+    uint64_t *EP;
     char **argv;
     uint64_t argc; 
     uint64_t pid;
@@ -30,7 +30,6 @@ process *current = NULL;
 
 int currentCountdownPriority;
 
-//private:
 void changeProcess();
 int changeState(uint64_t pid , State state);
 void addTitle(char *dest,int *j);
