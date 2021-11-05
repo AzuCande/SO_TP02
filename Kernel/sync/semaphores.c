@@ -77,10 +77,12 @@ int waitSemphore(uint32_t id) {
     }
     else
     {
-        unsigned int thisPID = getPid();
+        uint64_t thisPID;
+        getPid(&thisPID);
         sem->blockedPIDs[sem->blockedPIDsQty++] = thisPID;
         release(&(sem->mutex));
-        blockProcess(thisPID);
+        int res;
+        blockProcess(thisPID, &res);
     }
 
     return 0;
@@ -102,7 +104,8 @@ int postSemaphore(uint32_t id) {
         }
 
         sem->blockedPIDsQty--;
-        blockProcess(nextPID);
+        int res;
+        blockProcess(nextPID, &res);
         release(&(sem->mutex));
         return 0;
 
