@@ -111,11 +111,29 @@ int strcmp(char * str1, char * str2){
     return str1[i]-str2[i];
 }
 
-char * strcpy(char * dest, char * src) {
-  for (int i = 0; src[i] != 0; i++) {
-    dest[i] = src[i];
+char * strcpy(char * destination, const char * source) {
+  // return if no memory is allocated to the destination
+  // if (destination == NULL) {
+  //   return NULL;
+  // }
+
+  // take a pointer pointing to the beginning of the destination string
+  char *ptr = destination;
+
+  // copy the C-string pointed by source into the array
+  // pointed by destination
+  while (*source != '\0')
+  {
+    *destination = *source;
+    destination++;
+    source++;
   }
-  return dest;
+
+  // include the terminating null character
+  *destination = '\0';
+
+  // the destination is returned by standard `strcpy()`
+  return ptr;
 }
 
 int isVowel(char letter) {

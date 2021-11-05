@@ -79,7 +79,7 @@ void init_shell() {
 }
 
 void writeToLines(char * buff, int dim) {
-    for (int i = 0; i < dim && buff[i] != 0 && i < MAX_LINE_LENGTH; i++) {
+    for (int i = 0; i < dim && buff[i] != 0; i++) {
         if (buff[i] == '\n' || lineCursor == (MAX_LINE_LENGTH - 3)) { //El -3 es para que el ultimo elemento sea un 0 y no toma en cuanta los "> "
             if (lineCursor > 0) {
                 addLine();
