@@ -234,9 +234,10 @@ int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN])  {
 
 void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int pid = getPid();
+    putChar('\n');
     
     while(1) {
-        printf("%d\n", pid);
+        printf("Hi! You ran the loop command, the PID is: %d. To go back, restart the terminal.\n", pid);
 
         int ticksEnd = getTicks() + 5;
         while(getTicks() < ticksEnd) {
@@ -316,7 +317,7 @@ static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG
     char argv[argc+1][MAX_ARG_LEN];
 
     int inner, outer;
-        for (outer = 0; outer < MAX_ARG_LEN; outer++)
+    for (outer = 0; outer < MAX_ARG_LEN; outer++)
         for (inner = 0; inner < argc+1; inner++)
             argv[inner][outer] = 0;
 
