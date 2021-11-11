@@ -314,6 +314,12 @@ static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG
     
     // First arg for name
     char argv[argc+1][MAX_ARG_LEN];
+
+    int inner, outer;
+        for (outer = 0; outer < MAX_ARG_LEN; outer++)
+        for (inner = 0; inner < argc+1; inner++)
+            argv[inner][outer] = 0;
+
     int i = 0;
     strcpy(argv[i], name);
     i++;
@@ -321,6 +327,12 @@ static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG
     for(; i < argc+1; i++) {
         strcpy(argv[i], args[i + 3]);
     }
+
+    int size = argc + 2; 
+    char *argv_p[size];
+    for(i=0; i<argc+1; i++)
+      argv_p[i] = argv[i];
+    argv_p[size - 1] = 0;
     
-    return createProcess(entryPoint, foreground, (char**)argv, fds);
+    return createProcess(entryPoint, foreground, argv_p, fds);
 }

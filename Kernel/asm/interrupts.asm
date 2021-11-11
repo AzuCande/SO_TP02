@@ -153,6 +153,7 @@ saveInitialConditions:
 	ret
 
 _hlt:
+	sti
 	hlt
 	ret
 

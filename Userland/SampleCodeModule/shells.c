@@ -232,7 +232,7 @@ static void exeCommand(char * line) {
                     strcpy(arguments[i],aux);
                 }  else if (i == argQty -1) {
                     //fdout
-                    intToString(0, aux);
+                    intToString(1, aux);
                     strcpy(arguments[i], aux); 
                 } else{
                     //argvs
@@ -265,9 +265,9 @@ static int isCommand(char * name){
 static int isBuiltin(char *command) {
     for(int i = 0; i < NO_BUILTIN_SIZE; i++) {
         if(strcmp(notBuiltInCommands[i], command) == 0)
-            return 1;
+            return 0;
     }
-    return 0;
+    return 1;
 }
 
 static int isPipe(char *pipe) {

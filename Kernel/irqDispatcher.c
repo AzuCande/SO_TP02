@@ -18,7 +18,8 @@ void irqDispatcher(uint64_t irq, uint64_t * registers) {
     break;
     case 1: int_21h((registerStruct *)registers); _sendEOI();
     break;
-    case 80: _sti(); _sendEOI(); int_80h((registerStruct *)registers);
+    // case 80: _sti(); _sendEOI(); int_80h((registerStruct *)registers);
+    case 80: int_80h((registerStruct*)registers); _sendEOI();
     break;
   }
 }
