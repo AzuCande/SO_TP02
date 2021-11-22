@@ -2,192 +2,213 @@
 
 static void acquire(int *lock);
 static void release(int *lock);
-static int createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore);
-static semType * findSemaphore(uint32_t id);
+static void createNewSemaphore(uint32_t id, uint32_t initValue, int semIndex);
+static int findSemaphore(uint32_t id);
+static int findFreeSemaphore();
 
+int semTotal = 0;
+semType semaphores[MAX_SEM_COUNT];
 
-semList * semaphoresList = NULL;
+void openSemaphore(uint32_t id, uint32_t initValue, int *toReturn) {
 
-int initSemaphores() {
-    semaphoresList = mallocMemory(sizeof(semList));
+    int index = findSemaphore(id);
 
-    if(semaphoresList == NULL) {
-        return -1;
-    }
-
-    semaphoresList->first = NULL;
-    semaphoresList->iterator = NULL;
-    semaphoresList->last = NULL;
-    semaphoresList->semQty = 0;
-
-    return 0;
-}
-
-int openSemaphore(uint32_t id, uint32_t initValue) {
-
-    if(semaphoresList == NULL) {
-        initSemaphores();
-    }
-
-    semType * semaphore = findSemaphore(id);
-
-    if(semaphore == NULL) {
-        if(createNewSemaphore(id, initValue, semaphore) == -1) {
-            return -1;
+    if(index == ERROR_CODE) {
+        if((index = findFreeSemaphore()) == ERROR_CODE) {
+            *toReturn = ERROR_CODE;
+            return;
         }
-    }
-    return id;
-}
 
-static int createNewSemaphore(uint32_t id, uint32_t initValue, semType * semaphore) {
-
-    semaphore = mallocMemory(sizeof(semaphore));
-    if(semaphore == NULL) {
-        return -1;
-    }
-
-    semaphore->id = id;
-    semaphore->value = initValue;
-    semaphore->next = NULL;
-    semaphore->blockedPIDsQty = 0;
-    semaphore->mutex = 0;
-
-    if(semaphoresList->first == NULL) {
-        semaphoresList->first = semaphore;
-        semaphoresList->iterator = semaphore;
+        createNewSemaphore(id, initValue, index);
     } else {
-        semaphoresList->last->next = semaphore;
+        semaphores[index].listeners++;
     }
 
-    semaphoresList->semQty++;
-    semaphoresList->last = semaphore;
-
-    return id;
+    *toReturn = index;
 }
 
-int waitSemphore(uint32_t id) {
+
+static void createNewSemaphore(uint32_t id, uint32_t initValue, int semIndex) {
+   
+    semaphores[semIndex].state = SEM_USED;
+    semaphores[semIndex].value = initValue;
+    semaphores[semIndex].blockedPIDsQty = 0;
+    semaphores[semIndex].listeners = 1;
+    semaphores[semIndex].semId = id;
+    semaphores[semIndex].mutex = 0;
     
-    semType * sem = findSemaphore(id);
-    if (sem == NULL) {
-        return -1;
+    semTotal++;
+}
+
+void waitSemaphore(uint32_t id, int *toReturn) {
+
+    int index = findSemaphore(id);
+
+    if(index == ERROR_CODE) {
+        *toReturn = ERROR_CODE;
+        return;
     }
 
-    acquire(&(sem->mutex));
+    acquire(&(semaphores[index].mutex));
 
-    if (sem->value > 0)
-    {
-        sem->value--;
-        release(&(sem->mutex));
-        return 0;
-    }
-    else
-    {
+    if (semaphores[index].value > 0) {
+        semaphores[index].value--;
+        release(&(semaphores[index].mutex));
+        *toReturn = 0;
+    } else {
         uint64_t thisPID;
         getPid(&thisPID);
-        sem->blockedPIDs[sem->blockedPIDsQty++] = thisPID;
-        release(&(sem->mutex));
+        if (semaphores[index].blockedPIDsQty >= MAX_BLOCKED_PID) {
+            *toReturn = ERROR_CODE;
+            return;
+        }
+        semaphores[index].blockedPIDs[semaphores[index].blockedPIDsQty++] = thisPID;
+        release(&(semaphores[index].mutex));
         int res;
         blockProcess(thisPID, &res);
     }
-
-    return 0;
+    *toReturn = 0;
 }
 
-int postSemaphore(uint32_t id) {
-    semType * sem = findSemaphore(id);
-    if (sem == NULL) {
-        return -1;
+void postSemaphore(uint32_t id, int *toReturn) {
+    int index = findSemaphore(id);
+    
+    if(index == ERROR_CODE) {
+        *toReturn = ERROR_CODE;
+        return;
     }
 
-    acquire(&(sem->mutex));
+    acquire(&(semaphores[index].mutex));
 
-    if(sem->blockedPIDsQty > 0) {
-        int nextPID = sem->blockedPIDs[0];
+    if(semaphores[index].blockedPIDsQty > 0) {
+        int nextPID = semaphores[index].blockedPIDs[0];
 
-        for(int i = 0; i < sem->blockedPIDsQty - 1; i++) {
-            sem->blockedPIDs[i] = sem->blockedPIDs[i + 1];
+        for(int i = 0; i < semaphores[index].blockedPIDsQty - 1; i++) {
+            semaphores[index].blockedPIDs[i] = semaphores[index].blockedPIDs[i + 1];
         }
 
-        sem->blockedPIDsQty--;
+        semaphores[index].blockedPIDsQty--;
         int res;
-        blockProcess(nextPID, &res);
-        release(&(sem->mutex));
-        return 0;
-
+        unlockProcess(nextPID, &res);
+        release(&(semaphores[index].mutex));
+        *toReturn = 0;
+        return;
     } else {
-        sem->value++;
+        semaphores[index].value++;
     }
 
-    release(&(sem->mutex));
-
-    return 0;
+    release(&(semaphores[index].mutex));
 }
 
-int closeSemaphore(uint32_t id) {
-    semType * semaphore = findSemaphore(id);
-    if(semaphore == NULL) {
-        return -1;
+void closeSemaphore(uint32_t id, int* toReturn) {
+    
+    int index = findSemaphore(id);
+    if(index == ERROR_CODE) {
+        *toReturn = ERROR_CODE;
+        return;
+    }
+
+    // Check if it is the last process
+    semaphores[index].listeners--;
+    if(semaphores[index].listeners > 0) {
+        *toReturn = 0;
+        return;
+    }
+
+    // Check if there are any blocked processes
+    uint32_t toUnblock;
+    int blockCount = semaphores[index].blockedPIDsQty;
+    for(int i = 0; i < blockCount; i++) {
+        toUnblock = semaphores[index].blockedPIDs[i];
+
+        int result;
+        unlockProcess(toUnblock, &result);
+        semaphores[index].blockedPIDsQty--;
     }
     
-    if(semaphore == semaphoresList->first) {
-        semaphoresList->first = semaphore->next;
-    } else {
-        semaphoresList->iterator = semaphoresList->first;
+    semaphores[index].state = SEM_FREE;
+    semaphores[index].value = 0;
+    semaphores[index].blockedPIDsQty = 0;
+    semaphores[index].listeners = 0;
+    semaphores[index].semId = 0;
+    semaphores[index].mutex = 0;
+    semTotal--;
 
-        while(semaphoresList->iterator->next != semaphore) {
-            semaphoresList->iterator = semaphoresList->iterator->next;
-        }
-        semaphoresList->iterator->next = semaphore->next;
-    }
-
-    semaphoresList->semQty--;
-    freeMemory(semaphore);
-    return 0;
+    *toReturn = 1;
 }
 
 void printSemaphore(char * buffer) { 
     
-    semaphoresList->iterator = semaphoresList->first;
     unsigned int index = 0;
+    unsigned int usedSemaphores = 0;
 
-    if(semaphoresList->iterator == NULL) {
-        strcat(buffer, "There are no semaphores to print", &index);
+    if(semTotal == 0) {
+        strcat(buffer, "\nThere are no semaphores to print\n", &index);
         return;
     }
 
     char header[13] = "\nSEMAPHORES\n";
-    char header2[24] = "ID\t Value\t Qty Process";
+    char header2[24] = "Index\tID\tValue\tQty\tBlocked Qty\tBlocked PIDs\n";
     
     strcat(buffer, header, &index);
     strcat(buffer, header2, &index);
-    buffer[index++] = '\n';
+    // buffer[index++] = '\n';
 
-    while(semaphoresList->iterator != NULL) {
-        char aux[11] = {0};
+    for(int i = 0; i < MAX_SEM_COUNT; i++) {
+        if(semaphores[i].state == SEM_USED){
+            char aux[100] = {0};
 
-        itoa(semaphoresList->iterator->id,aux,10);
-        strcat(buffer, aux, &index);
+            itoa(usedSemaphores++, aux, 10);
+            strcat(buffer, aux, &index);
+            strcat(buffer, "\t", &index);
 
-        itoa(semaphoresList->iterator->value,aux,10);
-        strcat(buffer, aux, &index);
+            itoa(semaphores[i].semId, aux, 10);
+            strcat(buffer, aux, &index);
+            strcat(buffer, "\t", &index);
 
-        buffer[index++] = '\n';
-        semaphoresList->iterator = semaphoresList->iterator->next; 
+            itoa(semaphores[i].value, aux, 10);
+            strcat(buffer, aux, &index);
+            strcat(buffer, "\t", &index);
+
+            itoa(semaphores[i].listeners, aux, 10);
+            strcat(buffer, aux, &index);
+            strcat(buffer, "\t", &index);
+
+            itoa(semaphores[i].blockedPIDsQty, aux, 10);
+            strcat(buffer, aux, &index);
+            strcat(buffer, "\t", &index);
+
+            strcat(buffer, "[ ", &index);
+            for (int j = 0; j < semaphores[i].blockedPIDsQty; j++) {
+                itoa(semaphores[i].blockedPIDs[j], aux, 10);
+                strcat(buffer, aux, &index);
+                strcat(buffer, " ", &index);
+            }
+            strcat(buffer, "]", &index);
+
+            strcat(buffer, "\n", &index);
+        }
+         
     }
 
     buffer[index] = '\0';
 }
 
-static semType * findSemaphore(uint32_t id) {
-    semType * s = semaphoresList->first;
-
-    while(s != NULL) {
-        if(s->id == id) {
-            return s;
+static int findSemaphore(uint32_t id) {
+    for(int i = 0; i < MAX_SEM_COUNT; i++) {
+        if(semaphores[i].semId == id && semaphores[i].state == SEM_USED) {
+            return i;
         }
     }
+    return ERROR_CODE;
+}
 
-    return NULL;
+static int findFreeSemaphore() {
+    for(int i = 0; i < MAX_SEM_COUNT; i++) {
+        if(semaphores[i].state == SEM_FREE)
+            return i;
+    }
+    return -1;
 }
 
 static void acquire(int *lock) {

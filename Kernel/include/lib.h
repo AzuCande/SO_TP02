@@ -20,6 +20,8 @@ void _timerTick();
 
 int _xchg(int *mutex, int value);
 
+int _xadd(int add, int *num);
+
 int strlen(char *str);
 
 /* ------------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,7 @@ GLOBAL cpuVendor
 GLOBAL RTC
 GLOBAL _timerTick
 GLOBAL _xchg
+GLOBAL _xadd
 
 section .text
 
@@ -72,3 +73,8 @@ _xchg:
 	mov rax, rsi
 	xchg [rdi], eax
 	ret
+
+_xadd:
+	mov rax, rdi
+    lock xadd [rsi],eax 
+    ret

@@ -201,22 +201,26 @@ void syscallHandler(registerStruct * registers) {
     case 30:
     // rdi -> id
     // rsi -> initValue
-    openSemaphore((uint32_t) registers->rdi, (uint32_t) registers->rsi);
+    // rdx -> *toReturn
+    openSemaphore((uint32_t) registers->rdi, (uint32_t) registers->rsi, (int*) registers->rdx);
     break;
 
     case 31:
     // rdi -> id
-    waitSemphore((uint32_t) registers->rdi);
+    // rsi -> *toReturn
+    waitSemphore((uint32_t) registers->rdi, (int*) registers->rsi);
     break;
 
     case 32:
     // rdi -> id
-    postSemaphore((uint32_t) registers->rdi);
+    // rsi -> *toReturn
+    postSemaphore((uint32_t) registers->rdi, (int*) registers->rsi);
     break;
 
     case 33:
     // rdi -> id
-    closeSemaphore((uint32_t) registers->rdi);
+    // rsi -> *toReturn
+    closeSemaphore((uint32_t) registers->rdi, (int*) registers->rsi);
     break;
 
     case 34:

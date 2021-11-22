@@ -113,5 +113,6 @@ void test_prio(){
     my_kill(pids[i]);
 
   printf("Passed\n");  
+  processKiller();
 }
 
