@@ -1,5 +1,6 @@
 #include <tests.h>
 #include <stddef.h>
+#include <processesUser.h>
 
 #define MAX_BLOCKS 128
 #define MAX_MEMORY 1024*1024*32 //Should be around 80% of memory managed by the MM
@@ -75,5 +76,6 @@ void test_mm() {
         myFree(mm_rqs[i].address);
   }
   
-  printf("termina el test de memoria");
+  printf("termina el test de memoria\n");
+  processKiller();
 }
