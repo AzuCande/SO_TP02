@@ -148,7 +148,7 @@ void printSemaphore(char * buffer) {
     }
 
     char header[13] = "\nSEMAPHORES\n";
-    char header2[45] = "Index\tID\tValue\tQty\tBlocked Qty\tBlocked PIDs\n";
+    char header2[45] = "Index|\tID|\tValue|\tQty|\tBlocked Qty|\tBlocked PIDs\n";
     
     strcat(buffer, header, &index);
     strcat(buffer, header2, &index);
@@ -160,15 +160,15 @@ void printSemaphore(char * buffer) {
 
             itoa(usedSemaphores++, aux, 10);
             strcat(buffer, aux, &index);
-            strcat(buffer, "\t", &index);
+            strcat(buffer, "|\t", &index);
 
             itoa(semaphores[i].semId, aux, 10);
             strcat(buffer, aux, &index);
-            strcat(buffer, "\t", &index);
+            strcat(buffer, "|\t", &index);
 
             itoa(semaphores[i].value, aux, 10);
             strcat(buffer, aux, &index);
-            strcat(buffer, "\t", &index);
+            strcat(buffer, "|\t", &index);
 
             itoa(semaphores[i].listeners, aux, 10);
             strcat(buffer, aux, &index);
@@ -176,7 +176,7 @@ void printSemaphore(char * buffer) {
 
             itoa(semaphores[i].blockedPIDsQty, aux, 10);
             strcat(buffer, aux, &index);
-            strcat(buffer, "\t", &index);
+            strcat(buffer, "|\t", &index);
 
             strcat(buffer, "[ ", &index);
             for (int j = 0; j < semaphores[i].blockedPIDsQty; j++) {

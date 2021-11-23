@@ -154,12 +154,17 @@ static void exeCommand(char * line) {
     int pipePos = 0;
     
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
-        if (line[index] != ' ' && line[index] != '-') {
-            commandArgs[foundArgs][nameIndex++] = line[index];
-        } else if (index!= 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
+        if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
             foundArgs++;
             nameIndex = 0;
-        } else if(line[index] == '|') {
+        }
+        if (line[index] != ' ' && line[index] != '-') {
+            commandArgs[foundArgs][nameIndex++] = line[index];
+        } 
+        // else if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
+        //     foundArgs++;
+        //     nameIndex = 0;
+        if(line[index] == '|') {
             pipePos = index;
         }
 
