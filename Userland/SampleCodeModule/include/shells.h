@@ -8,6 +8,7 @@
 #include <commands.h>
 #include <stdlib.h>
 #include <syscalls_asm.h>
+#include <pipesUser.h>
 
 #define NO_BUILTIN_SIZE 10
 #define ERROR -1

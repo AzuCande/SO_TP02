@@ -60,7 +60,9 @@ int readFrom(char * buff, uint64_t size, uint64_t * count) {
       return -1;
     }
   }
-  return pipeRead(readFd);
+  int toReturn;
+  pipeRead(readFd, &toReturn);
+  return toReturn;
 }
 
 void writeTo(registerStruct *registers) {
@@ -68,7 +70,8 @@ void writeTo(registerStruct *registers) {
   if(writeFd == OUT) {
     writeStr(registers);
   } else {
-    pipeWrite(writeFd, (char *) registers->rdi);
+    int toReturn;
+    pipeWrite(writeFd, (char *) registers->rdi, &toReturn);
   }
 }
 

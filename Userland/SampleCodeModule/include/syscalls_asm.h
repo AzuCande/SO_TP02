@@ -32,15 +32,15 @@ void unblockSyscall(uint64_t pid, int *result);
 void niceSyscall(uint64_t pid, uint64_t priority, int *result);
 void yieldSyscall();
 
-int pipeOpenSyscall(uint32_t id);
-int pipeCloseSyscall(uint32_t id);
-int pipeReadSyscall(uint32_t id);
-int pipeWriteSyscall(uint32_t id, char *string);
+void pipeOpenSyscall(uint32_t id, int *toReturn);
+void pipeCloseSyscall(uint32_t id, int *toReturn);
+void pipeReadSyscall(uint32_t id, int *toReturn);
+void pipeWriteSyscall(uint32_t id, char *string, int *toReturn);
 int createPipeSyscall(uint32_t id);
 void pipeSyscall(char * buffer);
 
 void openSemaphoreSyscall(uint32_t sem_id, uint32_t initialValue, int *toReturn);
-void waitSemphoreSyscall(uint32_t id, int *toReturn);
+void waitSemaphoreSyscall(uint32_t id, int *toReturn);
 void postSemaphoreSyscall(uint32_t id, int *toReturn);
 void closeSemaphoreSyscall(uint32_t id, int *toReturn);
 void semSyscall(char * buffer);

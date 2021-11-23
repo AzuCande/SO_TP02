@@ -282,7 +282,7 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     int pids[2];
     unsigned int fds[2];
 
-    int pipe = pipeOpenSyscall(pipeId++);
+    int pipe = pipe_open(pipeId++);
 
     if(pipe == ERROR) {
         printf(" - ERROR CREATING PIPE");
@@ -323,7 +323,7 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     pids[0] = run[posCommand1](arguments1);
 
     if(pids[0] == ERROR) {
-        pipeCloseSyscall(pipe);
+        pipe_close(pipe);
         return ERROR;
     }
 
@@ -359,7 +359,7 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     pids[1] = (int) run[posCommand2](arguments2);
 
     if(pids[1] == ERROR) {
-        pipeCloseSyscall(pipe);
+        pipe_close(pipe);
         return ERROR;
     }
 

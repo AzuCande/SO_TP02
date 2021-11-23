@@ -3,6 +3,7 @@
 #include <processesUser.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <semaphoresUser.h>
 
 // #define NULL (void*)0
 

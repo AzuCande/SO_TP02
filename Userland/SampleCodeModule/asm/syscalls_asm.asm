@@ -26,7 +26,7 @@ GLOBAL createPipeSyscall
 GLOBAL pipeSyscall
 GLOBAL initSemaphoresSyscall
 GLOBAL openSemaphoreSyscall
-GLOBAL waitSemphoreSyscall
+GLOBAL waitSemaphoreSyscall
 GLOBAL postSemaphoreSyscall
 GLOBAL closeSemaphoreSyscall
 GLOBAL semSyscall
@@ -349,7 +349,7 @@ openSemaphoreSyscall:
     pop rbp
     ret
 
-waitSemphoreSyscall:
+waitSemaphoreSyscall:
     push rbp
     mov rbp, rsp
 

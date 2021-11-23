@@ -3,6 +3,7 @@
 
 #include <syscalls_asm.h>
 #include <stdint.h>
+#include <stdio.h>
 
 int sem_open(uint32_t id, uint32_t initValue);
 int sem_wait(uint32_t id);

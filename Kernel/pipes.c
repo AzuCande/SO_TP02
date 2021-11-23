@@ -9,7 +9,8 @@ pipe_t pipes[MAX_PIPES];
 uint32_t sem_id = 1; // Notify user of the id of pipes' semaphores
 unsigned int pipesCount = 0;
 
-int pipeOpen(uint32_t id) {
+// TODO: Arreglar pipes
+void pipeOpen(uint32_t id, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
@@ -17,89 +18,108 @@ int pipeOpen(uint32_t id) {
         pipeIdx = createPipe(id);
 
         // Check if created
-        if(pipeIdx == ERROR)
-            return ERROR;
+        if(pipeIdx == ERROR) {
+            *toReturn = ERROR;
+            return;
+        }
+        
     }
 
     pipes[pipeIdx].processCount++;
 
-    return id;
+    *toReturn = id;
 }
 
 // When pipe closed, the memory assigned to semaphore will be freed
-int pipeClose(uint32_t id) {
+void pipeClose(uint32_t id, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
-    if(pipeIdx == ERROR)
-        return ERROR;
+    if(pipeIdx == ERROR) {
+        *toReturn =ERROR;
+        return;
+    }
     
     pipe_t toClose = pipes[pipeIdx];
     toClose.processCount--;
 
     if(toClose.processCount > 0) {
-        return 1;
+        *toReturn = 1;
+        return;
     }
 
-    int closeR = closeSemaphore(toClose.readSem);
-    int closeW = closeSemaphore(toClose.writeSem);
+    int closeR, closeW;
 
-    if(closeR == ERROR || closeW == ERROR)
-        return ERROR;
+    closeSemaphore(toClose.readSem, &closeR);
+    closeSemaphore(toClose.writeSem, &closeW);
 
-    toClose.active = 0;
+    if(closeR == ERROR || closeW == ERROR) {
+        *toReturn = ERROR;
+        return;
+    }
+
+    toClose.state = PIPE_FREE;
     pipesCount--;
 
-    return 1;
+    *toReturn = 1;
 }
 
-int pipeRead(uint32_t id) {
+void pipeRead(uint32_t id, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
-    if(pipeIdx == ERROR)
-        return ERROR;
+    if(pipeIdx == ERROR) {
+        *toReturn = ERROR;
+        return;
+    }
     
     pipe_t toRead = pipes[pipeIdx];
 
-    if(waitSemphore(toRead.readSem) == ERROR)
-        return ERROR;
+    waitSemaphore(toRead.readSem, toReturn);
+    if(*toReturn == ERROR)
+        return;
 
     char c = toRead.buffer[toRead.readIdx % PIPE_BUF_SIZE];
     toRead.readIdx++;
 
-    if(postSemaphore(toRead.writeSem) == ERROR)
-        return ERROR;
+    postSemaphore(toRead.writeSem, toReturn);
 
-    return c;
+    // return c;
 }
 
-int pipeWrite(uint32_t id, char *string) {
+void pipeWrite(uint32_t id, char *string, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
-    if(pipeIdx == ERROR)
-        return ERROR;
+    if(pipeIdx == ERROR) {
+        *toReturn = ERROR;
+        return;
+    }
     
     while(*string != 0)
         writeCharPipe(pipeIdx, *string++);
     
-    return id;
+    *toReturn = 1;
 }
 
 static int writeCharPipe(int pipeIdx, char c) {
     pipe_t toWrite = pipes[pipeIdx];
 
-    if(waitSemphore(toWrite.writeSem) == ERROR)
-        return ERROR;
+    int ans;
+
+    waitSemaphore(toWrite.writeSem, &ans);
+    
+    if(ans == ERROR)
+        return ans;
 
     toWrite.buffer[toWrite.writeIdx] = c;
     toWrite.writeIdx++;
 
-    if(postSemaphore(toWrite.readSem) == ERROR)
-        return ERROR;
+    int aux = 0;
+
+    postSemaphore(toWrite.readSem, &aux);
     
-    return 0;
+    return aux;
 }
 
 int createPipe(uint32_t id) {
@@ -113,15 +133,17 @@ int createPipe(uint32_t id) {
     newPipe.readIdx = 0;
     newPipe.writeIdx = 0;
     newPipe.processCount = 0;
-    newPipe.active = 1;
+    newPipe.state = PIPE_IN_USE;
     pipesCount++;
 
     // Check if semaphores were created
-    if((newPipe.readSem = openSemaphore(sem_id++, 0)) == ERROR) {
+    openSemaphore(sem_id++, 0, &newPipe.readSem);
+    if(newPipe.readSem == ERROR) {
         return ERROR;
     }
 
-    if((newPipe.writeSem = openSemaphore(sem_id++, 0)) == ERROR) {
+    openSemaphore(sem_id++, 0, &newPipe.writeSem);
+    if(newPipe.writeSem == ERROR) {
         return ERROR;
     }
 
@@ -131,16 +153,16 @@ int createPipe(uint32_t id) {
 // Returns position of pipe in the array
 static int findPipe(uint32_t id) {
     for(int i = 0; i < MAX_PIPES; i++) {
-        if(pipes[i].active && pipes[i].id == id)
+        if(pipes[i].state && pipes[i].id == id)
             return i;
     }
     return ERROR;
 }
 
-// Get position of the array where there is no active pipe
+// Get position of the array where there is no used pipe
 static int getAvailablePipe() {
     for(int i = 0; i < MAX_PIPES; i++) {
-        if(!pipes[i].active) {
+        if(!pipes[i].state) {
             return i;
         }
     }
@@ -162,7 +184,7 @@ void printPipes(char *buffer) {
     for(int j = 0; j < pipesCount; j++) {
         pipe_t toPrint = pipes[j];
         
-        if(toPrint.active) {
+        if(toPrint.state) {
             char aux[11] = {0};
 
             itoa(toPrint.id,aux,10);

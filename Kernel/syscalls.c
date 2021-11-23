@@ -169,23 +169,27 @@ void syscallHandler(registerStruct * registers) {
 
     case 24:
     // rdi -> id
-    pipeOpen((uint32_t) registers->rdi);
+    // rsi -> toReturn
+    pipeOpen((uint32_t) registers->rdi, (int *) registers->rsi);
     break;
     
     case 25:
     // rdi -> id
-    pipeClose((uint32_t) registers->rdi);
+    // rsi -> toReturn
+    pipeClose((uint32_t) registers->rdi, (int *) registers->rsi);
     break;
 
     case 26:
     // rdi -> id
-    pipeRead((uint32_t) registers->rdi);
+    // rsi -> toReturn
+    pipeRead((uint32_t) registers->rdi, (int *) registers->rsi);
     break;
 
     case 27:
     // rdi -> id
     // rsi -> string
-    pipeWrite((uint32_t) registers->rdi,(char *) registers->rsi);
+    // rdx -> toReturn
+    pipeWrite((uint32_t) registers->rdi,(char *) registers->rsi, (int *) registers->rdx);
     break;
 
     case 28:
@@ -208,7 +212,7 @@ void syscallHandler(registerStruct * registers) {
     case 31:
     // rdi -> id
     // rsi -> *toReturn
-    waitSemphore((uint32_t) registers->rdi, (int*) registers->rsi);
+    waitSemaphore((uint32_t) registers->rdi, (int*) registers->rsi);
     break;
 
     case 32:
