@@ -124,6 +124,8 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t testmem - runs test for memory manager\n");
     printf("\t testprocess - runs test for scheduler\n");
     printf("\t testprio - runs test for scheduler\n");
+    printf("\t testsync - runs test for process synchronization in BG\n");
+    printf("\t testnosync - runs test for process synchronization (no semaphores) in BG\n");
 
 
     //printf("\t phylo - starts phylo app\n");    
@@ -220,6 +222,16 @@ int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     return buildProcess("testmem", test_mm, args);
+}
+
+int testSync(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putchar('\n');
+    return buildProcess("testsync", test_sync, args);
+}
+
+int testNoSync(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
+    return buildProcess("testnosync", test_no_sync, args);
 }
 
 int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {

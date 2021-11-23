@@ -95,7 +95,6 @@ int main()
 	loadIdt();
 	initVideoDriver();
 	initializeFunctionKeys();
-	initSemaphores();
 
 	//Test para printmem
 	// uint8_t * pos = 0x12345678;

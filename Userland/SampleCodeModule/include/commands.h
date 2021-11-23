@@ -60,4 +60,7 @@ int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
+int testSync(char args[MAX_ARGS][MAX_ARG_LEN]);
+int testNoSync(char args[MAX_ARGS][MAX_ARG_LEN]);
+
 #endif

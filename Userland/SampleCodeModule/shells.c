@@ -25,11 +25,11 @@ static int lineCursor = 0;
 
 static int pipeId = 1;
 
-char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem", "testprocess", "testprio", "loop", "cat", "wc", "filter", "phylo"};
-int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, testProcessesCommand, testPrioCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
-static int totalCommands = 24;
+char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem", "testprocess", "testprio", "testsync", "testnosync", "loop", "cat", "wc", "filter", "phylo"};
+int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, testProcessesCommand, testPrioCommand, testSync, testNoSync, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
+static int totalCommands = 26;
 
-char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter", "testmem", "testprio", "testprocess", "phylo"};
+char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter", "testmem", "testprio", "testprocess", "phylo", "testsync", "testnosync"};
 
 void init_shell() {
 

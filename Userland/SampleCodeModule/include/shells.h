@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <syscalls_asm.h>
 
-#define NO_BUILTIN_SIZE 8
+#define NO_BUILTIN_SIZE 10
 #define ERROR -1
 
 void drawShellLines();
