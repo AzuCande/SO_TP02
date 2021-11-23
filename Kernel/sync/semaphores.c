@@ -148,7 +148,7 @@ void printSemaphore(char * buffer) {
     }
 
     char header[13] = "\nSEMAPHORES\n";
-    char header2[24] = "Index\tID\tValue\tQty\tBlocked Qty\tBlocked PIDs\n";
+    char header2[45] = "Index\tID\tValue\tQty\tBlocked Qty\tBlocked PIDs\n";
     
     strcat(buffer, header, &index);
     strcat(buffer, header2, &index);

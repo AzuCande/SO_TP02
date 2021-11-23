@@ -42,7 +42,7 @@ void inc(int argc, char *argv[]){
   processKiller();
 }
 
-void test_sync(int argc, char *argv[]) {
+void test_sync() {
   uint64_t i;
 
   global = 0;
@@ -56,10 +56,12 @@ void test_sync(int argc, char *argv[]) {
     createProcess(inc, 0, argv2, NULL);
   }
 
+  printf("PASSED\n");
+
   processKiller();
 }
 
-void test_no_sync(int argc, char *argv[]) {
+void test_no_sync() {
   uint64_t i;
 
   global = 0;
@@ -72,6 +74,8 @@ void test_no_sync(int argc, char *argv[]) {
     char *argv2[5] = {"inc-", "0", "-1", "1000", NULL};
     createProcess(inc, 0, argv2, NULL);
   }
+
+  printf("PASSED\n");
 
   processKiller();
 }

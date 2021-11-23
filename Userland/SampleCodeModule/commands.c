@@ -225,7 +225,7 @@ int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int testSync(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    putchar('\n');
+    putChar('\n');
     return buildProcess("testsync", test_sync, args);
 }
 

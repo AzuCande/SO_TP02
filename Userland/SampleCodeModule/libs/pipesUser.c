@@ -21,6 +21,6 @@ int pipe_read(uint32_t id) {
 int pipe_write(uint32_t id) {
     char buffer[2048];
     int ans = 0;
-    pipeWriteSyscall(id, &buffer, &ans);
+    pipeWriteSyscall(id, buffer, &ans);
     return ans;
 }

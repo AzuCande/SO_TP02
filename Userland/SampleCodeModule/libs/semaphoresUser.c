@@ -26,6 +26,6 @@ int sem_close(uint32_t id) {
 
 void sem_status() {
     char buffer[2048];
-    semSyscall(&buffer);
+    semSyscall(buffer);
     printf("%s\n", buffer);
 }
