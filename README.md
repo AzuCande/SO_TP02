@@ -91,7 +91,7 @@ Las syscalls a disposición del usuario son las siguientes: <br>
 | 28   | createPipe           | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 29   | printPipes           | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 30   | openSemaphore        | uint32_t id          | uint32_t initVal | -                 | -               | -                  | -                 | -                 | -                 |
-| 31   | waitSemphore         | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 31   | waitSemaphore        | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 32   | postSemaphore        | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 33   | closeSemaphore       | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 34   | printSemaphore       | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |

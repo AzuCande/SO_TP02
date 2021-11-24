@@ -110,6 +110,6 @@ void test_processes(){
         }
     } 
     printf("Passed");
-    // myExit();
+    processKiller();
   }
 }

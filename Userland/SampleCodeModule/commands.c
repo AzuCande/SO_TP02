@@ -124,6 +124,8 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t testmem - runs test for memory manager\n");
     printf("\t testprocess - runs test for scheduler\n");
     printf("\t testprio - runs test for scheduler\n");
+    printf("\t testsync - runs test for process synchronization in BG\n");
+    printf("\t testnosync - runs test for process synchronization (no semaphores) in BG\n");
 
 
     //printf("\t phylo - starts phylo app\n");    
@@ -159,6 +161,7 @@ int invalidopcode(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     int strSize = 2048;
     char str[strSize];
     memSyscall(str, strSize);
@@ -168,6 +171,7 @@ int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     char buffer[BUFFER_SIZE];
     psSyscall(buffer);
     printf("%s\n", buffer);
@@ -175,35 +179,58 @@ int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int killCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int id = atoi(args[0]);
-    kill(id);
-    printf("Process successfully killed\n");
+    putChar('\n');
+    unsigned int id = atoi(args[1]);
+    if(kill(id) == 0) 
+        printf("Process successfully killed\n");
+    else
+        printf("Process kill failed\n");
+    
     return 1;
 }
 
 int niceCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    uint64_t id = atoi(args[0]);
-    uint64_t priority = atoi(args[1]);
-    nice(id, priority);
-    printf("Priority successfully changed\n");
+    putChar('\n');
+    uint64_t id = atoi(args[1]);
+    uint64_t priority = atoi(args[2]);
+    if(id < 0 || priority <= 0) {
+        printf("Invalid arguments\n");
+        return;
+    }
+    if(nice(id, priority) < 0) {
+        printf("Priority successfully changed\n");
+    } else {
+        printf("Priority change failed");
+    }
+    
     return 1;
 }
 
 int blockCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int id = atoi(args[0]);
-    block(id);
-    printf("Process state successfully switched\n");
+    putChar('\n');
+    unsigned int id = atoi(args[1]);
+    if(block(id) == 0) {
+        printf("Process successfully blocked\n");
+    } else {
+        printf("Process failed to block\n");
+    }
+    
     return 1;
 }
 
 int unblockCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    unsigned int id = atoi(args[0]);
-    unblock(id);
-    printf("Process state successfully switched\n");
+    putChar('\n');
+    unsigned int id = atoi(args[1]);
+    if(unblock(id) == 0) {
+        printf("Process successfully unblocked\n");
+    } else {
+        printf("Process failed to unblock\n");
+    }
     return 1;
 }
 
 int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     char buffer[BUFFER_SIZE];
     semSyscall(buffer);
     printf("%s\n", buffer);
@@ -211,6 +238,7 @@ int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     char buffer[BUFFER_SIZE];
     pipeSyscall(buffer);
     printf("%s\n", buffer);
@@ -220,6 +248,16 @@ int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     return buildProcess("testmem", test_mm, args);
+}
+
+int testSync(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
+    return buildProcess("testsync", test_sync, args);
+}
+
+int testNoSync(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
+    return buildProcess("testnosync", test_no_sync, args);
 }
 
 int testProcessesCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -247,6 +285,7 @@ void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     return buildProcess("loop", loop, args);
 }
 
@@ -259,6 +298,7 @@ void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
 }
 
 int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     return buildProcess("cat", cat, args);
 }
 

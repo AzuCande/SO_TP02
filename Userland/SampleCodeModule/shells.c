@@ -25,11 +25,11 @@ static int lineCursor = 0;
 
 static int pipeId = 1;
 
-char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem", "testprocess", "testprio", "loop", "cat", "wc", "filter", "phylo"};
-int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, testProcessesCommand, testPrioCommand, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
-static int totalCommands = 24;
+char commandsNames[][MAX_ARG_LEN] = {"datetime", "help", "inforeg", "printmem", "divzero", "invalidopcode", "clear", "echo", "mem", "ps", "kill", "nice", "block", "unblock", "sem", "pipe", "testmem", "testprocess", "testprio", "testsync", "testnosync", "loop", "cat", "wc", "filter", "phylo"};
+int  (* run[])(char args[MAX_ARGS][MAX_ARG_LEN]) = {dateTime, help, infoReg, printmem, divzero, invalidopcode, clear, echo, mem, ps, killCommand, niceCommand, blockCommand, unblockCommand, sem, pipe, testMemCommand, testProcessesCommand, testPrioCommand, testSync, testNoSync, loopCommand,catCommand, wcCommand, filterCommand, phyloCommand};
+static int totalCommands = 26;
 
-char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter", "testmem", "testprio", "testprocess", "phylo"};
+char notBuiltInCommands[][MAX_ARG_LEN] = {"loop", "cat", "wc", "filter", "testmem", "testprio", "testprocess", "phylo", "testsync", "testnosync"};
 
 void init_shell() {
 
@@ -154,12 +154,17 @@ static void exeCommand(char * line) {
     int pipePos = 0;
     
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
-        if (line[index] != ' ' && line[index] != '-') {
-            commandArgs[foundArgs][nameIndex++] = line[index];
-        } else if (index!= 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
+        if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
             foundArgs++;
             nameIndex = 0;
-        } else if(line[index] == '|') {
+        }
+        if (line[index] != ' ' && line[index] != '-') {
+            commandArgs[foundArgs][nameIndex++] = line[index];
+        } 
+        // else if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
+        //     foundArgs++;
+        //     nameIndex = 0;
+        if(line[index] == '|') {
             pipePos = index;
         }
 
@@ -214,30 +219,30 @@ static void exeCommand(char * line) {
         } else {
             int argQty = foundArgs + 4;    // argc, args, foreground, fdIn, fdOut
             char arguments[argQty][MAX_ARG_LEN];
-            
-            for(int i=0; i<argQty; i++) {
-                char aux[11] = {0};
 
-                if(i==0) {
-                    //argc
-                    intToString(foundArgs, aux);
-                    strcpy(arguments[i], aux);
-                } else if(i==argQty-3){
-                    //fg
-                    intToString(foreground, aux);
-                    strcpy(arguments[i], aux);
-                } else if(i == argQty - 2) {
-                    //fdin
-                    intToString(0, aux);
-                    strcpy(arguments[i],aux);
-                }  else if (i == argQty -1) {
-                    //fdout
-                    intToString(1, aux);
-                    strcpy(arguments[i], aux); 
-                } else{
-                    //argvs
-                    strcpy(arguments[i], commandArgs[i+1]);
-                }
+            int index = 0;
+            char aux[11] = {0};
+
+            // argc
+            intToString(foundArgs, aux);
+            strcpy(arguments[index++], aux);
+
+            // foreground
+            intToString(foreground, aux);
+            strcpy(arguments[index++], aux);
+
+            // fdIn
+            intToString(0, aux);
+            strcpy(arguments[index++],aux);
+
+            // fdOut
+            intToString(1, aux);
+            strcpy(arguments[index++], aux); 
+            
+            // argv
+            // First argument of commandArgs is the command itself
+            for(int j = 1; index < argQty; j++) {
+                strcpy(arguments[index++], commandArgs[j]);
             }
             run[i](arguments);
         }
@@ -282,7 +287,7 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     int pids[2];
     unsigned int fds[2];
 
-    int pipe = pipeOpenSyscall(pipeId++);
+    int pipe = pipe_open(pipeId++);
 
     if(pipe == ERROR) {
         printf(" - ERROR CREATING PIPE");
@@ -315,15 +320,15 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     intToString(fds[1], aux);
     strcpy(arguments1[index++],aux);
 
-    for(int i=0; index< argQty; index++) {
+    for(int i=0; index< argQty; i++) {
         // argv
-        strcpy(arguments1[i], args1[index]);
+        strcpy(arguments1[index++], args1[i]);
     }
 
     pids[0] = run[posCommand1](arguments1);
 
     if(pids[0] == ERROR) {
-        pipeCloseSyscall(pipe);
+        pipe_close(pipe);
         return ERROR;
     }
 
@@ -351,15 +356,15 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
     intToString(fds[1], aux);
     strcpy(arguments2[index++],aux);
 
-    for(int i=0; index< argQty; index++) {
+    for(int i=0; index< argQty; i++) {
         // argv
-        strcpy(arguments2[i], args2[index]);
+        strcpy(arguments2[index++], args2[i]);
     }
 
     pids[1] = (int) run[posCommand2](arguments2);
 
     if(pids[1] == ERROR) {
-        pipeCloseSyscall(pipe);
+        pipe_close(pipe);
         return ERROR;
     }
 

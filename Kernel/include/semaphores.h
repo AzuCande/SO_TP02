@@ -7,29 +7,28 @@
 #include <lib.h>
 #include <stddef.h>
 
-#define MAX_BLOCKED_PID 20
+#define MAX_BLOCKED_PID 16
+#define MAX_SEM_COUNT 25
+
+#define SEM_USED 1
+#define SEM_FREE 0
+
+#define ERROR_CODE -1
 
 typedef struct semType {
-    uint32_t id;
-    uint32_t value;
-    int mutex;
+    int state;
+    uint64_t value;
+    int blockedPIDsQty;
     uint32_t blockedPIDs[MAX_BLOCKED_PID];
-    uint32_t blockedPIDsQty;
-    struct semType * next;
+    uint16_t listeners;
+    uint32_t semId;
+    int mutex;
 } semType;
 
-typedef struct semList {
-    uint64_t semQty;
-    semType * first;
-    semType * last;
-    semType * iterator;
-} semList;
-
-int initSemaphores();
-int openSemaphore(uint32_t id, uint32_t initValue);
-int waitSemphore(uint32_t id);
-int postSemaphore(uint32_t id);
-int closeSemaphore(uint32_t id);
+void openSemaphore(uint32_t id, uint32_t initValue, int *toReturn);
+void waitSemaphore(uint32_t id, int *toReturn);
+void postSemaphore(uint32_t id, int *toReturn);
+void closeSemaphore(uint32_t id, int *toReturn);
 void printSemaphore(char * buffer);
 
 
