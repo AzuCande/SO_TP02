@@ -27,7 +27,7 @@ typedef struct pipe_t {
 
 void pipeOpen(uint32_t id, int *toReturn);
 void pipeClose(uint32_t id, int *toReturn);
-void pipeRead(uint32_t id, char *str, int *toReturn);
+void pipeRead(uint32_t id, int *toReturn);
 void pipeWrite(uint32_t id, char *string, int *toReturn);
 void printPipes(char *buffer);
 

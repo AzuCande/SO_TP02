@@ -182,7 +182,7 @@ void syscallHandler(registerStruct * registers) {
     case 26:
     // rdi -> id
     // rsi -> toReturn
-    pipeRead((uint32_t) registers->rdi, (int *) registers->rsi);
+    pipeRead((uint32_t) registers->rdi, (int *) registers->rdx);
     break;
 
     case 27:
