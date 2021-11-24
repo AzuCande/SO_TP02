@@ -86,7 +86,7 @@ Las syscalls a disposición del usuario son las siguientes: <br>
 | 23   | exitProcess          | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 24   | pipeOpen             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 25   | pipeClose            | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 26   | pipeRead             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 26   | pipeRead             | uint32_t id          | int *            | -                 | -               | -                  | -                 | -                 | -                 |
 | 27   | pipeWrite            | uint32_t id          | char * argv      | -                 | -               | -                  | -                 | -                 | -                 |
 | 28   | createPipe           | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 29   | printPipes           | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
