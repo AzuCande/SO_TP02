@@ -22,7 +22,6 @@ GLOBAL pipeOpenSyscall
 GLOBAL pipeCloseSyscall
 GLOBAL pipeReadSyscall
 GLOBAL pipeWriteSyscall
-GLOBAL createPipeSyscall
 GLOBAL pipeSyscall
 GLOBAL initSemaphoresSyscall
 GLOBAL openSemaphoreSyscall
@@ -316,17 +315,6 @@ pipeWriteSyscall:
     pop rbp
     ret
 
-createPipeSyscall:
-    push rbp
-    mov rbp, rsp
-
-    mov rax, 28
-    int 80h
-
-    mov rsp, rbp
-    pop rbp
-    ret
-
 pipeSyscall:    ;printPipes
     push rbp
     mov rbp, rsp
@@ -408,7 +396,7 @@ memSyscall:
     push rbp
     mov rbp, rsp
 
-    mov rax, 36
+    mov rax, 28
     int 80h
     
     mov rsp, rbp

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define EOF -1
+
 int atoi(char * str);
 int intToString(unsigned long long num, char * buffer);
 int strlen(char *str);

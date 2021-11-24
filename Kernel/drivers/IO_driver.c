@@ -1,5 +1,3 @@
-#ifndef IO_DRIVER
-#define IO_DRIVER
 #include <IO_driver.h>
 
 static registerStruct registerSnapshot;
@@ -56,23 +54,25 @@ int readFrom(char * buff, uint64_t size, uint64_t * count) {
     if(isCurrentFg()) {
       readKeyboard(buff, size, count);  // TODO: chequear count
       return 1;
-    } else {
-      return -1;
     }
+    return -1;
   }
-  int toReturn;
-  pipeRead(readFd, &toReturn);
-  return toReturn;
+  // 0 -> successful    -1 -> failed
+  int ret;
+  pipeRead(readFd, buff, &ret);
+  return ret;
 }
 
-void writeTo(registerStruct *registers) {
+int writeTo(registerStruct *registers) {
   int writeFd = currentWriteFd();
   if(writeFd == OUT) {
-    writeStr(registers);
-  } else {
-    int toReturn;
-    pipeWrite(writeFd, (char *) registers->rdi, &toReturn);
+    if(isCurrentFg()) {
+      writeStr(registers);
+      return 1;
+    }
+    return -1;
   }
+  int ret;
+  pipeWrite(writeFd, (char *) registers->rdi, &ret);
+  return ret;
 }
-
-#endif

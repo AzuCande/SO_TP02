@@ -40,6 +40,6 @@ $(LOADEROBJECT):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
 
 clean:
-	rm -rf asm/*.o *.o *.bin drivers/*.o libs/*.o memory/*.o sync/*.o ipc/*.c
+	rm -rf asm/*.o *.o *.bin drivers/*.o libs/*.o memory/*.o sync/*.o ipc/*.o
 
 .PHONY: all clean
