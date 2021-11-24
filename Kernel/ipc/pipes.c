@@ -1,12 +1,12 @@
 #include <pipes.h>
 
-static int writeCharPipe(int pipeIdx, char c);
 static int findPipe(uint32_t id);
 static int getAvailablePipe();
+static int createPipe(uint32_t id);
 
 pipe_t pipes[MAX_PIPES];
 // Semaphore id
-uint32_t sem_id = 1; // Notify user of the id of pipes' semaphores
+uint32_t sem_id = 200; // Notify user of the id of pipes' semaphores
 unsigned int pipesCount = 0;
 
 // TODO: Arreglar pipes
@@ -21,8 +21,7 @@ void pipeOpen(uint32_t id, int *toReturn) {
         if(pipeIdx == ERROR) {
             *toReturn = ERROR;
             return;
-        }
-        
+        } 
     }
 
     pipes[pipeIdx].processCount++;
@@ -40,31 +39,23 @@ void pipeClose(uint32_t id, int *toReturn) {
         return;
     }
     
-    pipe_t toClose = pipes[pipeIdx];
-    toClose.processCount--;
+    pipes[pipeIdx].processCount--;
 
-    if(toClose.processCount > 0) {
-        *toReturn = 1;
+    if(pipes[pipeIdx].processCount > 0) {
+        *toReturn = 0;
         return;
     }
 
-    int closeR, closeW;
+    closeSemaphore(pipes[pipeIdx].semId, toReturn);
 
-    closeSemaphore(toClose.readSem, &closeR);
-    closeSemaphore(toClose.writeSem, &closeW);
-
-    if(closeR == ERROR || closeW == ERROR) {
-        *toReturn = ERROR;
+    if(*toReturn == ERROR) 
         return;
-    }
 
-    toClose.state = PIPE_FREE;
+    pipes[pipeIdx].state = PIPE_FREE;
     pipesCount--;
-
-    *toReturn = 1;
 }
 
-void pipeRead(uint32_t id, int *toReturn) {
+void pipeRead(uint32_t id, char *str, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
@@ -73,21 +64,29 @@ void pipeRead(uint32_t id, int *toReturn) {
         return;
     }
     
-    pipe_t toRead = pipes[pipeIdx];
+    pipes[id].readBlocked = BLOCKED;
+    waitSemaphore(pipes[id].semId, toReturn);
+    pipes[id].readBlocked = UNBLOCKED;
 
-    waitSemaphore(toRead.readSem, toReturn);
-    if(*toReturn == ERROR)
-        return;
+    int n = strlen(str);
+    
+    for(int i = 0; i < n; i++) {
+        while(pipes[id].readIdx == pipes[id].writeIdx) {
+            postSemaphore(pipes[id].semId, toReturn);
+            pipes[id].readBlocked = BLOCKED;
+            yield();
+            waitSemaphore(pipes[id].semId, toReturn);
+            pipes[id].readBlocked = UNBLOCKED;
+        }
+        str[i] = pipes[pipeIdx].buffer[ pipes[pipeIdx].readIdx++ % PIPE_BUF_SIZE ];
+        if(str[i] == '\0')
+            break;
+    }
 
-    char c = toRead.buffer[toRead.readIdx % PIPE_BUF_SIZE];
-    toRead.readIdx++;
-
-    postSemaphore(toRead.writeSem, toReturn);
-
-    // return c;
+    postSemaphore(pipes[id].semId, toReturn);
 }
 
-void pipeWrite(uint32_t id, char *string, int *toReturn) {
+void pipeWrite(uint32_t id, char *str, int *toReturn) {
     int pipeIdx = findPipe(id);
 
     // Check if pipe exists
@@ -95,57 +94,50 @@ void pipeWrite(uint32_t id, char *string, int *toReturn) {
         *toReturn = ERROR;
         return;
     }
+
+    pipes[id].writeBlocked = BLOCKED;
+    waitSemaphore(pipes[id].semId, toReturn);
+    pipes[id].writeBlocked = UNBLOCKED;
+
+    int n = strlen(str);
+    for(int i = 0; i < n; i++) {
+        while(pipes[id].writeIdx == pipes[id].readIdx + PIPE_BUF_SIZE) {
+            postSemaphore(pipes[id].semId, toReturn);
+            pipes[id].writeBlocked = BLOCKED;
+            yield();
+            waitSemaphore(pipes[id].semId, toReturn);
+            pipes[id].writeBlocked = UNBLOCKED;
+        }
+        pipes[id].buffer[pipes[id].writeIdx++ % PIPE_BUF_SIZE] = str[i];
+        if (str[i] == '\0')
+            break;
+    }
     
-    while(*string != 0)
-        writeCharPipe(pipeIdx, *string++);
-    
-    *toReturn = 1;
+    postSemaphore(pipes[id].semId, toReturn);
 }
 
-static int writeCharPipe(int pipeIdx, char c) {
-    pipe_t toWrite = pipes[pipeIdx];
 
-    int ans;
-
-    waitSemaphore(toWrite.writeSem, &ans);
-    
-    if(ans == ERROR)
-        return ans;
-
-    toWrite.buffer[toWrite.writeIdx] = c;
-    toWrite.writeIdx++;
-
-    int aux = 0;
-
-    postSemaphore(toWrite.readSem, &aux);
-    
-    return aux;
-}
-
-int createPipe(uint32_t id) {
+static int createPipe(uint32_t id) {
     int pipeIdx = getAvailablePipe();
 
     if(pipeIdx == ERROR)
         return ERROR;
+
+    // Check if semaphore was created
+    openSemaphore(sem_id++, 0, &pipes[pipeIdx].semId);
+    if(pipes[pipeIdx].semId == ERROR) {
+        return ERROR;
+    }
     
-    pipe_t newPipe = pipes[pipeIdx];
-    newPipe.id = id;
-    newPipe.readIdx = 0;
-    newPipe.writeIdx = 0;
-    newPipe.processCount = 0;
-    newPipe.state = PIPE_IN_USE;
+    pipes[pipeIdx].id = id;
+    pipes[pipeIdx].readIdx = 0;
+    pipes[pipeIdx].writeIdx = 0;
+    pipes[pipeIdx].readBlocked = 0;
+    pipes[pipeIdx].writeBlocked = 0;
+    pipes[pipeIdx].processCount = 0;
+    pipes[pipeIdx].state = PIPE_IN_USE;
+
     pipesCount++;
-
-    // Check if semaphores were created
-    openSemaphore(sem_id++, 0, &newPipe.readSem);
-    if(newPipe.readSem == ERROR) {
-        return ERROR;
-    }
-
-    openSemaphore(sem_id++, 0, &newPipe.writeSem);
-    if(newPipe.writeSem == ERROR) {
-        return ERROR;
-    }
 
     return id;
 }
@@ -153,7 +145,7 @@ int createPipe(uint32_t id) {
 // Returns position of pipe in the array
 static int findPipe(uint32_t id) {
     for(int i = 0; i < MAX_PIPES; i++) {
-        if(pipes[i].state && pipes[i].id == id)
+        if(pipes[i].state == PIPE_IN_USE && pipes[i].id == id)
             return i;
     }
     return ERROR;
@@ -162,7 +154,7 @@ static int findPipe(uint32_t id) {
 // Get position of the array where there is no used pipe
 static int getAvailablePipe() {
     for(int i = 0; i < MAX_PIPES; i++) {
-        if(!pipes[i].state) {
+        if(pipes[i].state == PIPE_FREE) {
             return i;
         }
     }
@@ -176,39 +168,42 @@ void printPipes(char *buffer) {
         return;
     }
     char header[8] = "\nPIPES\n";
-    char *subheader = "Pipe ID\t ReadIdx\t WriteIdx\t ReadSem\t WriteSem\n";
+    char subheader[59] = "Pipe ID|\t ReadIdx|\t WriteIdx|\t ReadBlocked|\t WriteBlocked\n";
 
     strcat(buffer, header, &i);
     strcat(buffer, subheader, &i);
 
     for(int j = 0; j < pipesCount; j++) {
-        pipe_t toPrint = pipes[j];
         
-        if(toPrint.state) {
+        if(pipes[j].state) {
             char aux[11] = {0};
 
-            itoa(toPrint.id,aux,10);
+            itoa(pipes[j].id,aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
             
-            itoa(toPrint.readIdx,aux,10);
+            itoa(pipes[j].readIdx,aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
 
-            itoa(toPrint.writeIdx, aux,10);
+            itoa(pipes[j].writeIdx, aux,10);
             strcat(buffer, aux, &i);
 
             buffer[i++] = '\t';
 
-            itoa(toPrint.readSem,aux,10);
-            strcat(buffer, aux, &i);
+            if(pipes[j].readBlocked == BLOCKED)
+                strcat(buffer, "Y", &i);
+            else
+                strcat(buffer, "N", &i);
 
             buffer[i++] = '\t';
 
-            itoa(toPrint.writeSem,aux, 10);
-            strcat(buffer, aux, &i);
+           if(pipes[j].writeBlocked == BLOCKED)
+                strcat(buffer, "Y", &i);
+            else
+                strcat(buffer, "N", &i);
 
             buffer[i++] = '\n';
         }
