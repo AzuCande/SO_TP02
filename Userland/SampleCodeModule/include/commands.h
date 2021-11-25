@@ -16,7 +16,7 @@
 
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
-#define MAX_LINES 10
+#define MAX_LINES 20
 #define BUFFER_SIZE 1024
 
 int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]);

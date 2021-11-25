@@ -297,7 +297,7 @@ int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 static void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     char c;
-    while((c = getChar()) != '\n') {
+    while((c = getChar()) != '\n' && c != (char) EOF) {
         putChar(c);
     }
     putChar('\n');
@@ -313,13 +313,14 @@ static void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     unsigned int lines = 0;
     char c;
-    while(/*((c = getChar()) != (char)EOF) &&*/ lines < MAX_LINES) { 
-        c = getChar();
+    while((c = getChar()) != (char)EOF && lines < MAX_LINES) {
         putChar(c);
         if(c == '\n') {
             lines++;
         }
-        
+    }
+    if(lines == MAX_LINES) {
+        printf("You've reached the maximum amount of lines\n");
     }
     printf("\n Amount of lines: %d\n", lines);
     processKiller();
