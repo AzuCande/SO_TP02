@@ -6,11 +6,12 @@
 #include <pipesUser.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <processesUser.h>
 
 #define MAX_PHYLOS 10
 #define MIN_PHYLOS 2
 #define SEM_PHYLO 600
+#define BG 0
 
 typedef enum {WAIT, EAT}phyloState;
 typedef enum {DEAD, ALIVE}phyloAlive;
