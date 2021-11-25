@@ -66,13 +66,10 @@ int readFrom(char * buff, uint64_t size, uint64_t * count) {
 int writeTo(registerStruct *registers) {
   int writeFd = currentWriteFd();
   if(writeFd == OUT) {
-    if(isCurrentFg()) {
-      writeStr(registers);
-      return 1;
-    }
-    return -1;
+    writeStr(registers);
+  } else {
+    int ret;
+    pipeWrite(writeFd, (char *) registers->rdi, &ret);
   }
-  int ret;
-  pipeWrite(writeFd, (char *) registers->rdi, &ret);
-  return ret;
+  return 1;
 }

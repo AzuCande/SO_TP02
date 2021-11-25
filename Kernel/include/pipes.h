@@ -19,10 +19,10 @@ typedef struct pipe_t {
     char buffer[PIPE_BUF_SIZE];
     uint16_t readIdx;
     uint16_t writeIdx;
-    int readBlocked;
-    int writeBlocked;
+    int readSem;
+    int writeSem;
     int processCount; // Number of processes using the pipe
-    int semId;
+    // int semId;
 } pipe_t;
 
 void pipeOpen(uint32_t id, int *toReturn);
