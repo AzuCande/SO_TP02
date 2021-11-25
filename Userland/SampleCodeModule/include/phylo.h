@@ -11,13 +11,13 @@
 #define MIN_PHYLOS 2
 #define SEM_PHYLO "phyloApp"
 
-enum phyloState {WAIT, EAT};
-enum phyloAlive {DEAD, ALIVE};
+typedef enum {WAIT, EAT}phyloState;
+typedef enum {DEAD, ALIVE}phyloAlive;
 
 typedef struct PhyloData {
     int id;
-    enum phyloState state;
-    enum phyloAlive isAlive;
+    phyloState state;
+    phyloAlive isAlive;
 } PhyloData;
 
 void startPhylo();

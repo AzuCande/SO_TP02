@@ -313,7 +313,7 @@ static void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
     unsigned int lines = 0;
     char c;
-    while(lines < MAX_LINES) { // TODO: agregar otra condicion de corte presionando una tecla
+    while(/*((c = getChar()) != (char)EOF) &&*/ lines < MAX_LINES) { 
         c = getChar();
         putChar(c);
         if(c == '\n') {
@@ -333,12 +333,20 @@ static void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char c;
     putChar('\n');
 
-    while((c = getChar()) != '\0'){
+    char buffer[50];
+    unsigned int i = 0;
+
+    while((c = getChar()) != '\n'){
+        putChar(c);
         if(!isVowel(c)) {
-            putChar(c);
+            // strcat(buffer, c, &i);
+            buffer[i++] = c;
         }
     }
+    buffer[i] = 0;
     putChar('\n');
+    printf("Filtered word: %s\n", buffer);
+    processKiller();
 }
 
 int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
