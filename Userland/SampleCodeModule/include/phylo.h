@@ -9,6 +9,7 @@
 #include <processesUser.h>
 
 #define MAX_PHYLOS 10
+#define BASE_PHYLOS 5
 #define MIN_PHYLOS 2
 #define SEM_PHYLO 600
 #define BG 0
@@ -22,11 +23,6 @@ typedef struct PhyloData {
     phyloAlive isAlive;
 } PhyloData;
 
-void startPhylo();
-void phylo(int);
-void addPhylo();
-void removePhylo();
-void printPhylo();
-void endPhylo(int);
+void philosopherProblem(int argc, char **argv);
 
 #endif

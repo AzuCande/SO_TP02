@@ -355,12 +355,8 @@ int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("filter", filter, args);
 }
 
-static void phylo(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    //TODO develope
-}
-
 int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return buildProcess("phylo", phylo, args);
+    return buildProcess("phylo", philosopherProblem, args);
 }
 
 static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG_LEN]), char args[][MAX_ARG_LEN]) {

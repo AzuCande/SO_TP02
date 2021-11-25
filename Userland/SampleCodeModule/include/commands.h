@@ -13,6 +13,7 @@
 #include <tests.h>
 #include <stddef.h>
 #include <processesUser.h>
+#include <phylo.h>
 
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
