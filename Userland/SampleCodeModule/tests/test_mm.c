@@ -12,28 +12,6 @@ typedef struct MM_rq
 } mm_rq;
 
 void test_mm() {
-  // void * test = myMalloc(10);
-  // if(test == NULL)
-  //   printf("todo mal 1\n");
-  // else {
-  //   memoryset(test,1,10);
-  //   if(memcheck(test,1,10) == 0)
-  //     printf("todo mal 2\n");
-    // else
-    //   {
-    //     myFree(test);
-    //     printf("hizo free\n");
-        // test = myMalloc(10);
-        // memoryset(test,2,10);
-        // if (memcheck(test,2,10) == 0)
-        //   printf("todo mal 3\n");
-        // else {
-    //       printf("anduvo 2\n");
-    //       myFree(test);
-    //       printf("hizo free 2\n");
-    //     }
-    //   }
-  // }
   mm_rq mm_rqs[MAX_BLOCKS];
 
   printf("Comienza el test de memoria:\n");

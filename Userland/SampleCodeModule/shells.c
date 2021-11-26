@@ -81,7 +81,7 @@ void init_shell() {
 
 void writeToLines(char * buff, int dim) {
     for (int i = 0; i < dim && buff[i] != 0; i++) {
-        if (buff[i] == '\n' || lineCursor == (MAX_LINE_LENGTH - 3)) { //El -3 es para que el ultimo elemento sea un 0 y no toma en cuanta los "> "
+        if (buff[i] == '\n' || lineCursor == (MAX_LINE_LENGTH - 3)) {
             if (lineCursor > 0) {
                 addLine();
             }
@@ -160,10 +160,6 @@ static void exeCommand(char * line) {
         if (line[index] != ' ' && line[index] != '-') {
             commandArgs[foundArgs][nameIndex++] = line[index];
         } 
-        // else if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
-        //     foundArgs++;
-        //     nameIndex = 0;
-
         index++;
     }
 
@@ -177,20 +173,6 @@ static void exeCommand(char * line) {
         printf(" - INVALID COMMAND");
         return;
     }
-
-    // char readyArgv1[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
-    // int readyArgc1;
-
-    // for(readyArgc1 = 0; readyArgc1 < pipePos; readyArgc1++) {
-    //     strcpy(readyArgv1[readyArgc1], commandArgs[readyArgc1+1]);
-    // }
-
-    // char readyArgv2[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
-    // int readyArgc2;
-
-    // for(readyArgc2 = pipePos+2; readyArgc2 < foundArgs; readyArgc2++) {
-    //     strcpy(readyArgv2[readyArgc2], commandArgs[readyArgc2+1]);
-    // }
 
     // Check if pipe
     if(j) {
@@ -234,21 +216,9 @@ static void exeCommand(char * line) {
             // fdOut
             itoa(1, aux, 10);
             strcpy(arguments[index++], aux); 
-            
-            // // argv
-            // // First argument of commandArgs is the command itself
-            // for(int j = 1; index < argQty; j++) {
-            //     strcpy(arguments[index++], commandArgs[j]);
-            // }
             run[i](arguments);
         }
     }
-
-    // if (i >= 0) {
-    //     run[i](commandArgs);
-    // } else {
-    //     printf(" - INVALID COMMAND");
-    // }
 
 }
 

@@ -5,8 +5,6 @@
 #include <stddef.h>
 #include <semaphoresUser.h>
 
-// #define NULL (void*)0
-
 #define TOTAL_PAIR_PROCESSES 2
 #define SEM_ID 101
 
