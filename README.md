@@ -1,4 +1,4 @@
-# TPE ARQUITECTURA DE COMPUTADORAS - 1er CUATRIMESTRE 2021
+# TPE SISTEMAS OPERATIVOS - 2do CUATRIMESTRE 2021
 ***
 ## Autores:
 * De Luca, Juan Manuel - 60103 - jdeluca@itba.edu.ar
