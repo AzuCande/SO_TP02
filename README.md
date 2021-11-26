@@ -33,6 +33,7 @@
 * `kill [PID]` Mata al proceso con el ID pedido.
 * `nice [PID,priority]` Cambia la prioridad del proceso PID por la asignada.
 * `block [PID]` Bloquea un proceso con el dado PID.
+* `unblock [PID]` Desbloquea un proceso con el dado PID.
 * `sem` Despliega el estado de los semáforos.
 * `pipe` Despliega el estado de las tuberías.
 * `cat` Muestra el standard input.

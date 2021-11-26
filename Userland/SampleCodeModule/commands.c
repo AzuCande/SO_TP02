@@ -116,7 +116,8 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t loop - prints current process ID on loop\n");
     printf("\t kill [PID] - kills process with given ID\n");
     printf("\t nice [PID,priority] - switches process priority with given ID and priority\n");
-    printf("\t block [PID] - switches process state with given ID\n");
+    printf("\t block [PID] - switches process state to blocked with given ID\n");
+    printf("\t unblock [PID] - switches process state to unblocked with given ID\n");
 
     printf("\t sem - displays list of semaphores with further data\n");
 
@@ -124,6 +125,7 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t wc - prints amount of input lines\n");
     printf("\t filter - deletes vowels from the input\n");
     printf("\t pipe - displays list of pipes and further data\n");
+    printf("\t phylo - starts phylo app\n");  
 
     //Tests
     printf("\t testmem - runs test for memory manager\n");
@@ -131,10 +133,6 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("\t testprio - runs test for scheduler\n");
     printf("\t testsync - runs test for process synchronization in BG\n");
     printf("\t testnosync - runs test for process synchronization (no semaphores) in BG\n");
-
-
-    //printf("\t phylo - starts phylo app\n");    
-
 
     return 1;
 }
