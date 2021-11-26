@@ -7,7 +7,6 @@ static void format(char *str, int value);
 static void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
 static void wc(char args[MAX_ARGS][MAX_ARG_LEN]);
 static void filter(char args[MAX_ARGS][MAX_ARG_LEN]);
-static void phylo(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');

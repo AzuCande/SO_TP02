@@ -13,7 +13,7 @@ static void printWelcomeMessage();
 static void philosopherManager(int phyloSem);
 
 
-int totalPhilosophers = 0;
+int totalPhilosophers = BASE_PHYLOS;
 PhyloData philosophers[MAX_PHYLOS];
 
 // Number of i's right neighbour
@@ -24,11 +24,11 @@ PhyloData philosophers[MAX_PHYLOS];
 static void createPhylo(int phyloIdx) {
     char *argv[3];
 
-    strcpy(argv[0], "philosopher");
+    argv[0] = "philosopher";
 
     char aux[11];
     itoa(phyloIdx, aux, 10);
-    strcpy(argv[1], aux);
+    argv[1] = aux;
 
     argv[2] = NULL;
 
@@ -39,12 +39,12 @@ static void createPhylo(int phyloIdx) {
 
 static void addPhylos() {
     for(int i = 0; i < totalPhilosophers; i++) {
-        createPhilosopher(i);
+        createPhylo(i);
     }
 }
 
 static void addPhylo() {
-    createPhilosopher(totalPhilosophers++);
+    createPhylo(totalPhilosophers++);
 }
 
 static void removePhylo() {
@@ -53,7 +53,7 @@ static void removePhylo() {
 }
 
 static int phyloWantsToEat(int phyloIdx) {
-    if(philosophers[LEFT(phyloIdx)].state == EAT || philosophers[RIGHT(phyloIdx)].state == EAT)
+    if(philosophers[RIGHT(phyloIdx)].state == EAT || philosophers[LEFT(phyloIdx)].state == EAT)
         return 0;
     return 1;
 }
@@ -83,12 +83,12 @@ static void phylo(int argc, char *argv[]) {
     int phyloSem = sem_open(SEM_PHYLO, 1);
     int currentPhylo = atoi(argv[1]);
 
-    while(philosophers[currentPhylo].isAlive == ALIVE || philosophers[currentPhylo].state == EAT) {
+    while(philosophers[currentPhylo].isAlive != DEAD || philosophers[currentPhylo].state == EAT) {
         sem_wait(phyloSem);
         
         // If eating, make the philosopher wait
-        if(philosophers[currentPhylo].state == EAT) {
-            leaveFork(currentPhylo);
+        if(philosophers[currentPhylo].state) {
+            phyloLeaveFork(currentPhylo);
         } else {
             if(phyloWantsToEat(currentPhylo)) {
                 philosophers[currentPhylo].state = EAT;
@@ -115,40 +115,42 @@ static void philosopherManager(int phyloSem) {
 
     while(1) {
         c = getChar();
-
-        switch(c) {
-            case 'a':
-                if(totalPhilosophers < MAX_PHYLOS) {
-                    printf("A new philosopher joined! There are %d philosophers now.\n", totalPhilosophers + 1);
-                    addPhylo();
-                } else {
-                    printf("Can\'t add another philosopher. Maximum 10 philosophers.\n");
-                }
-                break;
-            case 'r':
-                if(totalPhilosophers > MIN_PHYLOS) {
-                    printf("One philosopher has left! There are %d philosophers noew.\n", totalPhilosophers - 1);
-                    removePhylo();
-                } else {
-                    printf("Can\'t remove another philosopher. Minimum 2 philosophers.\n");
-                }
-                break;
-            case 'q':
-                printf("Program finished!\n");
-                endPhylos();
-                return;
-            case EOF:
-                printf("Program finished!\n");
-                endPhylos();
-                return;
-            default:
-                break;
+        
+        if(c != '\0') {
+            switch(c) {
+                case 'a':
+                    if(totalPhilosophers < MAX_PHYLOS) {
+                        printf("A new philosopher joined! There are %d philosophers now.\n", totalPhilosophers + 1);
+                        addPhylo();
+                    } else {
+                        printf("Can\'t add another philosopher. Maximum 10 philosophers.\n");
+                    }
+                    break;
+                case 'r':
+                    if(totalPhilosophers > MIN_PHYLOS) {
+                        printf("One philosopher has left! There are %d philosophers noew.\n", totalPhilosophers - 1);
+                        removePhylo();
+                    } else {
+                        printf("Can\'t remove another philosopher. Minimum 2 philosophers.\n");
+                    }
+                    break;
+                case 'q':
+                    printf("Program finished!\n");
+                    endPhylos();
+                    return;
+                case EOF:
+                    printf("Program finished!\n");
+                    endPhylos();
+                    return;
+                default:
+                    break;
+            }
         }
 
     }
 }
 
-void philosopherProblem(int argc, char **argv) {
+void philosopherProblem(/*int argc, char **argv*/) {
     totalPhilosophers = BASE_PHYLOS;
     int phyloSem = sem_open(SEM_PHYLO, 1);
 
@@ -160,8 +162,6 @@ void philosopherProblem(int argc, char **argv) {
 
     philosopherManager(phyloSem);
     sem_close(phyloSem);
-
-    totalPhilosophers = 0;
 
     putChar(EOF);
     processKiller();
