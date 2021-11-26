@@ -15,9 +15,8 @@ static void clearShellLine(int line);
 static void drawBottomLine();
 static int isCommand(char * name);
 static int isBuiltin(char *command);
-static int isPipe(char *pipe);
-static int isAmpersand(char *arg);
-static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground);
+static int pipeWrapper(int posCommand1, int posCommand2, int foreground);
+static int processPipeCreator(int commandIndex, int fg, int fdIn, int fdOut);
 
 static char lines[TOTAL_LINES][MAX_LINE_LENGTH];
 static int currentLine = 0;
@@ -40,6 +39,8 @@ void init_shell() {
             lines[i][j] = 0;
         }
     }
+
+    setFunctionKey(5, processKiller);
     setConsoleUpdateFunction(updateShell);
 
     if (errCode < 32) {
@@ -150,11 +151,9 @@ static void exeCommand(char * line) {
     int index = 0;
     int nameIndex = 0;
     int foreground = 1;
-
-    int pipePos = 0;
     
     while (line[index] != 0 && line[index] != '\n' && foundArgs < 10) {
-        if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
+        if (index != 0 && line[index-1] == ' ') {
             foundArgs++;
             nameIndex = 0;
         }
@@ -164,47 +163,44 @@ static void exeCommand(char * line) {
         // else if (index != 0 && line[index-1] == ' ' && isAlfaNum(line[index])) {
         //     foundArgs++;
         //     nameIndex = 0;
-        if(line[index] == '|') {
-            pipePos = index;
-        }
 
         index++;
     }
 
-    if(isAmpersand(commandArgs[foundArgs])) {
-        foreground = 0;
-    }
+    foreground = (strcmp(commandArgs[foundArgs], "&") != 0);
     
     int i = isCommand(commandArgs[0]);
-    int j = isPipe(commandArgs[pipePos]);
-    int k = isCommand(commandArgs[pipePos + 1]);
+    int j = (strcmp(commandArgs[1], "|") == 0);
+    int k = isCommand(commandArgs[2]);
     
     if(i == ERROR)  {
         printf(" - INVALID COMMAND");
         return;
     }
 
-    char readyArgv1[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
-    int readyArgc1;
+    // char readyArgv1[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
+    // int readyArgc1;
 
-    for(readyArgc1 = 0; readyArgc1 < pipePos; readyArgc1++) {
-        strcpy(readyArgv1[readyArgc1], commandArgs[readyArgc1+1]);
-    }
+    // for(readyArgc1 = 0; readyArgc1 < pipePos; readyArgc1++) {
+    //     strcpy(readyArgv1[readyArgc1], commandArgs[readyArgc1+1]);
+    // }
 
-    char readyArgv2[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
-    int readyArgc2;
+    // char readyArgv2[7][MAX_ARG_LEN] = {{0}};  // | and the commands not taken into account
+    // int readyArgc2;
 
-    for(readyArgc2 = pipePos+2; readyArgc2 < foundArgs; readyArgc2++) {
-        strcpy(readyArgv2[readyArgc2], commandArgs[readyArgc2+1]);
-    }
+    // for(readyArgc2 = pipePos+2; readyArgc2 < foundArgs; readyArgc2++) {
+    //     strcpy(readyArgv2[readyArgc2], commandArgs[readyArgc2+1]);
+    // }
 
     // Check if pipe
     if(j) {
         // Check if second command is valid
         if(k != ERROR) {
             // Check if commands are builtin
-            if(!(isBuiltin(commandArgs[0]) || isBuiltin(commandArgs[pipePos+1]))) {
-                pipeWrapper(i, k, readyArgv1, readyArgc1, readyArgv2, readyArgc2, foreground);
+            if(!(isBuiltin(commandArgs[0]) && !isBuiltin(commandArgs[2]))) {
+                int res = pipeWrapper(i, k, foreground);
+                if(res == ERROR)
+                    return;
             } else {
                 printf(" - INVALID COMMANDS FOR PIPE");
                 return;
@@ -217,33 +213,33 @@ static void exeCommand(char * line) {
         if(isBuiltin(commandArgs[0])) {
             run[i] (commandArgs);
         } else {
-            int argQty = foundArgs + 4;    // argc, args, foreground, fdIn, fdOut
+            int argQty = 4;    // argc, foreground, fdIn, fdOut
             char arguments[argQty][MAX_ARG_LEN];
 
             int index = 0;
             char aux[11] = {0};
 
             // argc
-            intToString(foundArgs, aux);
+            itoa(0, aux, 10);
             strcpy(arguments[index++], aux);
 
             // foreground
-            intToString(foreground, aux);
+            itoa(foreground, aux, 10);
             strcpy(arguments[index++], aux);
 
             // fdIn
-            intToString(0, aux);
+            itoa(0, aux, 10);
             strcpy(arguments[index++],aux);
 
             // fdOut
-            intToString(1, aux);
+            itoa(1, aux, 10);
             strcpy(arguments[index++], aux); 
             
-            // argv
-            // First argument of commandArgs is the command itself
-            for(int j = 1; index < argQty; j++) {
-                strcpy(arguments[index++], commandArgs[j]);
-            }
+            // // argv
+            // // First argument of commandArgs is the command itself
+            // for(int j = 1; index < argQty; j++) {
+            //     strcpy(arguments[index++], commandArgs[j]);
+            // }
             run[i](arguments);
         }
     }
@@ -275,17 +271,8 @@ static int isBuiltin(char *command) {
     return 1;
 }
 
-static int isPipe(char *pipe) {
-    return pipe[0] == '|';
-}
-
-static int isAmpersand(char *arg) {
-    return arg[0] == '&';
-}
-
-static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MAX_ARG_LEN], int argc1, char args2[MAX_ARGS][MAX_ARG_LEN], int argc2, int foreground) {
+static int pipeWrapper(int posCommand1, int posCommand2, int foreground) {
     int pids[2];
-    unsigned int fds[2];
 
     int pipe = pipe_open(pipeId++);
 
@@ -294,82 +281,46 @@ static int pipeWrapper(int posCommand1, int posCommand2, char args1[MAX_ARGS][MA
         return ERROR;
     }
 
-    fds[0] = pipe;
-    fds[1] = 1;
-
-    // cat asdj ajodas | cat asca a
-    int argQty = argc1 + 4;    // argc, args1, foreground, fdIn, fdOut
-    char arguments1[argQty][MAX_ARG_LEN];
-    
-    int index = 0;
-    char aux[11] = {0};
-
-    // argc
-    intToString(argc1, aux);
-    strcpy(arguments1[index++], aux);
-
-    // foreground
-    intToString(foreground, aux);
-    strcpy(arguments1[index++], aux);
-
-    // fdIn
-    intToString(fds[0], aux);
-    strcpy(arguments1[index++],aux);
-
-    // fdOut
-    intToString(fds[1], aux);
-    strcpy(arguments1[index++],aux);
-
-    for(int i=0; index< argQty; i++) {
-        // argv
-        strcpy(arguments1[index++], args1[i]);
-    }
-
-    pids[0] = run[posCommand1](arguments1);
+    pids[0] = processPipeCreator(posCommand2, 0, pipe, 1); // runs in background
 
     if(pids[0] == ERROR) {
         pipe_close(pipe);
         return ERROR;
     }
 
-    fds[0] = 0;
-    fds[1] = pipe;
-
-    char arguments2[argQty][MAX_ARG_LEN];
-    argQty = argc2 + 4;    // argc, foreground, fdIn, fdOut, argv
-
-    index = 0;
-
-    // argc
-    intToString(argc2, aux);
-    strcpy(arguments2[index++], aux);
-
-    // foreground
-    intToString(foreground, aux);
-    strcpy(arguments2[index++], aux);
-
-    // fdIn
-    intToString(fds[0], aux);
-    strcpy(arguments2[index++],aux);
-
-    // fdOut
-    intToString(fds[1], aux);
-    strcpy(arguments2[index++],aux);
-
-    for(int i=0; index< argQty; i++) {
-        // argv
-        strcpy(arguments2[index++], args2[i]);
-    }
-
-    pids[1] = (int) run[posCommand2](arguments2);
+    pids[1] = processPipeCreator(posCommand1, foreground, 0, pipe);
 
     if(pids[1] == ERROR) {
         pipe_close(pipe);
         return ERROR;
     }
 
-    // TODO: terminar esto
     return 1;
+}
+
+static int processPipeCreator(int commandIndex, int fg, int fdIn, int fdOut) {
+    char arguments[4][MAX_ARG_LEN];
+
+    int index = 0;
+    char aux[11] = {0};
+
+    // argc
+    itoa(0, aux, 10);
+    strcpy(arguments[index++], aux);
+
+    // foreground
+    itoa(fg, aux, 10);
+    strcpy(arguments[index++], aux);
+
+    // fdIn
+    itoa(fdIn, aux, 10);
+    strcpy(arguments[index++],aux);
+
+    // fdOut
+    itoa(fdOut, aux, 10);
+    strcpy(arguments[index++],aux);
+
+    return run[commandIndex](arguments);
 }
 
 void keyPressedShell(char ch) {

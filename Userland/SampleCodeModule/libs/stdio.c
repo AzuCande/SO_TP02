@@ -98,7 +98,11 @@ void putChar(char ch) {
 char getChar() {
   char ch = 0;
   uint64_t count;
-  readKeyboardSysCall(&ch, 1, &count);
+  int res = readKeyboardSysCall(&ch, 1, &count);
+  if(res == -1) {
+    printf("\n ERROR IN READ\n");
+    return ':';
+  }
   return ch;
 }
 

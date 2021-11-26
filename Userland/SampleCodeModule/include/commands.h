@@ -13,9 +13,11 @@
 #include <tests.h>
 #include <stddef.h>
 #include <processesUser.h>
+#include <phylo.h>
 
 #define MAX_ARGS 10
 #define MAX_ARG_LEN 32
+#define MAX_LINES 20
 #define BUFFER_SIZE 1024
 
 int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]);
@@ -40,20 +42,16 @@ int killCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 int niceCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 int blockCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 int unblockCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
-void loop(char args[MAX_ARGS][MAX_ARG_LEN]);
 int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int sem(char args[MAX_ARGS][MAX_ARG_LEN]);
 
-void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
+// void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
 int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
-void wc(char args[MAX_ARGS][MAX_ARG_LEN]);
 int wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
-void filter(char args[MAX_ARGS][MAX_ARG_LEN]);
 int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int pipe(char args[MAX_ARGS][MAX_ARG_LEN]);
-void phylo(char args[MAX_ARGS][MAX_ARG_LEN]);
 int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int testMemCommand(char args[MAX_ARGS][MAX_ARG_LEN]);

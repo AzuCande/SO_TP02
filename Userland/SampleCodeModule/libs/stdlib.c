@@ -230,4 +230,10 @@ char* itoa(uint64_t value, char* buffer, int base)
     return reverse(buffer, 0, i - 1);
 }
 
+void strcat(char * destination, char * source, unsigned int *index) {
+	for(int i = 0; source[i]; (*index)++, i++) {
+		destination[*index] = source[i];
+	}
+}
+
 #endif

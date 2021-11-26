@@ -1,4 +1,4 @@
-# TPE ARQUITECTURA DE COMPUTADORAS - 1er CUATRIMESTRE 2021
+# TPE SISTEMAS OPERATIVOS - 2do CUATRIMESTRE 2021
 ***
 ## Autores:
 * De Luca, Juan Manuel - 60103 - jdeluca@itba.edu.ar
@@ -38,7 +38,12 @@
 * `cat` Muestra el standard input.
 * `wc` Muestra la cantidad de líneas del standard input.
 * `filter` Muestra el standard input, eliminando vocales.
+* `phylo` Implementa el problema de los filósofos comensales.
 * `testmem` Corre el test para el memory manager.
+* `testprocess` Corre el test para el scheduler.
+* `testprio` Corre el test para cambiar las prioridades de los procesos.
+* `testsync` Corre el test para la sincronización (con semáforos).
+* `testnosync` Corre el test para la sincronización (sin semáforos).
 
 ##### Comandos anteriores
 * `datetime` Muestra la fecha y hora del Sistema Operativo.
@@ -51,7 +56,9 @@
 
 
 #### Teclas especiales
+* F5 - Sirve para matar el proceso que se encuentra en foreground.
 * F12 - Sirve para guardar el estado de los registros.
+* CTRL + C - EOF.
 
 Un progrmador podría setear la funcionalidad que quiera para las teclas F1 a F10 mediante punteros a función.
 
@@ -84,20 +91,20 @@ Las syscalls a disposición del usuario son las siguientes: <br>
 | 21   | killProcess          | unsigned int pid     | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 22   | resignCPU            | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 23   | exitProcess          | -                    | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 24   | pipeOpen             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 25   | pipeClose            | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 26   | pipeRead             | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 27   | pipeWrite            | uint32_t id          | char * argv      | -                 | -               | -                  | -                 | -                 | -                 |
-| 28   | createPipe           | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 24   | pipeOpen             | uint32_t id          | int * toReturn   | -                 | -               | -                  | -                 | -                 | -                 |
+| 25   | pipeClose            | uint32_t id          | int * toReturn   | -                 | -               | -                  | -                 | -                 | -                 |
+| 26   | pipeRead             | uint32_t id          | char * str       | int *toReturn     | -               | -                  | -                 | -                 | -                 |
+| 27   | pipeWrite            | uint32_t id          | char * buff      | int *toReturn     | -               | -                  | -                 | -                 | -                 |
+| 28   | printMem             | char * buffer        | int size         | -                 | -               | -                  | -                 | -                 | -                 |
 | 29   | printPipes           | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 30   | openSemaphore        | uint32_t id          | uint32_t initVal | -                 | -               | -                  | -                 | -                 | -                 |
-| 31   | waitSemaphore        | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 32   | postSemaphore        | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
-| 33   | closeSemaphore       | uint32_t id          | -                | -                 | -               | -                  | -                 | -                 | -                 |
+| 30   | openSemaphore        | uint32_t id          | uint32_t initVal | int *toReturn     | -               | -                  | -                 | -                 | -                 |
+| 31   | waitSemaphore        | uint32_t id          | int * toReturn   | -                 | -               | -                  | -                 | -                 | -                 |
+| 32   | postSemaphore        | uint32_t id          | int * toReturn   | -                 | -               | -                  | -                 | -                 | -                 |
+| 33   | closeSemaphore       | uint32_t id          | int * toReturn   | -                 | -               | -                  | -                 | -                 | -                 |
 | 34   | printSemaphore       | char * buffer        | -                | -                 | -               | -                  | -                 | -                 | -                 |
 | 35   | sbrSyscall           | uint64_t size        | void ** pointMem | -                 | -               | -                  | -                 | -                 | -                 |
-| 36   | printMem             | char * buffer        | int size         | -                 | -               | -                  | -                 | -                 | -                 |
-| 37   | unblockProcess       | unsigned int pid     | -                | -                 | -               | -                  | -                 | -                 | -                 |
+
+
 
 #### stdio
 Las funciones implementadas son:

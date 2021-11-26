@@ -2,6 +2,11 @@
 
 static void format(char *str, int value);
 static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG_LEN]), char args[][MAX_ARG_LEN]);
+static void loop(char args[MAX_ARGS][MAX_ARG_LEN]);
+static void format(char *str, int value);
+static void cat(char args[MAX_ARGS][MAX_ARG_LEN]);
+static void wc(char args[MAX_ARGS][MAX_ARG_LEN]);
+static void filter(char args[MAX_ARGS][MAX_ARG_LEN]);
 
 int dateTime(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
@@ -146,7 +151,6 @@ int echo(char args[MAX_ARGS][MAX_ARG_LEN]) {
         printf("%s ", args[i]);
     }
     putChar('\n');
-
     return 1;
 }
 
@@ -195,12 +199,12 @@ int niceCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     uint64_t priority = atoi(args[2]);
     if(id < 0 || priority <= 0) {
         printf("Invalid arguments\n");
-        return;
+        return -1;
     }
     if(nice(id, priority) < 0) {
-        printf("Priority successfully changed\n");
+        printf("Priority change failed\n");
     } else {
-        printf("Priority change failed");
+        printf("Priority successfully changed\n");
     }
     
     return 1;
@@ -270,12 +274,12 @@ int testPrioCommand(char args[MAX_ARGS][MAX_ARG_LEN])  {
     return buildProcess("testprio", test_prio, args);
 }
 
-void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
+static void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int pid = getPid();
     putChar('\n');
     
-    while(1) {
-        printf("Hi! You ran the loop command, the PID is: %d. To go back, restart the terminal.\n", pid);
+    while(1) { // TODO: agregar otra condicion de corte presionando una tecla
+        printf("Hi! You ran the loop command, the PID is: %d. To quit the loop, press F5\n", pid);
 
         int ticksEnd = getTicks() + 5;
         while(getTicks() < ticksEnd) {
@@ -289,45 +293,60 @@ int loopCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("loop", loop, args);
 }
 
-void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
+static void cat(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    for(int i = 1; args[i][0] && i < MAX_ARGS; i++){
-        printf("%s ", args[i]);
+    char c;
+    while((c = getChar()) != '\n' && c != (char) EOF) {
+        putChar(c);
     }
     putChar('\n');
+    processKiller();
 }
 
 int catCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    putChar('\n');
+    // isProcess = 1;
     return buildProcess("cat", cat, args);
 }
 
-void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
+static void wc(char args[MAX_ARGS][MAX_ARG_LEN]) {
+    putChar('\n');
     unsigned int lines = 0;
     char c;
-    while((c = getChar()) != '\0'){
+    while((c = getChar()) != (char)EOF && lines < MAX_LINES) {
+        putChar(c);
         if(c == '\n') {
             lines++;
         }
-        
+    }
+    if(lines == MAX_LINES) {
+        printf("You've reached the maximum amount of lines\n");
     }
     printf("\n Amount of lines: %d\n", lines);
+    processKiller();
 }
 
 int wcCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("wc", wc, args);
 }
 
-void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
+static void filter(char args[MAX_ARGS][MAX_ARG_LEN]) {
     char c;
     putChar('\n');
 
-    while((c = getChar()) != '\0'){
+    char buffer[50];
+    unsigned int i = 0;
+
+    while((c = getChar()) != '\n'){
+        putChar(c);
         if(!isVowel(c)) {
-            putChar(c);
+            // strcat(buffer, c, &i);
+            buffer[i++] = c;
         }
     }
+    buffer[i] = 0;
     putChar('\n');
+    printf("Filtered word: %s\n", buffer);
+    processKiller();
 }
 
 int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
@@ -335,12 +354,8 @@ int filterCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
     return buildProcess("filter", filter, args);
 }
 
-void phylo(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    //TODO develope
-}
-
 int phyloCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
-    return buildProcess("phylo", phylo, args);
+    return buildProcess("phylo", philosopherProblem, args);
 }
 
 static int buildProcess(char *name, void (*entryPoint) (/*int, */char [][MAX_ARG_LEN]), char args[][MAX_ARG_LEN]) {

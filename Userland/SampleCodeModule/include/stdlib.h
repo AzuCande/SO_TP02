@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define EOF -1
+
 int atoi(char * str);
 int intToString(unsigned long long num, char * buffer);
 int strlen(char *str);
@@ -16,5 +18,6 @@ char toLower(char letter);
 int isVowel(char letter);
 int isAlfaNum(char c);
 char* itoa(uint64_t value, char* buffer, int base);
+void strcat(char * destination, char * source, unsigned int *index);
 
 #endif

@@ -10,27 +10,25 @@
 #define ERROR -1
 #define PIPE_IN_USE 1
 #define PIPE_FREE 0
+#define BLOCKED 1
+#define UNBLOCKED 0
 
-typedef struct pipe{
+typedef struct pipe_t {
     int state;
-    // TODO Despues nos fijamos bien si usar id o no
     int id;
     char buffer[PIPE_BUF_SIZE];
-
-    unsigned int readIdx;
-    unsigned int writeIdx;
-
+    uint16_t readIdx;
+    uint16_t writeIdx;
     int readSem;
     int writeSem;
-
     int processCount; // Number of processes using the pipe
+    // int semId;
 } pipe_t;
 
 void pipeOpen(uint32_t id, int *toReturn);
 void pipeClose(uint32_t id, int *toReturn);
-void pipeRead(uint32_t id, int *toReturn);
+void pipeRead(uint32_t id, char *str, int *toReturn);
 void pipeWrite(uint32_t id, char *string, int *toReturn);
-int createPipe(uint32_t id);
 void printPipes(char *buffer);
 
 #endif
