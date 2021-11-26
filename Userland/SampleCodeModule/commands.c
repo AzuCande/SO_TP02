@@ -88,8 +88,9 @@ int help(char args[MAX_ARGS][MAX_ARG_LEN]) {
     printf("This is the Help Center\n");
 
     printf("\tSpecial keys:\n");   
-    // printf("\t* F1 - switch between shells\n");
+    printf("\t* F5 - kills process in  foreground\n");
     printf("\t* F12 - saves the values of the registers\n");
+    printf("\t* CTRL + c - sends EOF\n");
 
     printf("\tCommands:\n");
 
@@ -174,7 +175,7 @@ int mem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int ps(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     psSyscall(buffer);
     printf("%s\n", buffer);
     return 1;
@@ -233,7 +234,7 @@ int unblockCommand(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     semSyscall(buffer);
     printf("%s\n", buffer);
     return 1;
@@ -241,7 +242,7 @@ int sem(char args[MAX_ARGS][MAX_ARG_LEN]) {
 
 int pipe(char args[MAX_ARGS][MAX_ARG_LEN]) {
     putChar('\n');
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     pipeSyscall(buffer);
     printf("%s\n", buffer);
     return 1;

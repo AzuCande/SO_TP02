@@ -109,7 +109,7 @@ void test_processes(){
           p_rqs[rq].state = RUNNING; 
         }
     } 
-    printf("Passed");
+    printf("Passed\n");
     processKiller();
   }
 }
