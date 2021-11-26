@@ -276,7 +276,7 @@ static void loop(char args[MAX_ARGS][MAX_ARG_LEN]) {
     unsigned int pid = getPid();
     putChar('\n');
     
-    while(1) { // TODO: agregar otra condicion de corte presionando una tecla
+    while(1) {
         printf("Hi! You ran the loop command, the PID is: %d. To quit the loop, press F5\n", pid);
 
         int ticksEnd = getTicks() + 5;
