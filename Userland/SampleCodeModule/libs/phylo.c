@@ -128,7 +128,7 @@ static void philosopherManager(int phyloSem) {
                     break;
                 case 'r':
                     if(totalPhilosophers > MIN_PHYLOS) {
-                        printf("One philosopher has left! There are %d philosophers noew.\n", totalPhilosophers - 1);
+                        printf("One philosopher has left! There are %d philosophers now.\n", totalPhilosophers - 1);
                         removePhylo();
                     } else {
                         printf("Can\'t remove another philosopher. Minimum 2 philosophers.\n");
@@ -164,5 +164,8 @@ void philosopherProblem(/*int argc, char **argv*/) {
     sem_close(phyloSem);
 
     putChar(EOF);
+    for (int i = 0; i < MAX_PHYLOS; i++) {
+        kill(philosophers[i].id);
+    }
     processKiller();
 }
